@@ -9,7 +9,7 @@ const initState = {
 };
 export default (state = initState, action) => {
     switch (action.type) {
-        case roleConstants.GETALL_ROLE_REQUEST:
+        case roleConstants.GET_ALL_ROLE_REQUEST:
             state = {
                 ...state,
                 loading: true,
@@ -17,7 +17,7 @@ export default (state = initState, action) => {
                 error: ''
             };
             break;
-        case roleConstants.GETALL_ROLE_SUCCESS:
+        case roleConstants.GET_ALL_ROLE_SUCCESS:
             state = {
                 ...state,
                 loading: false,
@@ -25,7 +25,7 @@ export default (state = initState, action) => {
                 roles: action.payload.roles
             };
             break;
-        case roleConstants.GETALL_ROLE_FAILURE:
+        case roleConstants.GET_ALL_ROLE_FAILURE:
             state = {
                 ...state,
                 loading: false,

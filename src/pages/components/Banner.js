@@ -32,7 +32,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addBanner, getAllBanner, getDataFilterBanner } from 'actions/banner';
+import { addBanner, getDataFilterBanner } from 'actions/banner';
 import { PlusOutlined } from '@ant-design/icons';
 const { TabPane } = Tabs;
 // styles

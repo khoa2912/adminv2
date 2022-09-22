@@ -4,7 +4,10 @@ import { styled } from '@mui/material/styles';
 // project import
 import ComponentSkeleton from './ComponentSkeleton';
 import MainCard from 'components/MainCard';
+import { Card as CardANTD, Spin } from 'antd';
+import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/antd/lib/index';
 import { DataGrid } from '@mui/x-data-grid';
+import SearchIcon from '@mui/icons-material/Search';
 import {
     Box,
     Button,
@@ -17,7 +20,6 @@ import {
     FormControl,
     InputLabel,
     OutlinedInput,
-    Select,
     MenuItem,
     CardActions
 } from '../../../node_modules/@mui/material/index';
@@ -30,7 +32,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addRole, getAllRole } from 'actions/role';
+import { addRole, getDataFilterRole } from 'actions/role';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -41,10 +43,24 @@ const IFrameWrapper = styled('iframe')(() => ({
 // ============================|| ANT ICONS ||============================ //
 
 const RolePage = () => {
+    const { Option } = Select;
     const dispatch = useDispatch();
+    const [searchModel, setSearchModel] = useState({
+        Role_Name: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [roleInPage, setRoleInPage] = useState([]);
     useEffect(() => {
-        dispatch(getAllRole());
-    }, []);
+        setLoading(true);
+        dispatch(getDataFilterRole()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setRoleInPage(data);
+            setLoading(false);
+        });
+    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(getAllRole());
+    // }, []);
     const text = 'Bạn có chắc chắn muốn xoá?';
     const auth = useSelector((state) => state.auth);
     const role = useSelector((state) => state.role);
@@ -56,11 +72,6 @@ const RolePage = () => {
     const [descriptionRole, setDescriptionRole] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
-    useEffect(() => {
-        if (role.roles) {
-            role.roles.map((item, index) => (item.id = index + 1));
-        }
-    }, [role.roles]);
     useEffect(() => {
         if (role.message === 'successcreate') {
             notification['success']({
@@ -127,6 +138,10 @@ const RolePage = () => {
             });
         }
     };
+    const gridStyle = {
+        width: '50%',
+        height: '80px'
+    };
     const style = {
         position: 'absolute',
         top: '50%',
@@ -138,6 +153,12 @@ const RolePage = () => {
         boxShadow: 24,
         p: 4
     };
+    notification.config({
+        placement: 'topRight',
+        top: 80,
+        duration: 3,
+        rtl: false
+    });
     const handleEditUser = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -195,6 +216,19 @@ const RolePage = () => {
                 });
             }
         }
+    };
+    const handleChangeRoleName = (value) => {
+        searchModel.Role_Name = value;
+        setSearchModel(searchModel);
+    };
+    const handleSearch = () => {
+        setLoading(true);
+        console.log(searchModel);
+        dispatch(getDataFilterRole(searchModel)).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setRoleInPage(data);
+            setLoading(false);
+        });
     };
     const modalUser = (type) => {
         let title;
@@ -293,6 +327,39 @@ const RolePage = () => {
     };
     return (
         <ComponentSkeleton>
+            <Form style={{ marginBottom: '10px' }}>
+                <Collapse defaultActiveKey={['1']} expandIconPosition={'right'} className="mps-search-header-collapse">
+                    <Collapse.Panel header={<span className="mps-search-header-panel-title"> Thông tin tìm kiếm</span>} key="1">
+                        <CardANTD style={{ border: 'none' }}>
+                        <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Tên vai trò</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeRoleName}
+                                            >
+                                                {roleInPage.map((item) => (
+                                                    <Option key={item.nameRole} data={item.codeRole} text={item.nameRole}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.nameRole}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                        </CardANTD>
+                    </Collapse.Panel>
+                </Collapse>
+            </Form>
             <MainCard>
                 <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
                     <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
@@ -318,20 +385,23 @@ const RolePage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
+                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
+                        Tìm kiếm
+                    </Button>
                 </Stack>
                 {modalUser(type)}
                 <Grid container spacing={3}>
                     <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
                         <DataGrid
-                            rows={role.roles.length !== 0 ? role.roles : []}
-                            columns={role.roles.length !== 0 ? columns : []}
+                            rows={roleInPage.length !== 0 ? roleInPage : []}
+                            columns={roleInPage.length !== 0 ? columns : []}
                             pageSize={8}
                             rowsPerPageOptions={[8]}
                             checkboxSelection
                             getRowId={(row) => row._id}
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
-                                const selectedRows = role.roles.filter((row) => selectedIDs.has(row._id));
+                                const selectedRows = roleInPage.filter((row) => selectedIDs.has(row._id));
                                 console.log(selectedRows);
                                 if (selectedRows.length === 1) {
                                     setCodeRole(selectedRows[0].codeRole);
@@ -341,7 +411,7 @@ const RolePage = () => {
                                 }
                                 setSelectedRows(selectedRows);
                             }}
-                            loading={auth.loading}
+                            loading={loading}
                         />
                     </div>
                 </Grid>
