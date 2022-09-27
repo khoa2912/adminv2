@@ -45,7 +45,8 @@ const ListScreenPage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        Screen_Code: ''
+        Screen_Code: '',
+        Description: ''
     });
     const [loading, setLoading] = useState(false);
     const [screenInPage, setScreenInPage] = useState([]);
@@ -101,6 +102,34 @@ const ListScreenPage = () => {
         searchModel.Screen_Code = value;
         setSearchModel(searchModel);
     };
+    const handleChangeDescription = (value) => {
+        searchModel.Description = value;
+        setSearchModel(searchModel);
+    };
+
+    // Filter in Screen
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+   
+    // Filter Screen name
+    var filterArrayScreen = removeDuplicates(screenInPage, "sreenName");
+    console.log(filterArrayScreen);
+
+    // Filter Description
+    var filterArrayDescription = removeDuplicates(screenInPage, "screenDescription");
+    console.log(filterArrayDescription);
+
     const handleCreate = () => {
         setType('create');
         setScreenCode('');
@@ -165,7 +194,7 @@ const ListScreenPage = () => {
                 <Collapse defaultActiveKey={['1']} expandIconPosition={'right'} className="mps-search-header-collapse">
                     <Collapse.Panel header={<span className="mps-search-header-panel-title"> Thông tin tìm kiếm</span>} key="1">
                         <CardANTD style={{ border: 'none' }}>
-                        <CardANTD.Grid style={gridStyle}>
+                            <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
                                         <Form.Item>Tên Screen</Form.Item>
@@ -178,7 +207,32 @@ const ListScreenPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeScreenCode}
                                             >
-                                                {screenInPage.map((item) => (
+                                                {filterArrayScreen.map((item) => (
+                                                    <Option key={item.screenCode} data={item.screenCode} text={item.screenCode}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.screenCode}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Mô tả</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeDescription}
+                                            >
+                                                {filterArrayDescription.map((item) => (
                                                     <Option key={item.screenCode} data={item.screenCode} text={item.screenCode}>
                                                         <div className="global-search-item">
                                                             <span>{item.screenCode}</span>

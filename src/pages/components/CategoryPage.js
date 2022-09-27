@@ -133,7 +133,7 @@ const ComponentTypography = () => {
                                                     <Option key={item._id} data={item.name} text={item.name}>
                                                         <div className="global-search-item">
                                                             <span>{item.name}</span>
-                                                            <span style={{ float: 'right' }}> {index} </span>
+                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
                                                         </div>
                                                     </Option>
                                                 ))}

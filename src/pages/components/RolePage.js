@@ -46,7 +46,8 @@ const RolePage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        Role_Name: ''
+        Role_Name: '',
+        Status: ''
     });
     const [loading, setLoading] = useState(false);
     const [roleInPage, setRoleInPage] = useState([]);
@@ -217,8 +218,35 @@ const RolePage = () => {
             }
         }
     };
+    // Filter in Role
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+   
+    // Filter role
+    var filterArrayRole = removeDuplicates(roleInPage, "role");
+    console.log(filterArrayRole);
+    
+    // Filter Status
+    var filterArrayStatus = removeDuplicates(roleInPage, "status");
+    console.log(filterArrayStatus);
+
     const handleChangeRoleName = (value) => {
         searchModel.Role_Name = value;
+        setSearchModel(searchModel);
+    };
+    const handleChangeStatus = (value) => {
+        searchModel.Status = value;
         setSearchModel(searchModel);
     };
     const handleSearch = () => {
@@ -331,7 +359,7 @@ const RolePage = () => {
                 <Collapse defaultActiveKey={['1']} expandIconPosition={'right'} className="mps-search-header-collapse">
                     <Collapse.Panel header={<span className="mps-search-header-panel-title"> Thông tin tìm kiếm</span>} key="1">
                         <CardANTD style={{ border: 'none' }}>
-                        <CardANTD.Grid style={gridStyle}>
+                            <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
                                         <Form.Item>Tên vai trò</Form.Item>
@@ -344,10 +372,35 @@ const RolePage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeRoleName}
                                             >
-                                                {roleInPage.map((item) => (
+                                                {filterArrayRole.map((item) => (
                                                     <Option key={item.nameRole} data={item.codeRole} text={item.nameRole}>
                                                         <div className="global-search-item">
                                                             <span>{item.nameRole}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Trạng thái</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeStatus}
+                                            >
+                                                {filterArrayStatus.map((item) => (
+                                                    <Option key={item.status} data={item.status} text={item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}</span>
                                                         </div>
                                                     </Option>
                                                 ))}

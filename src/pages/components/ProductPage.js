@@ -92,7 +92,7 @@ const ComponentColor = () => {
     const [searchModel, setSearchModel] = useState({
         ProductName: '',
         CategoryId: '',
-        Quantity: ''
+        Price: ''
     });
     const product = useSelector((state) => state.product);
     const [selectedRows, setSelectedRows] = useState([]);
@@ -125,7 +125,14 @@ const ComponentColor = () => {
     const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xoá?';
     const columns = [
-        { field: 'id', headerName: 'Mã sản phẩm', width: 100 },
+        {
+            field: '_id',
+            headerName: 'Mã sản phẩm',
+            width: 230,
+            renderCell: (params) => {
+                return <div className="rowitem">{params.row._id}</div>;
+            }
+        },
         { field: 'name', headerName: 'Tên sản phẩm', width: 300 },
         {
             field: 'category',
@@ -267,10 +274,38 @@ const ComponentColor = () => {
         searchModel.CategoryId = value;
         setSearchModel(searchModel);
     };
+    const handleChangePrice = (value) => {
+        searchModel.Price = value;
+        setSearchModel(searchModel);
+    };
     const handleChangeProduct = (value) => {
         searchModel.ProductName = value;
         setSearchModel(searchModel);
     };
+
+    // Filter in Product
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+   
+    // Filter Name
+    var filterArrayName = removeDuplicates(product.products, "name");
+    console.log(filterArrayName);
+
+    // Filter Price
+    var filterArrayPrice = removeDuplicates(product.products, "salePrice");
+    console.log(filterArrayPrice);
+
     const handleSearch = () => {
         setLoading(true);
         console.log(searchModel);
@@ -581,6 +616,32 @@ const ComponentColor = () => {
                 <Collapse defaultActiveKey={['1']} expandIconPosition={'right'} className="mps-search-header-collapse">
                     <Collapse.Panel header={<span className="mps-search-header-panel-title"> Thông tin tìm kiếm</span>} key="1">
                         <CardANTD style={{ border: 'none' }}>
+                        <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Mã sản phẩm</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeProduct}
+                                            >
+                                                {filterArrayName.map((item, index) => (
+                                                    <Option key={item._id} data={item._id} text={item._id}>
+                                                        <div className="global-search-item">
+                                                            <span>{item._id}</span>
+                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
                             <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
@@ -594,11 +655,11 @@ const ComponentColor = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeProduct}
                                             >
-                                                {product.products.map((item, index) => (
+                                                {filterArrayName.map((item, index) => (
                                                     <Option key={item._id} data={item.name} text={item.name}>
                                                         <div className="global-search-item">
                                                             <span>{item.name}</span>
-                                                            <span style={{ float: 'right' }}> {index} </span>
+                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -624,7 +685,33 @@ const ComponentColor = () => {
                                                     <Option key={item._id} data={item._id} text={item.name}>
                                                         <div className="global-search-item">
                                                             <span>{item.name}</span>
-                                                            <span style={{ float: 'right' }}> {index} </span>
+                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Giá tiền</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeCategory}
+                                            >
+                                                {filterArrayName.map((item, index) => (
+                                                    <Option key={item.salePrice} data={item.salePrice} text={item.salePrice}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.salePrice}</span>
+                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
                                                         </div>
                                                     </Option>
                                                 ))}

@@ -46,7 +46,9 @@ const AccountPage = () => {
     const { Option } = Select;
     const [searchModel, setSearchModel] = useState({
         RoleName: '',
-        StatusName: ''
+        StatusName: '',
+        Email: '',
+        Account_Name: ''
     });
     // useEffect(() => {
     //     dispatch(getInitialData());
@@ -72,21 +74,54 @@ const AccountPage = () => {
             setLoading(false);
         });
     }, [dispatch]);
-    // useEffect(() => {
-    //     if (auth.users) {
-    //         auth.users.map((item, index) => (item.id = index + 1));
-    //     }
-    //     console.log('auth.users', auth.users);
-    // }, [auth.users]);
+
+    // Filter in Account
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+
+    // Filter Role
+    var filterArrayRole = removeDuplicates(userInPage, "role");
+    console.log(filterArrayRole);
+
+    // Filter Status
+    var filterArrayStatus = removeDuplicates(userInPage, "status");
+    console.log(filterArrayStatus);
+
+    // Filter Name
+    var filterArrayName = removeDuplicates(userInPage, "lastName");
+    console.log(filterArrayName);
+
+    // Filter email
+    var filterArrayEmail = removeDuplicates(userInPage, "email");
+    console.log(filterArrayEmail);
+
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
-        { field: 'firstName', headerName: 'Họ', width: 150 },
-        { field: 'lastName', headerName: 'Tên', width: 150 },
-        { field: 'email', headerName: 'Email', width: 130 },
+        {
+            field: 'firstName',
+            headerName: 'Họ và tên',
+            width: 200,
+            renderCell: (params) => {
+                if(params.value)
+                    return <div className="rowitem">{params.row.firstName + ' ' + params.row.lastName}</div>;
+            }
+        },
+        { field: 'email', headerName: 'Email', width: 300 },
         {
             field: 'role',
             headerName: 'Quyền',
-            width: 130,
+            width: 200,
             renderCell: (params) => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
@@ -192,6 +227,14 @@ const AccountPage = () => {
     };
     const handleChangeStatus = (value) => {
         searchModel.StatusName = value;
+        setSearchModel(searchModel);
+    };
+    const handleChangeName = (value) => {
+        searchModel.Account_Name = value;
+        setSearchModel(searchModel);
+    };
+    const handleChangeEmail = (value) => {
+        searchModel.Email = value;
         setSearchModel(searchModel);
     };
     const handleSearch = () => {
@@ -315,7 +358,7 @@ const AccountPage = () => {
                 <Collapse defaultActiveKey={['1']} expandIconPosition={'right'} className="mps-search-header-collapse">
                     <Collapse.Panel header={<span className="mps-search-header-panel-title"> Thông tin tìm kiếm</span>} key="1">
                         <CardANTD style={{ border: 'none' }}>
-                        {/* <CardANTD.Grid style={gridStyle}>
+                        <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
                                         <Form.Item>Vai trò</Form.Item>
@@ -328,11 +371,11 @@ const AccountPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeRole}
                                             >
-                                                {userInPage.map((item) => (
-                                                    <Option key={item.role} data={item._id} text={item.role}>
+                                                {filterArrayRole.map((item) => (
+                                                    <Option key={item.role} data={item._id} text={item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}>
                                                         {console.log(item)}
                                                         <div className="global-search-item">
-                                                            <span>{item.role}</span>
+                                                            <span>{item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -340,7 +383,32 @@ const AccountPage = () => {
                                         </Form.Item>
                                     </Col>
                                 </Row>
-                            </CardANTD.Grid> */}
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Tên</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeName}
+                                            >
+                                                {filterArrayName.map((item) => (
+                                                    <Option key={item._id} data={item._id} text={item.lastName}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.lastName}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
                             <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
@@ -354,10 +422,35 @@ const AccountPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeStatus}
                                             >
-                                                {userInPage.map((item) => (
+                                                {filterArrayStatus.map((item) => (
                                                     <Option key={item.status} data={item._id} text={item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}>
                                                         <div className="global-search-item">
                                                             <span>{item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Email</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeEmail}
+                                            >
+                                                {filterArrayEmail.map((item) => (
+                                                    <Option key={item.email} data={item.email} text={item.email}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.email   }</span>
                                                         </div>
                                                     </Option>
                                                 ))}

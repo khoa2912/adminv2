@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes, { object } from 'prop-types';
 import { Grid, Stack, Typography } from '@mui/material';
 
 // project import
@@ -34,6 +34,7 @@ import { getAllUser } from 'actions/user';
 import SearchIcon from '@mui/icons-material/Search';
 import { deleteOrderById, getDataFilterOrder, getOrders } from 'actions/order';
 import { DataArraySharp } from '../../../node_modules/@mui/icons-material/index';
+import { isArray, isObject } from 'lodash';
 
 // ===============================|| ORDER - PAGE ||=============================== //
 
@@ -43,7 +44,10 @@ const OrderPage = () => {
     const [searchModel, setSearchModel] = useState({
         Order_Code: '',
         TotalAmount: '',
-        UserId: ''
+        UserId: '',
+        Address_Name: '',
+        Payment_Status: '',
+        Payment_Type: ''
     });
     const { TabPane } = Tabs;
     const order = useSelector((state) => state.order);
@@ -57,14 +61,50 @@ const OrderPage = () => {
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterOrder()).then((data) => {
-            data.map((item, index) => (item.id = index + 1));
+            data&&data.map((item, index) => (item.id = index + 1));
             setOrderInPage(data);
             setLoading(false);
         });
-        dispatch(getProducts());
+        dispatch(getOrders());
     }, [dispatch]);
     const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xóa?';
+
+    // Filter in Order
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+   
+    // Filter User
+    var filterArrayUser = removeDuplicates(orderInPage, "user");
+    console.log(filterArrayUser);
+
+    //Filter TotalAmount
+    var filterArrayTotalAmount = removeDuplicates(orderInPage, "totalAmount");
+    console.log(filterArrayTotalAmount);
+
+    //Filter Address
+    var filterArrayAddress = removeDuplicates(orderInPage, "addressId");
+    console.log(filterArrayAddress);
+
+    //Filter Paymentstatus
+    var filterArrayPaymentstatus = removeDuplicates(orderInPage, "paymentStatus");
+    console.log(filterArrayPaymentstatus);
+
+    //Filter Paymenttype
+    var filterArrayPaymenttype = removeDuplicates(orderInPage, "paymentType");
+    console.log(filterArrayPaymenttype);
+
     const columns = [
         // { field: 'id', headerName: 'Số thứ tự', width: 150 },
         {
@@ -90,7 +130,6 @@ const OrderPage = () => {
             headerName: 'Địa chỉ',
             width: 200,
             renderCell: (params) => {
-                console.log(params);
                 if (params.value) {
                     for ( let i = 0; i <5; i++ ) {
                         if (params.value.address[i]._id === params.row.addressId) {
@@ -202,20 +241,7 @@ const OrderPage = () => {
             }
         }
     };
-    // const DeleteSame = () => {
-    //     const temp = order.orders.length;
-    //     for(let i = 0; i< temp; i++) {
-    //         const k = 0;
-    //         for(let j = 1; i<temp; j++) {
-    //             if ((order.orders[i].userObject.id ===  order.orders[j].userObject.id)) {
-    //                 k++;
-    //             }
-    //         }
-    //         if(k==0) {
-    //             return <div className="rowitem">{order.orders[i].userObject.firstName + ' ' + order.orders[i].userObject.lastName}</div>;
-    //         }
-    //     }
-    // };
+
     const handleUpdateOrder = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -244,6 +270,19 @@ const OrderPage = () => {
         searchModel.UserId = value;
         setSearchModel(searchModel);
     };
+    const handleChangeAddress = (value) => {
+        searchModel.Address_Name = value;
+        setSearchModel(searchModel);
+    };
+    const handleChangePaymentStatus = (value) => {
+        searchModel.Payment_Status = value;
+        setSearchModel(searchModel);
+    };
+    const handleChangePaymentType = (value) => {
+        searchModel.Payment_Type = value;
+        setSearchModel(searchModel);
+    };
+    
     const createUserList = (users, options = []) => {
         for (let user of users) {
             options.push({ value: user._id, name: user.lastName });
@@ -281,7 +320,7 @@ const OrderPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeOrder}
                                             >
-                                                {orderInPage.map((item) => (
+                                                {orderInPage&&orderInPage.map((item) => (
                                                     <Option key={item._id} data={item._id} text={item._id}>
                                                         <div className="global-search-item">
                                                             <span>{item._id}</span>
@@ -306,8 +345,8 @@ const OrderPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeUser}
                                             >
-                                                {orderInPage.length !== 0 &&
-                                                    orderInPage.map((item, index) => ( item.userObject &&
+                                                {orderInPage &&
+                                                    filterArrayUser.map((item, index) => ( item.userObject &&
                                                         <Option 
                                                             key = {item.user}
                                                             data = {item.userObject.firstName + ' ' + item.userObject.lastName}
@@ -337,10 +376,95 @@ const OrderPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeTotalAmount}
                                             >
-                                                {orderInPage.map((item) => (
+                                                {filterArrayTotalAmount&&filterArrayTotalAmount.map((item) => (
                                                     <Option key={item.totalAmount} data={item._id} text={item.totalAmount}>
                                                         <div className="global-search-item">
                                                             <span>{item.totalAmount}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            {/* <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Địa chỉ</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeAddress}
+                                            >
+                                                {orderInPage &&
+                                                    filterArrayAddress.map((item, index) => ( item.addressObject && 
+                                                        <Option 
+                                                            key = {item.addressId}
+                                                            // data = {item.addressId}
+                                                            // text = {item.addressId}
+                                                            data = {item.addressId}
+                                                            text = {item.addressObject.address[0].districtName + ' ' + item.addressObject.address[0].provinceName}
+                                                        >
+                                                            {console.log(item)}
+                                                            <div className="global-search-item">
+                                                                <span> {
+                                                                    item.addressObject.address[0].districtName + ' ' + item.addressObject.address[0].provinceName }
+                                                                </span>
+                                                            </div>
+                                                        </Option>
+                                                    ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid> */}
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Trạng thái thanh toán</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangePaymentStatus}
+                                            >
+                                                {filterArrayPaymentstatus&&filterArrayPaymentstatus.map((item) => (
+                                                    <Option key={item.paymentStatus} data={item.paymentStatus} text={item.paymentStatus}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.paymentStatus}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Loại thanh toán</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangePaymentType}
+                                            >
+                                                {filterArrayPaymenttype&&filterArrayPaymenttype.map((item) => (
+                                                    <Option key={item.paymentType} data={item.paymentType} text={item.paymentType}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.paymentType}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -383,15 +507,15 @@ const OrderPage = () => {
             <Grid container spacing={3}>
                 <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
                     <DataGrid
-                        rows={orderInPage.length !== 0 ? orderInPage : []}
-                        columns={orderInPage.length !== 0 ? columns : []}
+                        rows={orderInPage ? orderInPage : []}
+                        columns={orderInPage ? columns : []}
                         pageSize={8}
                         rowsPerPageOptions={[8]}
                         checkboxSelection
                         getRowId={(row) => row._id}
                         onSelectionModelChange={(ids) => {
                             const selectedIDs = new Set(ids);
-                            const selectedRows = orderInPage.filter((row) => selectedIDs.has(row._id));
+                            const selectedRows = orderInPage&&orderInPage.filter((row) => selectedIDs.has(row._id));
 
                             setSelectedRows(selectedRows);
                         }}
