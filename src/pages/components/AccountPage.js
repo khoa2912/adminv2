@@ -19,6 +19,7 @@ import {
     TextField,
     FormControl,
     InputLabel,
+    NativeSelect,
     OutlinedInput,
     MenuItem,
     CardActions
@@ -288,7 +289,7 @@ const AccountPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Họ"
-                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].firstName : firstName}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].firstName : firstName}
                                         disabled={disable}
                                     />
                                     <TextField
@@ -296,7 +297,7 @@ const AccountPage = () => {
                                         id="outlined-number"
                                         label="Tên"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].lastName : lastName}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].lastName : lastName}
                                         disabled={disable}
                                     />
                                     <TextField
@@ -304,37 +305,43 @@ const AccountPage = () => {
                                         id="outlined-number"
                                         label="Email"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].email : email}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].email : email}
                                         disabled={disable}
                                     />
-
-                                    <FormControl fullWidth sx={{ marginBottom: '15px' }}>
-                                        <InputLabel id="demo-simple-select-label">Quyền</InputLabel>
-                                        <Select
-                                            disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            defaultValue={type !== 'create' && selectedRows[0] ? selectedRows[0].role : role}
-                                            label="Thương hiệu"
-                                            // onChange={(e) => setCategoryId(e.target.value)}
-                                        >
-                                            <MenuItem value="user">Khách hàng</MenuItem>
-                                            <MenuItem value="admin">Quản trị viên</MenuItem>
-                                        </Select>
-                                    </FormControl>
                                     <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
-                                        <Select
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Quyền
+                                        </InputLabel>
+                                        <NativeSelect
                                             disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            defaultValue={selectedRows[0] ? selectedRows[0].status : status}
-                                            label="Thương hiệu"
-                                            // onChange={(e) => setCategoryId(e.target.value)}
+                                            
+                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].role : role}
+                                            inputProps={{
+                                            name: 'role',
+                                            id: 'uncontrolled-native',
+                                            }}
+                                            // onChange={(e) => setStatus(e.target.value)}
                                         >
-                                            <MenuItem value="enable">Sử dụng</MenuItem>
-                                            <MenuItem value="disable">Ngừng sử dụng</MenuItem>
-                                        </Select>
+                                            <option value={'user'}>Khách hàng</option>
+                                            <option value={'admin'}>Quản trị viên</option>
+                                        </NativeSelect>
+                                    </FormControl>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Trạng thái
+                                        </InputLabel>
+                                        <NativeSelect
+                                            disabled={disable}
+                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
+                                            inputProps={{
+                                            name: 'paymentStatus',
+                                            id: 'uncontrolled-native',
+                                            }}
+                                            // onChange={(e) => setStatus(e.target.value)}
+                                        >
+                                            <option value={'enable'}>Sử dụng</option>
+                                            <option value={'disable'}>Ngừng sử dụng</option>
+                                        </NativeSelect>
                                     </FormControl>
                                 </div>
                             </div>

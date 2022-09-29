@@ -34,11 +34,11 @@ export var addBanner = (form) => {
                 dispatch(getBanners());
                 return 'success';
             } else {
-                dispatch({ type: bannerConstants.CREATE_ROLE_FAILURE });
+                dispatch({ type: bannerConstants.CREATE_BANNER_FAILURE });
                 return 'error';
             }
         } catch (error) {
-            dispatch({ type: bannerConstants.CREATE_ROLE_FAILURE });
+            dispatch({ type: bannerConstants.CREATE_BANNER_FAILURE });
             return 'error';
         }
     };

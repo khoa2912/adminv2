@@ -20,6 +20,7 @@ import {
     FormControl,
     InputLabel,
     OutlinedInput,
+    NativeSelect,
     MenuItem,
     CardActions
 } from '../../../node_modules/@mui/material/index';
@@ -322,20 +323,22 @@ const RolePage = () => {
                                         disabled={disable}
                                         onChange={(e) => setDescriptionRole(e.target.value)}
                                     />
-
                                     <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
-                                        <Select
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Trạng thái
+                                        </InputLabel>
+                                        <NativeSelect
                                             disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            defaultValue={status}
-                                            label="Thương hiệu"
+                                            value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
+                                            inputProps={{
+                                            name: 'paymentStatus',
+                                            id: 'uncontrolled-native',
+                                            }}
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
-                                            <MenuItem value="enable">Sử dụng</MenuItem>
-                                            <MenuItem value="disable">Ngừng sử dụng</MenuItem>
-                                        </Select>
+                                            <option value={'enable'}>Sử dụng</option>
+                                            <option value={'disable'}>Ngừng sử dụng</option>
+                                        </NativeSelect>
                                     </FormControl>
                                 </div>
                             </div>

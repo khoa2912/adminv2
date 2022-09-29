@@ -41,7 +41,7 @@ const IFrameWrapper = styled('iframe')(() => ({
     border: 'none'
 }));
 
-// ============================|| ANT ICONS ||============================ //
+// ============================|| Banner Page ||============================ //
 
 const BannerPage = () => {
     const { Option } = Select;
@@ -52,7 +52,6 @@ const BannerPage = () => {
     });
 
     const text = 'Bạn có chắc chắn muốn xoá?';
-    const auth = useSelector((state) => state.auth);
     const [loading, setLoading] = useState(false);
     const [bannerInPage, setBannerInPage] = useState([]);
     const { banners } = useSelector((state) => state.banner);
@@ -113,6 +112,7 @@ const BannerPage = () => {
         setType('create');
         setCodeBanner('');
         setNameBanner('');
+        setSlug('');
         handleOpen();
     };
     const uploadButton = (
@@ -323,7 +323,6 @@ const BannerPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setNameBanner(e.target.value)}
                                     />
-
                                     <TextField
                                         required
                                         id="outlined-number"
@@ -344,7 +343,7 @@ const BannerPage = () => {
                                     /> */}
 
                                     <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                                        <InputLabel id="demo-simple-select-label" shrink>Trạng thái</InputLabel>
                                         <Select
                                             disabled={disable}
                                             labelId="demo-simple-select-label"
@@ -507,6 +506,7 @@ const BannerPage = () => {
                                 if (selectedRows.length === 1) {
                                     setCodeBanner(selectedRows[0].codeBanner);
                                     setNameBanner(selectedRows[0].nameBanner);
+                                    setSlug(selectedRows[0].slug);
                                     setFileList([{ url: selectedRows[0].image }]);
                                     // setDescriptionRole(selectedRows[0].descriptionRole);
                                     // setStatus(selectedRows[0].status);

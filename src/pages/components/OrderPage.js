@@ -11,6 +11,7 @@ import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/
 import { FormGroup } from 'react-bootstrap';
 
 import {
+    Box,
     Button,
     CardActions,
     Divider,
@@ -20,6 +21,7 @@ import {
     MenuItem,
     Modal,
     OutlinedInput,
+    NativeSelect,
     TextField
 } from '../../../node_modules/@mui/material/index';
 import { CKEditor } from 'ckeditor4-react';
@@ -58,6 +60,14 @@ const OrderPage = () => {
     const handleClose = () => setOpen(false);
     const [loading, setLoading] = useState(false);
     const [orderInPage, setOrderInPage] = useState([]);
+    const [orderId, setOrderId] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [item, setItem] = useState('');
+    const [totalAmount, setTotalAmount] = useState('');
+    const [paymentType, setPaymentType] = useState('');
+    const [paymentStatus, setPaymentStatus] = useState('');
+    
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterOrder()).then((data) => {
@@ -212,6 +222,9 @@ const OrderPage = () => {
             handleOpen();
         }
     };
+    const handleChange = (event) => {
+        setPaymentStatus(event.target.value);
+      };
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -292,6 +305,10 @@ const OrderPage = () => {
         }
         return options;
     };
+    const handleCreate = () => {
+        setType('create');
+        handleOpen();
+    };
     const handleSearch = () => {
         setLoading(true);
         console.log(searchModel);
@@ -300,6 +317,140 @@ const OrderPage = () => {
             setOrderInPage(data);
             setLoading(false);
         });
+    };
+    const modalOrder = (type) => {
+        let title;
+        let disable;
+        if (type === 'update') {
+            title = 'Cập nhập đơn hàng';
+            disable = false;
+        } else if (type === 'view') {
+            title = 'Xem chi tiết đơn hàng';
+            disable = true;
+        }
+        return (
+            <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h3" component="h2">
+                        {title}
+                    </Typography>
+                    <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
+                        <TabPane tab={<span>Thông tin chung</span>} key="1">
+                            <div
+                                className="container_addProduct"
+                                style={{
+                                    display: 'flex',
+                                    paddingTop: '0px',
+                                    color: 'black',
+                                    fontSize: '17px'
+                                }}
+                            >
+                                <div
+                                    className="container_form_addProduct"
+                                    style={{
+                                        paddingBottom: '20px',
+                                        width: '100%',
+                                        paddingRight: '30px'
+                                    }}
+                                >
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Mã đơn hàng"
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0]._id : orderId}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Họ"
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.firstName : firstName}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Tên"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.lastName : lastName}
+                                        disabled="true"
+                                    />
+                                    {/* <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Sản phẩm mua"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].item[0].purchasedQty : item}
+                                        disabled={disable}
+                                    /> */}
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Tổng tiền hàng"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].totalAmount : totalAmount}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Loại thanh toán"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentType : paymentType}
+                                        disabled="true"
+                                    />
+                                    {/* <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Trạng thái thanh toán"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
+                                        disabled={disable}
+                                    /> */}
+                                    <FormControl fullWidth>
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Trạng thái thanh toán
+                                        </InputLabel>
+                                        {/* <Select
+                                            disabled={disable}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
+                                            label="Trạng thái thanh toán"
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value="pending">pending</MenuItem>
+                                            <MenuItem value="cancelled">cancelled</MenuItem>
+                                        </Select> */}
+                                        <NativeSelect
+                                            disabled={disable}
+                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
+                                            inputProps={{
+                                            name: 'paymentStatus',
+                                            id: 'uncontrolled-native',
+                                            }}
+                                        >
+                                            <option value={'pending'}>pending</option>
+                                            <option value={'cancelled'}>cancelled</option>
+                                        </NativeSelect>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </TabPane>
+                    </Tabs>
+                    <CardActions sx={{}}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleEdit}>
+                            Lưu
+                        </Button>
+                        <Button size="small" variant="outlined" onClick={handleClose}>
+                            Đóng
+                        </Button>
+                    </CardActions>
+                </Box>
+            </Modal>
+        );
     };
     return (
         <ComponentSkeleton>
@@ -478,31 +629,17 @@ const OrderPage = () => {
                 </Collapse>
             </Form>
             <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
-                {/* <Button variant="outlined" href="/createProduct" color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
-                    Thêm mới
-                </Button> */}
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                     Xem
                 </Button>
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleUpdateOrder}>
                     Cập nhập
                 </Button>
-                <Popconfirm placement="right" title={text} onConfirm={confirm} okText="Đồng ý" cancelText="Không">
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        style={{ cursor: 'pointer' }}
-                        startIcon={<DeleteIcon />}
-                        // onClick={handleDeleteProduct}
-                    >
-                        Xoá
-                    </Button>
-                </Popconfirm>
                 <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
                     Tìm kiếm
                 </Button>
             </Stack>
-            {/* {modalOrder(type)} */}
+            {modalOrder(type)}
             {/* <Spin tip="Loading..." spinning={loading}> */}
             <Grid container spacing={3}>
                 <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
@@ -516,7 +653,6 @@ const OrderPage = () => {
                         onSelectionModelChange={(ids) => {
                             const selectedIDs = new Set(ids);
                             const selectedRows = orderInPage&&orderInPage.filter((row) => selectedIDs.has(row._id));
-
                             setSelectedRows(selectedRows);
                         }}
                         loading={loading}

@@ -20,6 +20,7 @@ import {
     FormControl,
     InputAdornment,
     InputLabel,
+    NativeSelect,
     MenuItem,
     Modal,
     OutlinedInput,
@@ -401,27 +402,30 @@ const ComponentColor = () => {
                                         <InputLabel htmlFor="outlined-adornment-amount">Giá tiền giảm giá</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-amount"
-                                            value={selectedRows[0] ? formatThousand(selectedRows[0].salePrice) : ''}
+                                            defaultValue={selectedRows[0] ? formatThousand(selectedRows[0].salePrice) : ''}
                                             disabled={disable}
                                             startAdornment={<InputAdornment position="start">VNĐ</InputAdornment>}
                                             label="Giá tiền giảm giá"
                                         />
                                     </FormControl>
-
-                                    <FormControl fullWidth sx={{ height: 50 }}>
-                                        <InputLabel id="demo-simple-select-label">Thương hiệu</InputLabel>
-                                        <Select
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Thương hiệu
+                                        </InputLabel>
+                                        <NativeSelect
                                             disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
                                             defaultValue={selectedRows[0] ? selectedRows[0].category._id : ''}
                                             label="Thương hiệu"
+                                            inputProps={{
+                                            name: 'role',
+                                            id: 'uncontrolled-native',
+                                            }}
                                             onChange={(e) => setCategoryId(e.target.value)}
                                         >
                                             {createCategoryList(category.categories).map((option) => (
-                                                <MenuItem value={option.value}>{option.name}</MenuItem>
+                                                <option value={option.value}>{option.name}</option>
                                             ))}
-                                        </Select>
+                                        </NativeSelect>
                                     </FormControl>
                                     <Upload
                                         listType="picture-card"
@@ -476,7 +480,7 @@ const ComponentColor = () => {
                                         id="outlined-number"
                                         label="Thời gian bảo hành"
                                         style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].baohanh : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].baohanh : null}
                                         InputLabelProps={{
                                             shrink: true
                                         }}
@@ -488,7 +492,7 @@ const ComponentColor = () => {
                                         id="outlined-number"
                                         label="Series"
                                         style={{ width: '45%', marginBottom: '15px' }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].Series : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].Series : null}
                                         InputLabelProps={{
                                             shrink: true
                                         }}
@@ -504,7 +508,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].color : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].color : null}
                                         disable={disable}
                                     />
 
@@ -516,7 +520,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].cpu : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].cpu : null}
                                         disable={disable}
                                     />
                                 </div>
@@ -529,7 +533,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].cardDohoa : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].cardDohoa : null}
                                         disable={disable}
                                     />
 
@@ -541,7 +545,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].ram : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].ram : null}
                                         disable={disable}
                                     />
                                 </div>
@@ -554,7 +558,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].manhinh : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].manhinh : null}
                                         disable={disable}
                                     />
 
@@ -566,7 +570,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].ocung : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].ocung : null}
                                         disable={disable}
                                     />
                                 </div>
@@ -579,7 +583,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].hedieuhanh : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].hedieuhanh : null}
                                         disable={disable}
                                     />
 
@@ -591,7 +595,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        value={selectedRows[0] ? selectedRows[0].descriptionTable[0].khoiluong : null}
+                                        vdefaultValuealue={selectedRows[0] ? selectedRows[0].descriptionTable[0].khoiluong : null}
                                         disable={disable}
                                     />
                                 </div>

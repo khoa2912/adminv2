@@ -108,7 +108,7 @@ const SimpleCard = (props) => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Tên nhãn hàng"
-                                        value={name ? name : ''}
+                                        defaultValue={name ? name : ''}
                                         disabled={disable}
                                     />
 

@@ -17,6 +17,7 @@ import {
     Stack,
     Typography,
     TextField,
+    NativeSelect,
     FormControl,
     InputLabel,
     OutlinedInput,
@@ -48,34 +49,37 @@ const ListScreenPage = () => {
         Screen_Code: '',
         Description: ''
     });
+    const { TabPane } = Tabs;
     const [loading, setLoading] = useState(false);
     const [screenInPage, setScreenInPage] = useState([]);
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterScreen()).then((data) => {
-            data.map((item, index) => (item.id = index + 1));
+            data&&data.map((item, index) => (item.id = index + 1));
             setScreenInPage(data);
             setLoading(false);
         });
     }, [dispatch]);
+    const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xoá?';
     const auth = useSelector((state) => state.auth);
     const screen = useSelector((state) => state.screen);
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [sreenName, setScreenName] = useState('');
+    const [screenName, setScreenName] = useState('');
     const [screenCode, setScreenCode] = useState('');
     const [screenDescription, setScreenDescription] = useState('');
-    // const [status, setStatus] = useState('enable');
+    const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
 
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         { field: 'screenCode', headerName: 'Mã Screen', width: 200 },
-        { field: 'sreenName', headerName: 'Tên Screen', width: 300 },
-        { field: 'screenDescription', headerName: 'Thông tin mô tả', width: 300 }
+        { field: 'screenName', headerName: 'Tên Screen', width: 300 },
+        { field: 'screenDescription', headerName: 'Thông tin mô tả', width: 300 },
+        { field: 'status', headerName: 'Trạng thái', width: 150 }
     ];
     const gridStyle = {
         width: '50%',
@@ -123,18 +127,36 @@ const ListScreenPage = () => {
     }
    
     // Filter Screen name
-    var filterArrayScreen = removeDuplicates(screenInPage, "sreenName");
+    var filterArrayScreen = removeDuplicates(screenInPage, "screenName");
     console.log(filterArrayScreen);
 
     // Filter Description
     var filterArrayDescription = removeDuplicates(screenInPage, "screenDescription");
     console.log(filterArrayDescription);
 
+    const handleView = () => {
+        if (selectedRows.length === 0) {
+            notification['warning']({
+                message: 'Xem Screen',
+                description: 'Vui lòng chọn Screen bạn muốn xem.'
+            });
+        } else if (selectedRows.length >= 2) {
+            notification['warning']({
+                message: 'Xem Screen',
+                description: 'Vui lòng chỉ chọn một Screen.'
+            });
+        } else {
+            setType('view');
+            handleOpen();
+        }
+    };
+
     const handleCreate = () => {
         setType('create');
         setScreenCode('');
         setScreenName('');
         setScreenDescription('');
+        setStatus('');
         handleOpen();
     };
     const handleSearch = () => {
@@ -146,19 +168,7 @@ const ListScreenPage = () => {
             setLoading(false);
         });
     };
-    const handleView = () => {
-        if (selectedRows.length === 0) {
-            notification['warning']({
-                message: 'Xem sản phẩm',
-                description: 'Vui lòng chọn sản phẩm bạn muốn xem.'
-            });
-        } else if (selectedRows.length >= 2) {
-            notification['warning']({
-                message: 'Xem sản phẩm',
-                description: 'Vui lòng chỉ chọn một sản phẩm.'
-            });
-        }
-    };
+    
     const handleEditScreen = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -167,7 +177,7 @@ const ListScreenPage = () => {
             });
         } else if (selectedRows.length >= 2) {
             notification['warning']({
-                message: 'Xem screen',
+                message: 'Chỉnh sửa screen',
                 description: 'Vui lòng chỉ chọn một screen.'
             });
         } else {
@@ -187,6 +197,97 @@ const ListScreenPage = () => {
                 description: 'Xoá screen thành công.'
             });
         }
+    };
+    const modalScreen = (type) => {
+        let title;
+        let disable;
+        if (type === 'edit') {
+            title = 'Chỉnh sửa Screen';
+            disable = false;
+        } else if (type === 'view') {
+            title = 'Xem chi tiết Screen';
+            disable = true;
+        }
+        return (
+            <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h3" component="h2">
+                        {title}
+                    </Typography>
+                    <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
+                        <TabPane tab={<span>Thông tin chung</span>} key="1">
+                            <div
+                                className="container_addProduct"
+                                style={{
+                                    display: 'flex',
+                                    paddingTop: '0px',
+                                    color: 'black',
+                                    fontSize: '17px'
+                                }}
+                            >
+                                <div
+                                    className="container_form_addProduct"
+                                    style={{
+                                        paddingBottom: '20px',
+                                        width: '100%',
+                                        paddingRight: '30px'
+                                    }}
+                                >
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Mã Screen"
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenCode : screenCode}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Tên Screen"
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenName : screenName}
+                                        disabled={disable}
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-error"
+                                        label="Thông tin mô tả"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenDescription : screenDescription}
+                                        disabled={disable}
+                                    />
+                                    <FormControl fullWidth>
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Trạng thái Screen
+                                        </InputLabel>
+                                        <NativeSelect
+                                            disabled={disable}
+                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
+                                            inputProps={{
+                                            name: 'status',
+                                            id: 'uncontrolled-native',
+                                            }}
+                                        >
+                                            <option value={'enable'}>Sử dụng</option>
+                                            <option value={'disable'}>Ngừng sử dụng</option>
+                                        </NativeSelect>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </TabPane>
+                    </Tabs>
+                    <CardActions sx={{}}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleEdit}>
+                            Lưu
+                        </Button>
+                        <Button size="small" variant="outlined" onClick={handleClose}>
+                            Đóng
+                        </Button>
+                    </CardActions>
+                </Box>
+            </Modal>
+        );
     };
     return (
         <ComponentSkeleton>
@@ -274,7 +375,7 @@ const ListScreenPage = () => {
                         Tìm kiếm
                     </Button>
                 </Stack>
-                {/* {modalScreen(type)} */}
+                {modalScreen(type)}
                 <Grid container spacing={3}>
                     <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
                         <DataGrid
@@ -288,12 +389,13 @@ const ListScreenPage = () => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = screenInPage.filter((row) => selectedIDs.has(row._id));
                                 console.log(selectedRows);
-                                if (selectedRows.length === 1) {
-                                    setScreenCode(selectedRows[0].screenCode);
-                                    setScreenName(selectedRows[0].screenName);
-                                    setScreenDescription(selectedRows[0].screenDescription);
-                                    // setStatus(selectedRows[0].status);
-                                }
+                                // if (selectedRows.length === 1) {
+                                //     setScreenCode(selectedRows[0].screenCode);
+                                //     setScreenName(selectedRows[0].screenName);
+                                //     setScreenDescription(selectedRows[0].screenDescription);
+                                //     setStatus(selectedRows[0].status);
+                                    
+                                // }
                                 setSelectedRows(selectedRows);
                             }}
                             loading={loading}

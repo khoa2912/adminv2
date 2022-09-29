@@ -8,6 +8,29 @@ const initState = {
 
 export default (state = initState, action) => {
     switch (action.type) {
+        case pageConstants.GET_ALL_PAGE_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                error: ''
+            };
+            break;
+        case pageConstants.GET_ALL_PAGE_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'success',
+                pages: action.payload.allPages
+            };
+            break;
+        case pageConstants.GET_ALL_PAGE_FAILURE:
+            state = {
+                ...state,
+                loading: false,
+                error: 'error'
+            };
+            break;
         case pageConstants.CREATE_PAGE_REQUEST:
             state = {
                 ...state,
