@@ -33,7 +33,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { getDataFilterScreen } from 'actions/screen';
+import { addScreen, getDataFilterScreen } from 'actions/screen';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -46,7 +46,7 @@ const ListScreenPage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        Screen_Code: '',
+        Screen_Name: '',
         Description: ''
     });
     const { TabPane } = Tabs;
@@ -102,8 +102,8 @@ const ListScreenPage = () => {
         duration: 3,
         rtl: false
     });
-    const handleChangeScreenCode = (value) => {
-        searchModel.Screen_Code = value;
+    const handleChangeScreenName = (value) => {
+        searchModel.Screen_Name = value;
         setSearchModel(searchModel);
     };
     const handleChangeDescription = (value) => {
@@ -153,11 +153,33 @@ const ListScreenPage = () => {
 
     const handleCreate = () => {
         setType('create');
-        setScreenCode('');
-        setScreenName('');
-        setScreenDescription('');
-        setStatus('');
         handleOpen();
+    };
+    const handleAddScreen = async (e) => {
+        if (screenCode.trim() === '' || screenName.trim() === '') {
+            notification['warning']({
+                message: 'Thêm mới screen',
+                description: 'Vui lòng nhập dữ liệu.'
+            });
+            return;
+        } 
+        else {
+            await dispatch(addScreen({ screenCode, screenName, screenDescription, status})).then(() => {
+                dispatch(getDataFilterScreen()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setScreenInPage(data);
+                    setLoading(false);
+                });
+            });
+            handleClose();
+
+            if (auth.error) {
+                notification['error']({
+                    message: 'Thêm screen mới',
+                    description: 'Thêm screen mới thất bại.'
+                });
+            }
+        }        
     };
     const handleSearch = () => {
         setLoading(true);
@@ -239,7 +261,8 @@ const ListScreenPage = () => {
                                         id="outlined-error"
                                         label="Mã Screen"
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenCode : screenCode}
-                                        disabled="true"
+                                        disabled={disable}
+                                        onChange={(e) => setScreenCode(e.target.value)}
                                     />
                                     <TextField
                                         required
@@ -248,6 +271,7 @@ const ListScreenPage = () => {
                                         label="Tên Screen"
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenName : screenName}
                                         disabled={disable}
+                                        onChange={(e) => setScreenName(e.target.value)}
                                     />
                                     <TextField
                                         required
@@ -256,6 +280,7 @@ const ListScreenPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenDescription : screenDescription}
                                         disabled={disable}
+                                        onChange={(e) => setScreenDescription(e.target.value)}
                                     />
                                     <FormControl fullWidth>
                                         <InputLabel variant="standard" htmlFor="uncontrolled-native">
@@ -263,6 +288,7 @@ const ListScreenPage = () => {
                                         </InputLabel>
                                         <NativeSelect
                                             disabled={disable}
+                                            onChange={(e) => setStatus(e.target.value)}
                                             defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
                                             inputProps={{
                                             name: 'status',
@@ -278,7 +304,7 @@ const ListScreenPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleEdit}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleAddScreen}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -306,12 +332,12 @@ const ListScreenPage = () => {
                                                 mode="multiple"
                                                 optionFilterProp="data"
                                                 optionLabelProp="text"
-                                                onChange={handleChangeScreenCode}
+                                                onChange={handleChangeScreenName}
                                             >
                                                 {filterArrayScreen.map((item) => (
-                                                    <Option key={item.screenCode} data={item.screenCode} text={item.screenCode}>
+                                                    <Option key={item.screenName} data={item.screenName} text={item.screenName}>
                                                         <div className="global-search-item">
-                                                            <span>{item.screenCode}</span>
+                                                            <span>{item.screenName}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -334,9 +360,9 @@ const ListScreenPage = () => {
                                                 onChange={handleChangeDescription}
                                             >
                                                 {filterArrayDescription.map((item) => (
-                                                    <Option key={item.screenCode} data={item.screenCode} text={item.screenCode}>
+                                                    <Option key={item.screenDescription} data={item.screenDescription} text={item.screenDescription}>
                                                         <div className="global-search-item">
-                                                            <span>{item.screenCode}</span>
+                                                            <span>{item.screenDescription}</span>
                                                         </div>
                                                     </Option>
                                                 ))}

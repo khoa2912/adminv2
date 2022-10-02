@@ -31,6 +31,21 @@ export default (state = initState, action) => {
                 error: 'error'
             };
             break;
+        case screenConstants.CREATE_SCREEN_REQUEST:
+            state = {
+                ...state,
+                    loading: true,
+                    message: '',
+                    error: ''
+                };
+                break;
+            case screenConstants.CREATE_SCREEN_SUCCESS:
+                state = {
+                    ...state,
+                    loading: false,
+                    message: 'successcreate'
+                };
+                break;
     }
     return state;
 };

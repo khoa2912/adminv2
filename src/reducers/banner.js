@@ -21,7 +21,7 @@ export default (state = initState, action) => {
                 ...state,
                 loading: false,
                 message: 'success',
-                banners: action.payload.allBanners
+                banners: action.payload.banners
             };
             break;
         case bannerConstants.GET_ALL_BANNER_FAILURE:

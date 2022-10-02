@@ -156,6 +156,26 @@ export var getUsers = () => {
     };
 };
 
+export var addUser = (form) => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: authConstants.CREATE_USER_REQUEST });
+            const res = await axios.post('admin/createUser', form);
+            if (res.status === 201) {
+                dispatch({ type: authConstants.CREATE_USER_SUCCESS });
+                dispatch(getUsers());
+                return 'success';
+            } else {
+                dispatch({ type: authConstants.CREATE_USER_FAILURE });
+                return 'error';
+            }
+        } catch (error) {
+            dispatch({ type: authConstants.CREATE_USER_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var getDataFilterUser = (searchModel) => {
     return async (dispatch) => {
         try {

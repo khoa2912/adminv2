@@ -25,6 +25,20 @@ export var getProducts = () => {
     };
 };
 
+export var getProductWarning = () => {
+    return async (dispatch) => {
+        try {
+            const res = await axios.get(`/productWarning`);
+            if(res.status===200){
+                return res.data.productWarning
+            }
+            return []
+        } catch (error) {
+            console.log(error);
+        }
+    };
+};
+
 // modified actrion
 export var addProduct = (form) => {
     return async (dispatch) => {

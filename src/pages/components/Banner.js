@@ -14,6 +14,7 @@ import {
     Grid,
     Modal,
     Stack,
+    NativeSelect,
     Typography,
     TextField,
     FormControl,
@@ -24,7 +25,7 @@ import {
 } from '../../../node_modules/@mui/material/index';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { notification, Space, Popconfirm } from 'antd';
+import { notification, Image, Space, Popconfirm } from 'antd';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -61,6 +62,7 @@ const BannerPage = () => {
     const [codeBanner, setCodeBanner] = useState('');
     const [nameBanner, setNameBanner] = useState('');
     // const [descriptionRole, setDescriptionRole] = useState('');
+    const [image, setImage] = useState('');
     const [slug, setSlug] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
@@ -87,6 +89,21 @@ const BannerPage = () => {
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         { field: 'codeBanner', headerName: 'Mã Banner', width: 150 },
+        {
+            headerName: 'Hình ảnh',
+            field: 'image',
+            renderCell: (params) =>{
+                console.log(params,'record')
+                return(
+                    <Image
+                        preview={false}
+                        src={`${params.row.image}`}
+                        width={200}
+                    />
+                )
+            },
+            width: 300
+          },
         { field: 'nameBanner', headerName: 'Tên Banner', width: 150 },
         { field: 'slug', headerName: 'Slug', width: 130 }
     ];
@@ -341,20 +358,22 @@ const BannerPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setDescriptionRole(e.target.value)}
                                     /> */}
-
-                                    <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label" shrink>Trạng thái</InputLabel>
-                                        <Select
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                                            Trạng thái
+                                        </InputLabel>
+                                        <NativeSelect
                                             disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
                                             defaultValue={status}
-                                            label="Thương hiệu"
+                                            inputProps={{
+                                            name: 'status',
+                                            id: 'uncontrolled-native',
+                                            }}
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
-                                            <MenuItem value="enable">Sử dụng</MenuItem>
-                                            <MenuItem value="disable">Ngừng sử dụng</MenuItem>
-                                        </Select>
+                                            <option value={'enable'}>Sử dụng</option>
+                                            <option value={'disable'}>Ngừng sử dụng</option>
+                                        </NativeSelect>
                                     </FormControl>
                                     <ul></ul>
                                     <Upload

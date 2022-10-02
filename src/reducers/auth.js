@@ -114,6 +114,21 @@ export default (state = initState, action) => {
                 ...state,
                 message: 'usernonlogin'
             };
+        case authConstants.CREATE_USER_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                error: ''
+            };
+            break;
+        case authConstants.CREATE_USER_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'successcreate'
+            };
+            break;
     }
 
     return state;

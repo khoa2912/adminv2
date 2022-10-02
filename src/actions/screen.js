@@ -1,6 +1,26 @@
 import axios from '../helpers/axios';
 import { screenConstants } from './constants';
 
+export var addScreen = (form) => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: screenConstants.CREATE_SCREEN_REQUEST });
+            const res = await axios.post('screen/createScreen', form);
+            if (res.status === 201) {
+                dispatch({ type: screenConstants.CREATE_SCREEN_SUCCESS });
+                dispatch(getScreens());
+                return 'success';
+            } else {
+                dispatch({ type: screenConstants.CREATE_SCREEN_FAILURE });
+                return 'error';
+            }
+        } catch (error) {
+            dispatch({ type: screenConstants.CREATE_SCREEN_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var getScreens = () => {
     return async (dispatch) => {
         try {

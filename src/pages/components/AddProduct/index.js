@@ -31,6 +31,8 @@ import formatThousand from 'util/formatThousans';
 import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory } from 'actions/category';
 import { addProduct } from 'actions/product';
+import { useHistory } from 'react-router-dom';
+import {useNavigate} from "react-router-dom"
 
 export const AddProduct = (props) => {
     // eslint-disable-next-line
@@ -97,10 +99,11 @@ export const AddProduct = (props) => {
     useEffect(() => {
         dispatch(getAllCategory());
     }, []);
+    const navigate = useNavigate();
     useEffect(() => {
         if (product.addProduct != null) {
             alert('Thêm sản phẩm thành công');
-            props.history.push('/products');
+            navigate('/product');
         }
     }, [product.loading]);
 

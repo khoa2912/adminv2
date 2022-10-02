@@ -30,7 +30,7 @@ import { notification, Space, Popconfirm } from 'antd';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUser, getDataFilterUser } from 'actions/auth';
+import { getUsers, getDataFilterUser, addUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
 const { TabPane } = Tabs;
@@ -61,8 +61,12 @@ const AccountPage = () => {
     const handleClose = () => setOpen(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
+    const [hash_password, setHash_password] = useState('');
     const [role, setRole] = useState('user');
+    const [contactNumber, setContactNumber] = useState('');
+    const [profilePicture, setProfilePicture] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -162,6 +166,33 @@ const AccountPage = () => {
             setType('view');
             handleOpen();
         }
+    };
+    const handleAddUser = async (e) => {
+        if (firstName.trim() === '' || lastName.trim() === '' ||
+        email.trim() === '' || hash_password.trim() === '') {
+            notification['warning']({
+                message: 'Thêm mới tài khoản',
+                description: 'Vui lòng nhập dữ liệu.'
+            });
+            return;
+        } 
+        else {
+            await dispatch(addUser({ firstName, lastName, email, hash_password, role, contactNumber, profilePicture, status })).then(() => {
+                dispatch(getDataFilterUser()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setUserInPage(data);
+                    setLoading(false);
+                });
+            });
+            handleClose();
+
+            if (auth.error) {
+                notification['error']({
+                    message: 'Thêm tài khoản mới',
+                    description: 'Thêm tài khoản mới thất bại.'
+                });
+            }
+        }        
     };
     const handleCreate = () => {
         setType('create');
@@ -291,6 +322,7 @@ const AccountPage = () => {
                                         label="Họ"
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].firstName : firstName}
                                         disabled={disable}
+                                        onChange={(e) => setFirstName(e.target.value)}
                                     />
                                     <TextField
                                         required
@@ -299,6 +331,16 @@ const AccountPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].lastName : lastName}
                                         disabled={disable}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Mật khẩu"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].hash_password : hash_password}
+                                        disabled={disable}
+                                        onChange={(e) => setHash_password(e.target.value)}
                                     />
                                     <TextField
                                         required
@@ -307,6 +349,25 @@ const AccountPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].email : email}
                                         disabled={disable}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Số điện thoại"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].contactNumber : contactNumber}
+                                        disabled={disable}
+                                        onChange={(e) => setContactNumber(e.target.value)}
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Hình ảnh"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].profilePicture : profilePicture}
+                                        disabled={disable}
+                                        onChange={(e) => setProfilePicture(e.target.value)}
                                     />
                                     <FormControl fullWidth>
                                         <InputLabel variant="standard" htmlFor="uncontrolled-native">
@@ -314,13 +375,12 @@ const AccountPage = () => {
                                         </InputLabel>
                                         <NativeSelect
                                             disabled={disable}
-                                            
                                             defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].role : role}
                                             inputProps={{
                                             name: 'role',
                                             id: 'uncontrolled-native',
                                             }}
-                                            // onChange={(e) => setStatus(e.target.value)}
+                                            onChange={(e) => setRole(e.target.value)}
                                         >
                                             <option value={'user'}>Khách hàng</option>
                                             <option value={'admin'}>Quản trị viên</option>
@@ -337,7 +397,7 @@ const AccountPage = () => {
                                             name: 'paymentStatus',
                                             id: 'uncontrolled-native',
                                             }}
-                                            // onChange={(e) => setStatus(e.target.value)}
+                                            onChange={(e) => setStatus(e.target.value)}
                                         >
                                             <option value={'enable'}>Sử dụng</option>
                                             <option value={'disable'}>Ngừng sử dụng</option>
@@ -348,7 +408,7 @@ const AccountPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleEdit}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleAddUser}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
