@@ -17,6 +17,7 @@ import {
     Stack,
     Typography,
     TextField,
+    Select as SelectMui,
     FormControl,
     InputLabel,
     OutlinedInput,
@@ -323,22 +324,18 @@ const RolePage = () => {
                                         disabled={disable}
                                         onChange={(e) => setDescriptionRole(e.target.value)}
                                     />
-                                    <FormControl fullWidth>
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Trạng thái
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái</InputLabel>
+                                        <SelectMui
                                             disabled={disable}
                                             value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
-                                            inputProps={{
-                                            name: 'paymentStatus',
-                                            id: 'uncontrolled-native',
-                                            }}
                                             onChange={(e) => setStatus(e.target.value)}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
                                         >
-                                            <option value={'enable'}>Sử dụng</option>
-                                            <option value={'disable'}>Ngừng sử dụng</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
+                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
                                 </div>
                             </div>

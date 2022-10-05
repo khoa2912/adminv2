@@ -24,7 +24,7 @@ import {
 import MainCard from 'components/MainCard';
 import {getProductWarning} from '../../../../actions/product'
 import Transitions from 'components/@extended/Transitions';
-
+import PriorityHighRoundedIcon from '@mui/icons-material/PriorityHighRounded';
 // assets
 import { BellOutlined, CloseOutlined, GiftOutlined, MessageOutlined, SettingOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -123,7 +123,7 @@ const Notification = () => {
                         >
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MainCard
-                                    title="Notification"
+                                    title="Thông báo"
                                     elevation={0}
                                     border={false}
                                     content={false}
@@ -141,42 +141,54 @@ const Notification = () => {
                                                 py: 0.5,
                                                 '& .MuiAvatar-root': avatarSX,
                                                 '& .MuiListItemSecondaryAction-root': { ...actionSX, position: 'relative' }
-                                            }
+                                            },
+                                            overflow: 'auto',
+                                            maxHeight: 400,
                                         }}
                                     >
                                        
                                         {productWarning.map(item=>(
                                             <>
-                                            <ListItemButton>
-                                            <ListItemAvatar>
-                                                <Avatar
-                                                    sx={{
-                                                        color: 'error.main',
-                                                        bgcolor: 'error.lighter'
-                                                    }}
-                                                >
-                                                    <SettingOutlined />
-                                                </Avatar>
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={
-                                                    <Typography variant="h6">
-                                                        Sản phẩm còn số lượng ít trong kho &nbsp;
-                                                        <Typography component="span" variant="subtitle1">
-                                                            {item.name}
-                                                        </Typography>{' '}
-                                                    </Typography>
-                                                }
-                                                secondary="7 hours ago"
-                                            />
-                                            <ListItemSecondaryAction>
-                                                <Typography variant="caption" noWrap>
-                                                    2:45 PM
-                                                </Typography>
-                                            </ListItemSecondaryAction>
-                                        </ListItemButton>
-                                        <Divider />
-                                        </>
+                                                <ListItemButton component="a" href="/product" sx={{ maxHeight: 300, overflow: 'auto' }}>
+                                                    <ListItemAvatar>
+                                                        <PriorityHighRoundedIcon 
+                                                            sx={{
+                                                                color: 'warning.main',
+                                                                bgcolor: 'warning.lighter',
+                                                                fontSize: 26,
+                                                            }}
+                                                        />
+                                                        {/* <Avatar
+                                                            
+                                                        >
+                                                            <SettingOutlined />
+                                                        </Avatar> */}
+                                                    </ListItemAvatar>
+                                                    <ListItemText sx={{ width:'90%' }}
+                                                        primary={
+                                                            <Typography variant="h6">
+                                                                <Typography component="span" variant="subtitle1" align="left" sx={{fontSize: 15}}>
+                                                                    Sản phẩm còn số lượng ít trong kho &nbsp;
+                                                                </Typography>{' '}
+                                                                {/* Sản phẩm còn số lượng ít trong kho &nbsp; */}
+                                                                <Typography variant="h1"  align="left" noWrap="true" sx={{fontSize: 14, lineHeight:1.5, fontWeight: 'regular'}}>
+                                                                    {item.name}
+                                                                </Typography>
+                                                                <Typography variant="h1" align="left" sx={{fontSize: 12, lineHeight:1.5, fontWeight: 'regular'}}>
+                                                                     {'Số lượng còn lại:   '} {item.quantity - item.quantitySold}
+                                                                </Typography>
+                                                            </Typography>
+                                                        }
+                                                        secondary="7 hours ago"
+                                                    />
+                                                    <ListItemSecondaryAction>
+                                                        <Typography variant="caption" noWrap>
+                                                            2:45 PM
+                                                        </Typography>
+                                                    </ListItemSecondaryAction>
+                                                </ListItemButton>
+                                                <Divider/>
+                                            </>
                                         ))}
                                        
                                         <ListItemButton sx={{ textAlign: 'center', py: `${12}px !important` }}>

@@ -7,6 +7,8 @@ import MainCard from 'components/MainCard';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card as CardANTD, Spin } from 'antd';
 import SearchIcon from '@mui/icons-material/Search';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/antd/lib/index';
 import {
     Box,
@@ -19,8 +21,11 @@ import {
     TextField,
     FormControl,
     InputLabel,
+    IconButton,
+    Select as SelectMui,
     NativeSelect,
     OutlinedInput,
+    InputAdornment,
     MenuItem,
     CardActions
 } from '../../../node_modules/@mui/material/index';
@@ -32,6 +37,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUsers, getDataFilterUser, addUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
+import { PlusOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
 const { TabPane } = Tabs;
 // styles
@@ -66,11 +72,17 @@ const AccountPage = () => {
     const [hash_password, setHash_password] = useState('');
     const [role, setRole] = useState('user');
     const [contactNumber, setContactNumber] = useState('');
-    const [profilePicture, setProfilePicture] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [userInPage, setUserInPage] = useState([]);
+    const [fileList, setFileList] = useState([]);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [showPassword, SetShowPassword] = useState(false);
+    const handleCancel = () => setPreviewVisible(false);
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterUser()).then((data) => {
@@ -79,7 +91,12 @@ const AccountPage = () => {
             setLoading(false);
         });
     }, [dispatch]);
-
+    const handlePreview = async (file) => {
+        console.log(file);
+        setPreviewImage(file.url);
+        setPreviewVisible(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    };
     // Filter in Account
     function removeDuplicates(startArray, prop) {
         var newArray = [];
@@ -151,6 +168,27 @@ const AccountPage = () => {
     ];
     // eslint-disable-next-line
     const [selectedRows, setSelectedRows] = useState([]);
+    const uploadButton = (
+        <div>
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8
+                }}
+            >
+                Upload
+            </div>
+        </div>
+    );
+    const getBase64 = (file) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = () => resolve(reader.result);
+
+            reader.onerror = (error) => reject(error);
+        });
     const handleView = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -176,26 +214,97 @@ const AccountPage = () => {
             });
             return;
         } 
-        else {
-            await dispatch(addUser({ firstName, lastName, email, hash_password, role, contactNumber, profilePicture, status })).then(() => {
-                dispatch(getDataFilterUser()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setUserInPage(data);
-                    setLoading(false);
-                });
-            });
-            handleClose();
-
-            if (auth.error) {
-                notification['error']({
-                    message: 'Thêm tài khoản mới',
-                    description: 'Thêm tài khoản mới thất bại.'
-                });
+        if (!fileList) return;
+        const list = [];
+        for (let pic of fileList) {
+            const reader = new FileReader();
+            if (pic) {
+                const link = await getBase64(pic.originFileObj);
+                list.push(link);
             }
-        }        
+        }
+        try {
+            await fetch('http://localhost:3001/product/uploadPicture', {
+                method: 'POST',
+                body: JSON.stringify({ data: list }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Something went wrong');
+                })
+                .then((responseJson) => {
+                    const data = {
+                        firstName,
+                        lastName,
+                        email,
+                        hash_password,
+                        role,
+                        contactNumber,
+                        status,
+                        profilePicture: responseJson.result[0]
+                    };
+                    dispatch(addUser(data)).then((data) => {
+                        if (data === 'success') {
+                            dispatch(getDataFilterUser()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setUserInPage(data);
+                                setLoading(false);
+                            });
+                            notification['success']({
+                                message: 'Thêm mới Tài khoản',
+                                description: 'Thêm mới Tài khoản thành công.'
+                            });
+                            handleClose();
+                            setFirstName('');
+                            setLastName('');
+                            setEmail('');
+                            setHash_password('');
+                            setRole('');
+                            setContactNumber('');
+                            setStatus('');
+                            setFileList([]);
+                        } else {
+                            notification['error']({
+                                message: 'Thêm mới Tài khoản',
+                                description: 'Thêm mới Tài khoản thất bại.'
+                            });
+                            handleClose();
+                        }
+                    });
+                });
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }
+        // else {
+        //     await dispatch(addUser({ firstName, lastName, email, hash_password, role, contactNumber, profilePicture, status })).then(() => {
+        //         dispatch(getDataFilterUser()).then((data) => {
+        //             data.map((item, index) => (item.id = index + 1));
+        //             setUserInPage(data);
+        //             setLoading(false);
+        //         });
+        //     });
+        //     handleClose();
+
+        //     if (auth.error) {
+        //         notification['error']({
+        //             message: 'Thêm tài khoản mới',
+        //             description: 'Thêm tài khoản mới thất bại.'
+        //         });
+        //     }
+        // }        
     };
     const handleCreate = () => {
         setType('create');
+        setFirstName('');
+        setLastName('');
+        setEmail('');
+        setHash_password('');
+        setRole('');
+        setContactNumber('');
+        setStatus('');
         handleOpen();
     };
     const confirm = () => {
@@ -278,6 +387,13 @@ const AccountPage = () => {
             setLoading(false);
         });
     };
+    const handleClickShowPassword = () => {
+        SetShowPassword(true);
+      };
+    
+    const handleMouseDownPassword = () => {
+        SetShowPassword(false);
+    };
     const modalUser = (type) => {
         let title;
         let disable;
@@ -320,7 +436,7 @@ const AccountPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Họ"
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].firstName : firstName}
+                                        value={firstName}
                                         disabled={disable}
                                         onChange={(e) => setFirstName(e.target.value)}
                                     />
@@ -329,25 +445,50 @@ const AccountPage = () => {
                                         id="outlined-number"
                                         label="Tên"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].lastName : lastName}
+                                        value={lastName}
                                         disabled={disable}
                                         onChange={(e) => setLastName(e.target.value)}
                                     />
-                                    <TextField
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="outlined-adornment-password">Mật khẩu</InputLabel>
+                                        <OutlinedInput
+                                            id="demo-simple-select"
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={hash_password}
+                                            disabled={disable}
+                                            onChange={(e) => setHash_password(e.target.value)}
+                                            endAdornment={
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={handleClickShowPassword}
+                                                onMouseDown={handleMouseDownPassword}
+                                                edge="end"
+                                                >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                            }
+                                            label="hash_password"
+                                        />
+                                    </FormControl>
+                                    {/* <TextField
                                         required
                                         id="outlined-number"
                                         label="Mật khẩu"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].hash_password : hash_password}
+                                        // type="password"
+                                        type={hash_password ? 'text' : 'hash_password'}
+                                        value={hash_password}
                                         disabled={disable}
                                         onChange={(e) => setHash_password(e.target.value)}
-                                    />
-                                    <TextField
+                                    /> */}
+                                    <TextField margin = "normal"
                                         required
                                         id="outlined-number"
                                         label="Email"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].email : email}
+                                        value={email}
                                         disabled={disable}
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
@@ -356,59 +497,73 @@ const AccountPage = () => {
                                         id="outlined-number"
                                         label="Số điện thoại"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].contactNumber : contactNumber}
+                                        value={contactNumber}
                                         disabled={disable}
                                         onChange={(e) => setContactNumber(e.target.value)}
                                     />
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Hình ảnh"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].profilePicture : profilePicture}
-                                        disabled={disable}
-                                        onChange={(e) => setProfilePicture(e.target.value)}
-                                    />
-                                    <FormControl fullWidth>
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Quyền
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Quyền</InputLabel>
+                                        <SelectMui
+                                            labelId="demo-simple-select-label"
                                             disabled={disable}
-                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].role : role}
-                                            inputProps={{
-                                            name: 'role',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            value={role}
+                                            id="demo-simple-select"
                                             onChange={(e) => setRole(e.target.value)}
                                         >
-                                            <option value={'user'}>Khách hàng</option>
-                                            <option value={'admin'}>Quản trị viên</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'user'}>Khách hàng</MenuItem>
+                                            <MenuItem value={'admin'}>Quản trị viên</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
-                                    <FormControl fullWidth margin="normal">
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Trạng thái
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái</InputLabel>
+                                        <SelectMui
+                                            labelId="demo-simple-select-label"
                                             disabled={disable}
-                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
-                                            inputProps={{
-                                            name: 'paymentStatus',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            value={status}
+                                            id="demo-simple-select"
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
-                                            <option value={'enable'}>Sử dụng</option>
-                                            <option value={'disable'}>Ngừng sử dụng</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
+                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
+                                    <ul></ul>
+                                    <Upload
+                                        listType="picture-card"
+                                        // fileList={fileList}
+                                        defaultFileList={fileList ? fileList : []}
+                                        onPreview={handlePreview}
+                                        onChange={handleChange}
+                                        beforeUpload={() => {
+                                            /* update state here */
+                                            return false;
+                                        }}
+                                        disabled={disable}
+                                    >
+                                        {/* {console.log(fileList)} */}
+                                        {fileList.length > 0 ? null : uploadButton}
+                                    </Upload>
+                                    <Modal
+                                        visible={previewVisible}
+                                        title={previewTitle}
+                                        footer={null}
+                                        onCancel={handleCancel}
+                                        style={{ zIndex: 9999999 }}
+                                    >
+                                        <img
+                                            alt="example"
+                                            style={{
+                                                width: '100%'
+                                            }}
+                                            src={previewImage}
+                                        />
+                                    </Modal>
                                 </div>
                             </div>
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleAddUser}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleAddUser} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -569,7 +724,16 @@ const AccountPage = () => {
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = userInPage.filter((row) => selectedIDs.has(row._id));
-
+                                if (selectedRows.length === 1) {
+                                    setFirstName(selectedRows[0].firstName);
+                                    setLastName(selectedRows[0].lastName);
+                                    setEmail(selectedRows[0].email);
+                                    setHash_password(selectedRows[0].hash_password);
+                                    setRole(selectedRows[0].role);
+                                    setContactNumber(selectedRows[0].contactNumber);
+                                    setStatus(selectedRows[0].status);
+                                    setFileList([{ url: selectedRows[0].profilePicture }]);
+                                }
                                 setSelectedRows(selectedRows);
                             }}
                             loading={loading}

@@ -20,6 +20,7 @@ import {
     FormControl,
     InputAdornment,
     InputLabel,
+    Select as SelectMui,
     NativeSelect,
     MenuItem,
     Modal,
@@ -385,7 +386,7 @@ const ComponentColor = () => {
                                     />
 
                                     <FormControl fullWidth style={{ width: '100%', marginBottom: '15px' }}>
-                                        <InputLabel htmlFor="outlined-adornment-amount">Giá tiền gốc</InputLabel>
+                                        <InputLabel htmlFor="outlined-adornment-amount" disabled = {disable}>Giá tiền gốc</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-amount"
                                             placeholder={formatThousand(selectedRows[0] ? selectedRows[0].regularPrice : '')}
@@ -399,7 +400,7 @@ const ComponentColor = () => {
                                         />
                                     </FormControl>
                                     <FormControl fullWidth style={{ width: '100%', marginBottom: '15px' }}>
-                                        <InputLabel htmlFor="outlined-adornment-amount">Giá tiền giảm giá</InputLabel>
+                                        <InputLabel htmlFor="outlined-adornment-amount" disabled = {disable}>Giá tiền giảm giá</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-amount"
                                             defaultValue={selectedRows[0] ? formatThousand(selectedRows[0].salePrice) : ''}
@@ -408,24 +409,20 @@ const ComponentColor = () => {
                                             label="Giá tiền giảm giá"
                                         />
                                     </FormControl>
-                                    <FormControl fullWidth margin="normal">
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Thương hiệu
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Thương hiệu</InputLabel>
+                                        <SelectMui
                                             disabled={disable}
                                             defaultValue={selectedRows[0] ? selectedRows[0].category._id : ''}
                                             label="Thương hiệu"
-                                            inputProps={{
-                                            name: 'role',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
                                             onChange={(e) => setCategoryId(e.target.value)}
                                         >
                                             {createCategoryList(category.categories).map((option) => (
                                                 <option value={option.value}>{option.name}</option>
                                             ))}
-                                        </NativeSelect>
+                                        </SelectMui>
                                     </FormControl>
                                     <Upload
                                         listType="picture-card"
@@ -603,10 +600,10 @@ const ComponentColor = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{ paddingLeft: '0' }}>
-                        <Button size="small" variant="contained" color="success" onClick={handleEdit}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleEdit} disabled = {disable}>
                             Lưu
                         </Button>
-                        <Button size="small" variant="contained" onClick={handleClose}>
+                        <Button size="small" variant="outlined" onClick={handleClose}>
                             Đóng
                         </Button>
                     </CardActions>

@@ -15,6 +15,7 @@ import {
     Modal,
     Stack,
     NativeSelect,
+    Select as SelectMui,
     Typography,
     TextField,
     FormControl,
@@ -170,13 +171,15 @@ const BannerPage = () => {
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
+        zIndex: 50,
         p: 4
     };
     notification.config({
         placement: 'topRight',
         top: 80,
         duration: 3,
-        rtl: false
+        rtl: false,
+        zIndex: 100
     });
     const handleChangeBannerName = (value) => {
         searchModel.BannerName = value;
@@ -223,7 +226,8 @@ const BannerPage = () => {
             reader.onload = () => resolve(reader.result);
 
             reader.onerror = (error) => reject(error);
-        });
+        }
+    );
 
     const uploadPicture = async () => {
         if (codeBanner.trim() === '' || nameBanner.trim() === '') {
@@ -259,25 +263,31 @@ const BannerPage = () => {
                         nameBanner,
                         codeBanner,
                         slug,
-
                         image: responseJson.result[0]
                     };
                     dispatch(addBanner(data)).then((data) => {
+                        dispatch(getDataFilterBanner()).then((data) => {
+                            data.map((item, index) => (item.id = index + 1));
+                            setBannerInPage(data);
+                            setLoading(false);
+                        });
                         if (data === 'success') {
+                            handleClose();
                             notification['success']({
                                 message: 'Thêm mới Banner',
                                 description: 'Thêm mới Banner thành công.'
                             });
-                            handleClose();
                             setCodeBanner('');
                             setNameBanner('');
                             setSlug('');
                             setFileList([]);
                         } else {
-                            notification['error']({
+                            handleClose();
+                            notification['error'] ({
                                 message: 'Thêm mới Banner',
-                                description: 'Thêm mới Banner thất bại.'
+                                description: 'Thêm mới Banner thất bại.',
                             });
+                            
                         }
                     });
                 });
@@ -358,29 +368,25 @@ const BannerPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setDescriptionRole(e.target.value)}
                                     /> */}
-                                    <FormControl fullWidth margin="normal">
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Trạng thái
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%'}}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Banner</InputLabel>
+                                        <SelectMui
                                             disabled={disable}
                                             defaultValue={status}
-                                            inputProps={{
-                                            name: 'status',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
                                             onChange={(e) => setStatus(e.target.value)}
                                         >
-                                            <option value={'enable'}>Sử dụng</option>
-                                            <option value={'disable'}>Ngừng sử dụng</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
+                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
                                     <ul></ul>
                                     <Upload
                                         listType="picture-card"
-                                        fileList={fileList}
-                                        // defaultFileList={fileList ? fileList : []}
-                                        onPreview={handlePreview}
+                                        // fileList={fileList}
+                                        defaultFileList={fileList ? fileList : []}
+                                        // onPreview={handlePreview}
                                         onChange={handleChange}
                                         beforeUpload={() => {
                                             /* update state here */
@@ -410,7 +416,7 @@ const BannerPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{ padding: '0' }}>
-                        <Button size="small" variant="outlined" color="success" onClick={uploadPicture}>
+                        <Button size="small" variant="outlined" color="success" onClick={uploadPicture} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>

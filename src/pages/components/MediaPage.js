@@ -48,6 +48,7 @@ const MediaPage = () => {
     const [description, setDescription] = useState('');
     const [banners, setBanners] = useState('');
     const [products, setProducts] = useState('');
+    const [category, setCategory] = useState('');
     const handleOpen = () => setOpen(true);
     const [type, setType] = useState('');
     const [open, setOpen] = useState(false);
@@ -131,6 +132,130 @@ const MediaPage = () => {
             setLoading(false);
         });
     };
+    // const handleAddMedia = async (e) => {
+    //     if (title.trim() === '' || banners.trim() === '' || products.trim() === '') {
+    //         notification['warning']({
+    //             message: 'Thêm mới Media',
+    //             description: 'Vui lòng nhập dữ liệu.'
+    //         });
+    //         return;
+    //     } 
+    //     else {
+    //         await dispatch(addScreen({ screenCode, screenName, screenDescription, status})).then(() => {
+    //             dispatch(getDataFilterScreen()).then((data) => {
+    //                 data.map((item, index) => (item.id = index + 1));
+    //                 setScreenInPage(data);
+    //                 setLoading(false);
+    //             });
+    //         });
+    //         handleClose();
+
+    //         if (auth.error) {
+    //             notification['error']({
+    //                 message: 'Thêm screen mới',
+    //                 description: 'Thêm screen mới thất bại.'
+    //             });
+    //         }
+    //     }        
+    // };
+    // const modalUser = (type) => {
+    //     let title;
+    //     let disable;
+    //     if (type === 'edit') {
+    //         title = 'Chỉnh sửa tài khoản';
+    //         disable = false;
+    //     } else if (type === 'view') {
+    //         title = 'Xem chi tiết tài khoản';
+    //         disable = true;
+    //     } else {
+    //         title = 'Tạo mới tài khoản';
+    //     }
+    //     return (
+    //         <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+    //             <Box sx={style}>
+    //                 <Typography id="modal-modal-title" variant="h3" component="h2">
+    //                     {title}
+    //                 </Typography>
+    //                 <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
+    //                     <TabPane tab={<span>Thông tin chung</span>} key="1">
+    //                         <div
+    //                             className="container_addProduct"
+    //                             style={{
+    //                                 display: 'flex',
+    //                                 paddingTop: '0px',
+    //                                 color: 'black',
+    //                                 fontSize: '17px'
+    //                             }}
+    //                         >
+    //                             <div
+    //                                 className="container_form_addProduct"
+    //                                 style={{
+    //                                     paddingBottom: '20px',
+    //                                     width: '100%',
+    //                                     paddingRight: '30px'
+    //                                 }}
+    //                             >
+    //                                 <TextField
+    //                                     required
+    //                                     style={{ width: '100%', marginBottom: '15px' }}
+    //                                     id="outlined-error"
+    //                                     label="Tiêu đề"
+    //                                     value={title}
+    //                                     disabled={disable}
+    //                                     onChange={(e) => setTitle(e.target.value)}
+    //                                 />
+    //                                 <TextField
+    //                                     required
+    //                                     id="outlined-number"
+    //                                     label="Mô tả chi tiết"
+    //                                     style={{ width: '100%', marginBottom: '15px' }}
+    //                                     value={description}
+    //                                     disabled={disable}
+    //                                     onChange={(e) => setDescription(e.target.value)}
+    //                                 />
+    //                                 <TextField
+    //                                     required
+    //                                     id="outlined-number"
+    //                                     label="Banner"
+    //                                     style={{ width: '100%', marginBottom: '15px' }}
+    //                                     value={banners}
+    //                                     disabled={disable}
+    //                                     onChange={(e) => setBanners(e.target.value)}
+    //                                 />
+    //                                 <TextField
+    //                                     required
+    //                                     id="outlined-number"
+    //                                     label="Sản phẩm"
+    //                                     style={{ width: '100%', marginBottom: '15px' }}
+    //                                     value={products}
+    //                                     disabled={disable}
+    //                                     onChange={(e) => setProducts(e.target.value)}
+    //                                 />
+    //                                 <TextField
+    //                                     required
+    //                                     id="outlined-number"
+    //                                     label="Nhãn hàng"
+    //                                     style={{ width: '100%', marginBottom: '15px' }}
+    //                                     value={category}
+    //                                     disabled={disable}
+    //                                     onChange={(e) => setCategory(e.target.value)}
+    //                                 />
+    //                             </div>
+    //                         </div>
+    //                     </TabPane>
+    //                 </Tabs>
+    //                 <CardActions sx={{}}>
+    //                     <Button size="small" variant="outlined" color="success" onClick={handleAddMedia}>
+    //                         Lưu
+    //                     </Button>
+    //                     <Button size="small" variant="outlined" onClick={handleClose}>
+    //                         Đóng
+    //                     </Button>
+    //                 </CardActions>
+    //             </Box>
+    //         </Modal>
+    //     );
+    // };
     return (
         <ComponentSkeleton>
             <Form style={{ marginBottom: '10px' }}>

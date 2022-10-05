@@ -20,6 +20,7 @@ import {
     NativeSelect,
     FormControl,
     InputLabel,
+    Select as SelectMui,
     OutlinedInput,
     MenuItem,
     CardActions
@@ -163,23 +164,41 @@ const ListScreenPage = () => {
             });
             return;
         } 
-        else {
-            await dispatch(addScreen({ screenCode, screenName, screenDescription, status})).then(() => {
+        try {
+            const data = {
+                screenCode,
+                screenName,
+                screenDescription,
+                status
+            };        
+            dispatch(addScreen(data)).then((data) => {
                 dispatch(getDataFilterScreen()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setScreenInPage(data);
                     setLoading(false);
                 });
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Thêm mới Screen',
+                        description: 'Thêm mới Screen thành công.'
+                    });
+                    setScreenCode('');
+                    setScreenName('');
+                    setScreenDescription('');
+                    setStatus('');
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Thêm mới Screen',
+                        description: 'Thêm mới Screen thất bại.',
+                    });
+                    
+                }
             });
-            handleClose();
-
-            if (auth.error) {
-                notification['error']({
-                    message: 'Thêm screen mới',
-                    description: 'Thêm screen mới thất bại.'
-                });
-            }
-        }        
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }  
     };
     const handleSearch = () => {
         setLoading(true);
@@ -282,29 +301,25 @@ const ListScreenPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setScreenDescription(e.target.value)}
                                     />
-                                    <FormControl fullWidth>
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Trạng thái Screen
-                                        </InputLabel>
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Screen</InputLabel>
+                                        <SelectMui
                                             disabled={disable}
                                             onChange={(e) => setStatus(e.target.value)}
                                             defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
-                                            inputProps={{
-                                            name: 'status',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
                                         >
-                                            <option value={'enable'}>Sử dụng</option>
-                                            <option value={'disable'}>Ngừng sử dụng</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
+                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
                                 </div>
                             </div>
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleAddScreen}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleAddScreen} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>

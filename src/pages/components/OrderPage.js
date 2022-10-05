@@ -20,6 +20,7 @@ import {
     InputLabel,
     MenuItem,
     Modal,
+    Select as SelectMui,
     OutlinedInput,
     NativeSelect,
     TextField
@@ -409,39 +410,24 @@ const OrderPage = () => {
                                         value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
                                         disabled={disable}
                                     /> */}
-                                    <FormControl fullWidth>
-                                        <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                                            Trạng thái thanh toán
-                                        </InputLabel>
-                                        {/* <Select
-                                            disabled={disable}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
-                                            label="Trạng thái thanh toán"
-                                            onChange={handleChange}
-                                        >
-                                            <MenuItem value="pending">pending</MenuItem>
-                                            <MenuItem value="cancelled">cancelled</MenuItem>
-                                        </Select> */}
-                                        <NativeSelect
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Thanh toán</InputLabel>
+                                        <SelectMui
                                             disabled={disable}
                                             defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
-                                            inputProps={{
-                                            name: 'paymentStatus',
-                                            id: 'uncontrolled-native',
-                                            }}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
                                         >
-                                            <option value={'pending'}>pending</option>
-                                            <option value={'cancelled'}>cancelled</option>
-                                        </NativeSelect>
+                                            <MenuItem value={'pending'}>pending</MenuItem>
+                                            <MenuItem value={'cancelled'}>cancelled</MenuItem>
+                                        </SelectMui>
                                     </FormControl>
                                 </div>
                             </div>
                         </TabPane>
                     </Tabs>
-                    <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleEdit}>
+                    <CardActions sx={{padding: '0'}}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleEdit} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>

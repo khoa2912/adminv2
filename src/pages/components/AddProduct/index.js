@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FormGroup } from 'react-bootstrap';
 import Button from '@mui/material/Button';
 import './style.css';
-import { Form, Modal, Card } from 'antd';
+import { Form, Modal, Card, notification } from 'antd';
 import draftToHtml from 'draftjs-to-html';
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -30,7 +30,7 @@ import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
 import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory } from 'actions/category';
-import { addProduct } from 'actions/product';
+import { addProduct, getProducts } from 'actions/product';
 import { useHistory } from 'react-router-dom';
 import {useNavigate} from "react-router-dom"
 
@@ -64,6 +64,8 @@ export const AddProduct = (props) => {
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
     const [filebase64, setFileBase64] = useState([]);
+    const [productInPage, setProductInPage] = useState([]);
+    const [loading, setLoading] = useState(false);
     const handleCancel = () => setPreviewVisible(false);
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
     const handlePreview = async (file) => {
@@ -97,12 +99,23 @@ export const AddProduct = (props) => {
         </div>
     );
     useEffect(() => {
+        setLoading(true);
+        dispatch(getProducts()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setProductInPage(data);
+            setLoading(false);
+        });
+    }, [dispatch]);
+    useEffect(() => {
         dispatch(getAllCategory());
     }, []);
     const navigate = useNavigate();
     useEffect(() => {
         if (product.addProduct != null) {
-            alert('Thêm sản phẩm thành công');
+            notification['success']({
+                message: 'Thêm mới Sản phẩm',
+                description: 'Thêm mới Sản phẩm thành công.'
+            });
             navigate('/product');
         }
     }, [product.loading]);
@@ -118,6 +131,13 @@ export const AddProduct = (props) => {
     };
 
     const uploadPicture = async () => {
+        if (name.trim() === '' || categoryId.trim() === '' || regularPrice.trim() === '' || quantity.trim() === '') {
+            notification['warning']({
+                message: 'Thêm mới Sản phẩm',
+                description: 'Vui lòng nhập dữ liệu.'
+            });
+            return;
+        }
         if (!fileList) return;
         const list = [];
         for (let pic of fileList) {
@@ -159,7 +179,19 @@ export const AddProduct = (props) => {
                         hedieuhanh,
                         khoiluong
                     };
-                    dispatch(addProduct(data));
+                    dispatch(addProduct(data)).then((data) => {
+                        dispatch(getProducts()).then((data) => {
+                            data.map((item, index) => (item.id = index + 1));
+                            setProductInPage(data);
+                            setLoading(false);
+                        });
+                        if (data !== 'success') {
+                            notification['error']({
+                                message: 'Thêm mới Sản phẩm',
+                                description: 'Thêm mới Sản phẩm thất bại'
+                            });
+                        }
+                    });
                 });
         } catch (err) {
             throw new Error('Something went wrong');
