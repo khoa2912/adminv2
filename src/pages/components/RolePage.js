@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addRole, getDataFilterRole } from 'actions/role';
+import { addRole, getDataFilterRole, deleteRoleById } from 'actions/role';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -131,14 +131,41 @@ const RolePage = () => {
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xoá vai trò',
-                description: 'Vui lòng chọn vai trò bạn muốn xoá.'
+                message: 'Xoá Role',
+                description: 'Vui lòng chọn Role bạn muốn xoá.'
             });
         } else {
-            notification['success']({
-                message: 'Xoá vai trò',
-                description: 'Xoá vai trò thành công.'
+            let listIdRole = [];
+            selectedRows.map((item) => {
+                listIdRole.push(item._id);
             });
+            const payload = {
+                roleId: listIdRole
+            };
+            const temp = roleInPage.length;
+            
+            dispatch(deleteRoleById(payload)).then((data) => {
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                    setLoading(false);
+                    if(temp!=data.length) {
+                        notification['success']({
+                            message: 'Xoá Role',
+                            description: 'Xoá Role thành công.'
+                        });
+                    } 
+                    else {
+                        notification['error']({
+                            message: 'Xoá Role',
+                            description: 'Xoá Role không thành công.'
+                        });
+                    }
+                    console.log(temp);
+                    console.log(data.length);
+                });
+            });
+
         }
     };
     const gridStyle = {
@@ -208,16 +235,41 @@ const RolePage = () => {
                 message: 'Thêm mới vai trò',
                 description: 'Vui lòng nhập dữ liệu.'
             });
-        } else {
-            await dispatch(addRole({ codeRole, nameRole, descriptionRole, status }));
-            handleClose();
-
-            if (role.error) {
-                notification['error']({
-                    message: 'Thêm mới vai trò',
-                    description: 'Thêm mới vai trò thất bại.'
+        }
+        try {
+            const data = {
+                codeRole,
+                nameRole,
+                descriptionRole,
+                status
+            };
+            dispatch(addRole(data)).then((data) => {
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                    setLoading(false);
                 });
-            }
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Thêm mới Role',
+                        description: 'Thêm mới Role thành công.'
+                    });
+                    setCodeRole('');
+                    setNameRole('');
+                    setDescriptionRole('');
+                    setStatus('');
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Thêm mới Role',
+                        description: 'Thêm mới Role thất bại.',
+                    });
+                    
+                }
+            });
+        } catch (err) {
+            throw new Error('Something went wrong');
         }
     };
     // Filter in Role
@@ -328,7 +380,7 @@ const RolePage = () => {
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái</InputLabel>
                                         <SelectMui
                                             disabled={disable}
-                                            value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
+                                            value={ status}
                                             onChange={(e) => setStatus(e.target.value)}
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"

@@ -37,6 +37,37 @@ export var getDataFilterRole = (searchModel) => {
     };
 };
 
+export var deleteRoleById = (payload) => {
+    return async (dispatch) => {
+        try {
+            const res = await axios.delete('role/deleteRoleById', {
+                data: { payload }
+            });
+            dispatch({ type: roleConstants.DELETE_ROLE_BY_ID_REQUEST });
+            if (res.status === 202) {
+                dispatch({ type: roleConstants.DELETE_ROLE_BY_ID_SUCCESS });
+                dispatch(getRoles());
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: roleConstants.DELETE_ROLE_BY_ID_FAILURE,
+                    payload: {
+                        error
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            dispatch({
+                type: roleConstants.DELETE_ROLE_BY_ID_FAILURE,
+                payload: {
+                    error
+                }
+            });
+        }
+    };
+};
+
 export var addRole = (form) => {
     return async (dispatch) => {
         try {

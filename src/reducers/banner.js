@@ -46,6 +46,26 @@ export default (state = initState, action) => {
                 message: 'successcreate'
             };
             break;
+        case bannerConstants.DELETE_BANNER_BY_ID_REQUEST:
+            state = {
+                ...state,
+                loading: true
+            };
+            break;
+        case bannerConstants.DELETE_BANNER_BY_ID_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'success'
+            };
+            break;
+        case bannerConstants.DELETE_BANNER_BY_ID_FAILURE:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'error'
+            };
+            break;
     }
     return state;
 };

@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addBanner, getDataFilterBanner } from 'actions/banner';
+import { addBanner, getDataFilterBanner, deleteBannerById } from 'actions/banner';
 import { PlusOutlined } from '@ant-design/icons';
 const { TabPane } = Tabs;
 // styles
@@ -152,10 +152,37 @@ const BannerPage = () => {
                 description: 'Vui lòng chọn Banner bạn muốn xoá.'
             });
         } else {
-            notification['success']({
-                message: 'Xoá Banner',
-                description: 'Xoá Banner thành công.'
+            let listIdBanner = [];
+            selectedRows.map((item) => {
+                listIdBanner.push(item._id);
             });
+            const payload = {
+                bannerId: listIdBanner
+            };
+            const temp = bannerInPage.length;
+            
+            dispatch(deleteBannerById(payload)).then((data) => {
+                dispatch(getDataFilterBanner()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setBannerInPage(data);
+                    setLoading(false);
+                    if(temp!=data.length) {
+                        notification['success']({
+                            message: 'Xoá Banner',
+                            description: 'Xoá Banner thành công.'
+                        });
+                    } 
+                    else {
+                        notification['error']({
+                            message: 'Xoá Banner',
+                            description: 'Xoá Banner không thành công.'
+                        });
+                    }
+                    console.log(temp);
+                    console.log(data.length);
+                });
+            });
+
         }
     };
     const gridStyle = {

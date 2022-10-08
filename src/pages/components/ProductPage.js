@@ -33,7 +33,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { notification, Popconfirm } from 'antd';
 import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
-import { deleteProductById, getDataFilter, getProducts } from 'actions/product';
+import { deleteProductById, getDataFilter, getProducts, getProductWarning } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataArraySharp } from '../../../node_modules/@mui/icons-material/index';
@@ -120,7 +120,6 @@ const ComponentColor = () => {
         if (selectedRows[0]) {
             selectedRows[0] && selectedRows[0].productPicture.map((item) => Object.assign(item, { url: item.img }));
         }
-
         setProductPicture(selectedRows[0] ? selectedRows[0].productPicture : []);
     }, [selectedRows]);
 
@@ -213,7 +212,6 @@ const ComponentColor = () => {
             handleOpen();
         }
     };
-
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -228,19 +226,28 @@ const ComponentColor = () => {
             const payload = {
                 productId: listIdProduct
             };
-            dispatch(deleteProductById(payload));
-            if (product.deleteMessage === 'success') {
-                notification['success']({
-                    message: 'Xoá sản phẩm',
-                    description: 'Xoá sản phẩm thành công.'
+            const temp = product.length;
+            dispatch(deleteProductById(payload)).then((data) => {
+                dispatch(getProducts()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setProductInPage(data);
+                    setLoading(false);
+                    if(temp!=data.length) {
+                        notification['success']({
+                            message: 'Xoá Sản phẩm',
+                            description: 'Xoá Sản phẩm thành công.'
+                        });
+                    } 
+                    else {
+                        notification['error']({
+                            message: 'Xoá Sản phẩm',
+                            description: 'Xoá Sản phẩm không thành công.'
+                        });
+                    }
+                    console.log(temp);
+                    console.log(data.length);
                 });
-            }
-            if (product.deleteMessage === 'error') {
-                notification['error']({
-                    message: 'Xoá sản phẩm',
-                    description: 'Xoá sản phẩm không thành công.'
-                });
-            }
+            });
         }
     };
     const handleEditProduct = () => {

@@ -176,6 +176,37 @@ export var addUser = (form) => {
     };
 };
 
+export var deleteAccountById = (payload) => {
+    return async (dispatch) => {
+        try {
+            const res = await axios.delete('admin/deleteAccountById', {
+                data: { payload }
+            });
+            dispatch({ type: authConstants.DELETE_ACCOUNT_BY_ID_REQUEST });
+            if (res.status === 202) {
+                dispatch({ type: authConstants.DELETE_ACCOUNT_BY_ID_SUCCESS });
+                dispatch(getUsers());
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: authConstants.DELETE_ACCOUNT_BY_ID_FAILURE,
+                    payload: {
+                        error
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            dispatch({
+                type: authConstants.DELETE_ACCOUNT_BY_ID_FAILURE,
+                payload: {
+                    error
+                }
+            });
+        }
+    };
+};
+
 export var getDataFilterUser = (searchModel) => {
     return async (dispatch) => {
         try {

@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addScreen, getDataFilterScreen } from 'actions/screen';
+import { addScreen, getDataFilterScreen, deleteScreenById } from 'actions/screen';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -229,14 +229,41 @@ const ListScreenPage = () => {
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xoá screen',
-                description: 'Vui lòng chọn screen bạn muốn xoá.'
+                message: 'Xoá Screen',
+                description: 'Vui lòng chọn Screen bạn muốn xoá.'
             });
         } else {
-            notification['success']({
-                message: 'Xoá screen',
-                description: 'Xoá screen thành công.'
+            let listIdScreen = [];
+            selectedRows.map((item) => {
+                listIdScreen.push(item._id);
             });
+            const payload = {
+                screenId: listIdScreen
+            };
+            const temp = screenInPage.length;
+            
+            dispatch(deleteScreenById(payload)).then((data) => {
+                dispatch(getDataFilterScreen()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setScreenInPage(data);
+                    setLoading(false);
+                    if(temp!=data.length) {
+                        notification['success']({
+                            message: 'Xoá Screen',
+                            description: 'Xoá Screen thành công.'
+                        });
+                    } 
+                    else {
+                        notification['error']({
+                            message: 'Xoá Screen',
+                            description: 'Xoá Screen không thành công.'
+                        });
+                    }
+                    console.log(temp);
+                    console.log(data.length);
+                });
+            });
+
         }
     };
     const modalScreen = (type) => {

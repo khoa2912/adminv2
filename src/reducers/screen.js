@@ -39,13 +39,33 @@ export default (state = initState, action) => {
                     error: ''
                 };
                 break;
-            case screenConstants.CREATE_SCREEN_SUCCESS:
-                state = {
-                    ...state,
+        case screenConstants.CREATE_SCREEN_SUCCESS:
+            state = {
+                ...state,
                     loading: false,
-                    message: 'successcreate'
-                };
-                break;
+                message: 'successcreate'
+            };
+            break;
+        case screenConstants.DELETE_SCREEN_BY_ID_REQUEST:
+            state = {
+                ...state,
+                loading: true
+            };
+            break;
+        case screenConstants.DELETE_SCREEN_BY_ID_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'success'
+            };
+            break;
+        case screenConstants.DELETE_SCREEN_BY_ID_FAILURE:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'error'
+            };
+            break;
     }
     return state;
 };

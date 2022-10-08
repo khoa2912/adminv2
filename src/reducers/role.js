@@ -54,6 +54,26 @@ export default (state = initState, action) => {
                 error: 'error'
             };
             break;
+        case roleConstants.DELETE_ROLE_BY_ID_REQUEST:
+            state = {
+                ...state,
+                loading: true
+            };
+            break;
+        case roleConstants.DELETE_ROLE_BY_ID_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'success'
+            };
+            break;
+        case roleConstants.DELETE_ROLE_BY_ID_FAILURE:
+            state = {
+                ...state,
+                loading: false,
+                deleteMessage: 'error'
+            };
+            break;
     }
     return state;
 };

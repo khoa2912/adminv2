@@ -64,8 +64,6 @@ export const AddProduct = (props) => {
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
     const [filebase64, setFileBase64] = useState([]);
-    const [productInPage, setProductInPage] = useState([]);
-    const [loading, setLoading] = useState(false);
     const handleCancel = () => setPreviewVisible(false);
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
     const handlePreview = async (file) => {
@@ -99,14 +97,6 @@ export const AddProduct = (props) => {
         </div>
     );
     useEffect(() => {
-        setLoading(true);
-        dispatch(getProducts()).then((data) => {
-            data.map((item, index) => (item.id = index + 1));
-            setProductInPage(data);
-            setLoading(false);
-        });
-    }, [dispatch]);
-    useEffect(() => {
         dispatch(getAllCategory());
     }, []);
     const navigate = useNavigate();
@@ -129,7 +119,7 @@ export const AddProduct = (props) => {
         }
         return options;
     };
-
+    const temp = product.length;
     const uploadPicture = async () => {
         if (name.trim() === '' || categoryId.trim() === '' || regularPrice.trim() === '' || quantity.trim() === '') {
             notification['warning']({
@@ -179,18 +169,24 @@ export const AddProduct = (props) => {
                         hedieuhanh,
                         khoiluong
                     };
+                    
                     dispatch(addProduct(data)).then((data) => {
                         dispatch(getProducts()).then((data) => {
                             data.map((item, index) => (item.id = index + 1));
-                            setProductInPage(data);
-                            setLoading(false);
+                            // if(temp<data.length) {
+                            //     notification['success']({
+                            //         message: 'Thêm mới Sản phẩm',
+                            //         description: 'Thêm mới Sản phẩm thành công'
+                            //     });
+                                
+                            // }
+                            // else {
+                            //     notification['error']({
+                            //         message: 'Thêm mới Sản phẩm',
+                            //         description: 'Thêm mới Sản phẩm thất bại'
+                            //     });
+                            // }
                         });
-                        if (data !== 'success') {
-                            notification['error']({
-                                message: 'Thêm mới Sản phẩm',
-                                description: 'Thêm mới Sản phẩm thất bại'
-                            });
-                        }
                     });
                 });
         } catch (err) {

@@ -44,6 +44,37 @@ export var getScreens = () => {
     };
 };
 
+export var deleteScreenById = (payload) => {
+    return async (dispatch) => {
+        try {
+            const res = await axios.delete('screen/deleteScreenById', {
+                data: { payload }
+            });
+            dispatch({ type: screenConstants.DELETE_SCREEN_BY_ID_REQUEST });
+            if (res.status === 202) {
+                dispatch({ type: screenConstants.DELETE_SCREEN_BY_ID_SUCCESS });
+                dispatch(getScreens());
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: screenConstants.DELETE_SCREEN_BY_ID_FAILURE,
+                    payload: {
+                        error
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            dispatch({
+                type: screenConstants.DELETE_SCREEN_BY_ID_FAILURE,
+                payload: {
+                    error
+                }
+            });
+        }
+    };
+};
+
 export var getDataFilterScreen = (searchModel) => {
     return async (dispatch) => {
         try {

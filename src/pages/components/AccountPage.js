@@ -35,7 +35,7 @@ import { notification, Space, Popconfirm } from 'antd';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUsers, getDataFilterUser, addUser } from 'actions/auth';
+import { getUsers, getDataFilterUser, addUser, deleteAccountById } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { PlusOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
@@ -207,7 +207,7 @@ const AccountPage = () => {
     };
     const handleAddUser = async (e) => {
         if (firstName.trim() === '' || lastName.trim() === '' ||
-        email.trim() === '' || hash_password.trim() === '') {
+        email.trim() === '' || hash_password.trim() === '' || status.trim() === '') {
             notification['warning']({
                 message: 'Thêm mới tài khoản',
                 description: 'Vui lòng nhập dữ liệu.'
@@ -310,14 +310,41 @@ const AccountPage = () => {
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xoá sản phẩm',
-                description: 'Vui lòng chọn sản phẩm bạn muốn xoá.'
+                message: 'Xoá Tài khoản',
+                description: 'Vui lòng chọn Tài khoản bạn muốn xoá.'
             });
         } else {
-            notification['success']({
-                message: 'Xoá sản phẩm',
-                description: 'Xoá sản phẩm thành công.'
+            let listIdAccount = [];
+            selectedRows.map((item) => {
+                listIdAccount.push(item._id);
             });
+            const payload = {
+                userId: listIdAccount
+            };
+            const temp = userInPage.length;
+            
+            dispatch(deleteAccountById(payload)).then((data) => {
+                dispatch(getDataFilterUser()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setUserInPage(data);
+                    setLoading(false);
+                    if(temp!=data.length) {
+                        notification['success']({
+                            message: 'Xoá Tài khoản',
+                            description: 'Xoá Tài khoản thành công.'
+                        });
+                    } 
+                    else {
+                        notification['error']({
+                            message: 'Xoá Tài khoản',
+                            description: 'Xoá Tài khoản không thành công.'
+                        });
+                    }
+                    console.log(temp);
+                    console.log(data.length);
+                });
+            });
+
         }
     };
     const gridStyle = {
