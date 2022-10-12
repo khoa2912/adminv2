@@ -293,16 +293,15 @@ const MediaPage = () => {
             </Form>
             <MainCard>
                 <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
-                    {/* <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
-                        Thêm mới
-                    </Button> */}
+                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
+                        Tìm kiếm
+                    </Button>
                     <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                         Xem
                     </Button>
-                    {/* <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
-                        Chỉnh sửa
+                    {/* <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
+                        Thêm mới
                     </Button> */}
-
                     <Popconfirm placement="right" title={text} onConfirm={confirm} okText="Đồng ý" cancelText="Không">
                         <Button
                             variant="outlined"
@@ -314,9 +313,9 @@ const MediaPage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
-                        Tìm kiếm
-                    </Button>
+                    {/* <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
+                        Chỉnh sửa
+                    </Button> */}
                 </Stack>
                 {/* {modalUser(type)} */}
                 <Grid container spacing={3}>

@@ -55,7 +55,8 @@ const Notification = () => {
     const [productWarning,setProductWarning]=useState([])
     useEffect(() => {
         dispatch(getProductWarning()).then((data)=>{
-            setProductWarning(data)
+            setProductWarning(data);
+            console.log('Productwarning error', data);
         });
     },[])
     const anchorRef = useRef(null);
@@ -149,6 +150,7 @@ const Notification = () => {
                                        
                                         {productWarning.map(item=>(
                                             <>
+                                            
                                                 <ListItemButton component="a" href="/product" sx={{ maxHeight: 300, overflow: 'auto' }}>
                                                     <ListItemAvatar>
                                                         <PriorityHighRoundedIcon 

@@ -75,6 +75,29 @@ export var deleteBannerById = (payload) => {
     };
 };
 
+export var updateBanner = (form) => {
+    return async (dispatch) => {
+        dispatch({ type: bannerConstants.UPDATE_BANNER_REQUEST });
+        try {
+            const res = await axios.post('banner/updateBanner', form);
+            if (res.status === 201) {
+                dispatch({ type: bannerConstants.UPDATE_BANNER_SUCCESS });
+                dispatch(getBanners());
+                return 'success';
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: bannerConstants.UPDATE_BANNER_FAILURE,
+                    payload: {error}
+                });
+            }
+        } catch (error) {
+            dispatch({ type: bannerConstants.UPDATE_BANNER_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var getDataFilterBanner = (searchModel) => {
     return async (dispatch) => {
         try {

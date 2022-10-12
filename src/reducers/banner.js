@@ -66,6 +66,21 @@ export default (state = initState, action) => {
                 deleteMessage: 'error'
             };
             break;
+        case bannerConstants.UPDATE_BANNER_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                error: ''
+                };
+            break;
+        case bannerConstants.UPDATE_BANNER_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'success'
+            };
+            break;
     }
     return state;
 };

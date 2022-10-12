@@ -615,14 +615,14 @@ const OrderPage = () => {
                 </Collapse>
             </Form>
             <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
+                <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
+                    Tìm kiếm
+                </Button>
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                     Xem
                 </Button>
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleUpdateOrder}>
                     Cập nhập
-                </Button>
-                <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
-                    Tìm kiếm
                 </Button>
             </Stack>
             {modalOrder(type)}

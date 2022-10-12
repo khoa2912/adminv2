@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addBanner, getDataFilterBanner, deleteBannerById } from 'actions/banner';
+import { addBanner, getDataFilterBanner, deleteBannerById, updateBanner } from 'actions/banner';
 import { PlusOutlined } from '@ant-design/icons';
 const { TabPane } = Tabs;
 // styles
@@ -94,7 +94,6 @@ const BannerPage = () => {
             headerName: 'Hình ảnh',
             field: 'image',
             renderCell: (params) =>{
-                console.log(params,'record')
                 return(
                     <Image
                         preview={false}
@@ -237,10 +236,6 @@ const BannerPage = () => {
                 description: 'Vui lòng chỉ chọn một Banner.'
             });
         } else {
-            // notification['success']({
-            //     message: 'Chỉnh sửa sản phẩm',
-            //     description: 'Coming Soon'
-            // });
             setType('edit');
             handleOpen();
         }
@@ -322,17 +317,80 @@ const BannerPage = () => {
             throw new Error('Something went wrong');
         }
     };
+    const handleUpdateBanner = async () => {
+        if (!fileList) return;
+        const list = [];
+        for (let pic of fileList) {
+            const reader = new FileReader();
+            if (pic) {
+                const link = await getBase64(pic.originFileObj);
+                list.push(link);
+            }
+        }
+        try {
+            await fetch('http://localhost:3001/product/uploadPicture', {
+                method: 'POST',
+                body: JSON.stringify({ data: list }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Something went wrong');
+                })
+                .then((responseJson) => {
+                    const data = {
+                        _id: selectedRows[0]._id,
+                        createdBy: selectedRows[0].createdBy,
+                        nameBanner,
+                        codeBanner,
+                        slug,
+                        image: responseJson.result[0]
+                    };
+                    console.log(data);
+                    dispatch(updateBanner(data)).then((data) => {
+                        dispatch(getDataFilterBanner()).then((data) => {
+                            data.map((item, index) => (item.id = index + 1));
+                            setBannerInPage(data);
+                            setLoading(false);
+                        });
+                        console.log(data);
+                        if (data === 'success') {
+                            handleClose();
+                            notification['success']({
+                                message: 'Cập nhập Banenr',
+                                description: 'Cập nhập Banenr thành công.'
+                            });
+                        } else {
+                            handleClose();
+                            notification['error'] ({
+                                message: 'Cập nhập Banenr',
+                                description: 'Cập nhập Banenr thất bại.',
+                            });
+                            
+                        }
+                    });
+                });
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }
+    };
     const modalUser = (type) => {
         let title;
         let disable;
+        let Setonclick;
         if (type === 'edit') {
             title = 'Chỉnh sửa Banner';
             disable = false;
+            Setonclick = handleUpdateBanner;
         } else if (type === 'view') {
             title = 'Xem chi tiết Banner';
             disable = true;
-        } else {
+        } else if (type === 'create') {
             title = 'Tạo mới Banner';
+            disable = false;
+            Setonclick = uploadPicture;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -386,28 +444,6 @@ const BannerPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setSlug(e.target.value)}
                                     />
-                                    {/* <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Mô tả"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={descriptionRole}
-                                        disabled={disable}
-                                        onChange={(e) => setDescriptionRole(e.target.value)}
-                                    /> */}
-                                    <FormControl style={{ width: '100%'}}>
-                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Banner</InputLabel>
-                                        <SelectMui
-                                            disabled={disable}
-                                            defaultValue={status}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            onChange={(e) => setStatus(e.target.value)}
-                                        >
-                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
-                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
-                                        </SelectMui>
-                                    </FormControl>
                                     <ul></ul>
                                     <Upload
                                         listType="picture-card"
@@ -443,7 +479,7 @@ const BannerPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{ padding: '0' }}>
-                        <Button size="small" variant="outlined" color="success" onClick={uploadPicture} disabled = {disable}>
+                        <Button size="small" variant="outlined" color="success" onClick={Setonclick} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -516,16 +552,15 @@ const BannerPage = () => {
             </Form>
             <MainCard>
                 <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
-                    <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
-                        Thêm mới
+                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
+                        Tìm kiếm
                     </Button>
                     <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                         Xem
                     </Button>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
-                        Chỉnh sửa
+                    <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
+                        Thêm mới
                     </Button>
-
                     <Popconfirm placement="right" title={text} onConfirm={confirm} okText="Đồng ý" cancelText="Không">
                         <Button
                             variant="outlined"
@@ -537,8 +572,8 @@ const BannerPage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
-                        Tìm kiếm
+                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
+                        Chỉnh sửa
                     </Button>
                 </Stack>
                 {modalUser(type)}
@@ -554,14 +589,11 @@ const BannerPage = () => {
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = bannerInPage.filter((row) => selectedIDs.has(row._id));
-                                console.log(selectedRows);
                                 if (selectedRows.length === 1) {
                                     setCodeBanner(selectedRows[0].codeBanner);
                                     setNameBanner(selectedRows[0].nameBanner);
                                     setSlug(selectedRows[0].slug);
                                     setFileList([{ url: selectedRows[0].image }]);
-                                    // setDescriptionRole(selectedRows[0].descriptionRole);
-                                    // setStatus(selectedRows[0].status);
                                 }
                                 setSelectedRows(selectedRows);
                             }}

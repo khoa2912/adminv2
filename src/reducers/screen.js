@@ -34,15 +34,15 @@ export default (state = initState, action) => {
         case screenConstants.CREATE_SCREEN_REQUEST:
             state = {
                 ...state,
-                    loading: true,
-                    message: '',
-                    error: ''
+                loading: true,
+                message: '',
+                error: ''
                 };
-                break;
+            break;
         case screenConstants.CREATE_SCREEN_SUCCESS:
             state = {
                 ...state,
-                    loading: false,
+                loading: false,
                 message: 'successcreate'
             };
             break;
@@ -64,6 +64,21 @@ export default (state = initState, action) => {
                 ...state,
                 loading: false,
                 deleteMessage: 'error'
+            };
+            break;
+        case screenConstants.UPDATE_SCREEN_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                // error: ''
+                };
+            break;
+        case screenConstants.UPDATE_SCREEN_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'success'
             };
             break;
     }

@@ -21,6 +21,68 @@ export var addScreen = (form) => {
     };
 };
 
+// export var updateScreen = (form) => {
+//     return async (dispatch) => {
+//         try {
+//             dispatch({ type: screenConstants.UPDATE_SCREEN_REQUEST });
+//             const res = await axios.post('screen/updateScreen', form);
+//             console.log(res);
+//             if (res.status === 201) {
+//                 dispatch({ type: screenConstants.UPDATE_SCREEN_SUCCESS });
+//                 dispatch(getScreens());
+//             } else {
+//                 const { error } = res.data;
+//                 dispatch({ type: screenConstants.UPDATE_SCREEN_FAILURE, payload: { error } });
+//             }
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     };
+// };
+
+// export var updateScreen = (form) => {
+//     return async (dispatch) => {
+//         try {
+//             dispatch({ type: screenConstants.UPDATE_SCREEN_REQUEST });
+//             const res = await axios.post('screen/updateScreen', form);
+//             if (res.status === 201) {
+//                 dispatch({ type: screenConstants.UPDATE_SCREEN_SUCCESS });
+//                 dispatch(getScreens());
+//                 return 'success';
+//             } else {
+//                 dispatch({ type: screenConstants.UPDATE_SCREEN_FAILURE });
+//                 return 'error';
+//             }
+//         } catch (error) {
+//             dispatch({ type: screenConstants.UPDATE_SCREEN_FAILURE });
+//             return 'error';
+//         }
+//     };
+// };
+
+export var updateScreen = (form) => {
+    return async (dispatch) => {
+        dispatch({ type: screenConstants.UPDATE_SCREEN_REQUEST });
+        try {
+            const res = await axios.post('screen/updateScreen', form);
+            if (res.status === 201) {
+                dispatch({ type: screenConstants.UPDATE_SCREEN_SUCCESS });
+                dispatch(getScreens());
+                return 'success';
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: screenConstants.UPDATE_SCREEN_FAILURE,
+                    payload: {error}
+                });
+            }
+        } catch (error) {
+            dispatch({ type: screenConstants.UPDATE_SCREEN_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var getScreens = () => {
     return async (dispatch) => {
         try {

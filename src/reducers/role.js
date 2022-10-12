@@ -74,6 +74,21 @@ export default (state = initState, action) => {
                 deleteMessage: 'error'
             };
             break;
+        case roleConstants.UPDATE_ROLE_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                // error: ''
+                };
+            break;
+        case roleConstants.UPDATE_ROLE_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'success'
+            };
+            break;
     }
     return state;
 };

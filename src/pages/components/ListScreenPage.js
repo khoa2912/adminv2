@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 import ComponentSkeleton from './ComponentSkeleton';
 import MainCard from 'components/MainCard';
 import { Card as CardANTD, Spin } from 'antd';
-import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/antd/lib/index';
+import { Col, Collapse, Form, Row, Upload, Select, message } from '../../../node_modules/antd/lib/index';
 import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addScreen, getDataFilterScreen, deleteScreenById } from 'actions/screen';
+import { addScreen, getDataFilterScreen, deleteScreenById, updateScreen } from 'actions/screen';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -53,14 +53,6 @@ const ListScreenPage = () => {
     const { TabPane } = Tabs;
     const [loading, setLoading] = useState(false);
     const [screenInPage, setScreenInPage] = useState([]);
-    useEffect(() => {
-        setLoading(true);
-        dispatch(getDataFilterScreen()).then((data) => {
-            data&&data.map((item, index) => (item.id = index + 1));
-            setScreenInPage(data);
-            setLoading(false);
-        });
-    }, [dispatch]);
     const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xoá?';
     const auth = useSelector((state) => state.auth);
@@ -75,12 +67,34 @@ const ListScreenPage = () => {
     const [open, setOpen] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
 
+    useEffect(() => {
+        setLoading(true);
+        dispatch(getDataFilterScreen()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setScreenInPage(data);
+            console.log(data);
+            setLoading(false);
+        });
+    }, [dispatch]);
+
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
-        { field: 'screenCode', headerName: 'Mã Screen', width: 200 },
-        { field: 'screenName', headerName: 'Tên Screen', width: 300 },
-        { field: 'screenDescription', headerName: 'Thông tin mô tả', width: 300 },
-        { field: 'status', headerName: 'Trạng thái', width: 150 }
+        { field: 'screenCode', headerName: 'Mã Screen', width: 130 },
+        { field: 'screenName', headerName: 'Tên Screen', width: 200 },
+        { field: 'screenDescription', headerName: 'Thông tin mô tả', width: 200 },
+        {
+            field: 'status',
+            headerName: 'Trạng thái',
+            type: 'number',
+            width: 150,
+            renderCell: (params) => {
+                return (
+                    <div className="rowitem" style={{ textAlign: 'center' }}>
+                        {params.row.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}
+                    </div>
+                );
+            }
+        }
     ];
     const gridStyle = {
         width: '50%',
@@ -129,11 +143,11 @@ const ListScreenPage = () => {
    
     // Filter Screen name
     var filterArrayScreen = removeDuplicates(screenInPage, "screenName");
-    console.log(filterArrayScreen);
+    // console.log(filterArrayScreen);
 
     // Filter Description
     var filterArrayDescription = removeDuplicates(screenInPage, "screenDescription");
-    console.log(filterArrayDescription);
+    // console.log(filterArrayDescription);
 
     const handleView = () => {
         if (selectedRows.length === 0) {
@@ -154,6 +168,10 @@ const ListScreenPage = () => {
 
     const handleCreate = () => {
         setType('create');
+        setScreenCode('');
+        setScreenName('');
+        setScreenDescription('');
+        setStatus('');
         handleOpen();
     };
     const handleAddScreen = async (e) => {
@@ -200,6 +218,44 @@ const ListScreenPage = () => {
             throw new Error('Something went wrong');
         }  
     };
+
+    const handleUpdateScreen = async (e) => {
+        try {
+            const data = {
+                _id: selectedRows[0]._id,
+                createdBy: selectedRows[0].createdBy,
+                screenCode,
+                screenName,
+                screenDescription,
+                status
+            };        
+            console.log(data);
+            dispatch(updateScreen(data)).then((data) => {
+                dispatch(getDataFilterScreen()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setScreenInPage(data);
+                    setLoading(false);
+                });
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Cập nhập Screen',
+                        description: 'Cập nhập Screen thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Cập nhập Screen',
+                        description: 'Cập nhập Screen thất bại.',
+                    });
+                    
+                }
+            });
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }  
+    };
+
     const handleSearch = () => {
         setLoading(true);
         console.log(searchModel);
@@ -269,9 +325,15 @@ const ListScreenPage = () => {
     const modalScreen = (type) => {
         let title;
         let disable;
+        let Setonclick;
         if (type === 'edit') {
             title = 'Chỉnh sửa Screen';
             disable = false;
+            Setonclick = handleUpdateScreen;
+        } else if (type === 'create') {
+            title = 'Thêm mới Screen';
+            disable = false;
+            Setonclick = handleAddScreen;
         } else if (type === 'view') {
             title = 'Xem chi tiết Screen';
             disable = true;
@@ -285,7 +347,7 @@ const ListScreenPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addProduct"
+                                className="container_addScreen"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -306,7 +368,7 @@ const ListScreenPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Mã Screen"
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenCode : screenCode}
+                                        value={screenCode}
                                         disabled={disable}
                                         onChange={(e) => setScreenCode(e.target.value)}
                                     />
@@ -315,7 +377,7 @@ const ListScreenPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Tên Screen"
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenName : screenName}
+                                        value={screenName}
                                         disabled={disable}
                                         onChange={(e) => setScreenName(e.target.value)}
                                     />
@@ -324,7 +386,7 @@ const ListScreenPage = () => {
                                         id="outlined-error"
                                         label="Thông tin mô tả"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].screenDescription : screenDescription}
+                                        value={screenDescription}
                                         disabled={disable}
                                         onChange={(e) => setScreenDescription(e.target.value)}
                                     />
@@ -333,7 +395,7 @@ const ListScreenPage = () => {
                                         <SelectMui
                                             disabled={disable}
                                             onChange={(e) => setStatus(e.target.value)}
-                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].status : status}
+                                            value={status}
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                         >
@@ -346,7 +408,7 @@ const ListScreenPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleAddScreen} disabled = {disable}>
+                        <Button size="small" variant="outlined" color="success" onClick={Setonclick} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -419,14 +481,14 @@ const ListScreenPage = () => {
             </Form>
             <MainCard>
                 <Stack direction="row" divider={<Divider orientation="vertical" flexItem />} spacing={2} sx={{ marginBottom: '20px' }}>
-                    <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
-                        Thêm mới
+                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
+                        Tìm kiếm
                     </Button>
                     <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                         Xem
                     </Button>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditScreen}>
-                        Chỉnh sửa
+                    <Button variant="outlined" onClick={handleCreate} color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
+                        Thêm mới
                     </Button>
                     <Popconfirm placement="right" title={text} onConfirm={confirm} okText="Đồng ý" cancelText="Không">
                         <Button
@@ -439,8 +501,8 @@ const ListScreenPage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
-                        Tìm kiếm
+                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditScreen}>
+                        Chỉnh sửa
                     </Button>
                 </Stack>
                 {modalScreen(type)}
@@ -456,14 +518,12 @@ const ListScreenPage = () => {
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = screenInPage.filter((row) => selectedIDs.has(row._id));
-                                console.log(selectedRows);
-                                // if (selectedRows.length === 1) {
-                                //     setScreenCode(selectedRows[0].screenCode);
-                                //     setScreenName(selectedRows[0].screenName);
-                                //     setScreenDescription(selectedRows[0].screenDescription);
-                                //     setStatus(selectedRows[0].status);
-                                    
-                                // }
+                                if (selectedRows.length === 1) {
+                                    setScreenCode(selectedRows[0].screenCode);
+                                    setScreenName(selectedRows[0].screenName);
+                                    setScreenDescription(selectedRows[0].screenDescription);
+                                    setStatus(selectedRows[0].status);
+                                }
                                 setSelectedRows(selectedRows);
                             }}
                             loading={loading}

@@ -736,14 +736,11 @@ const ComponentColor = () => {
                 <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
                     Tìm kiếm
                 </Button>
-                <Button variant="outlined" href="/createProduct" color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
-                    Thêm mới
-                </Button>
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleView}>
                     Xem
                 </Button>
-                <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditProduct}>
-                    Chỉnh sửa
+                <Button variant="outlined" href="/createProduct" color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
+                    Thêm mới
                 </Button>
                 <Popconfirm placement="right" title={text} onConfirm={confirm} okText="Đồng ý" cancelText="Không">
                     <Button
@@ -756,6 +753,9 @@ const ComponentColor = () => {
                         Xoá
                     </Button>
                 </Popconfirm>
+                <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditProduct}>
+                    Chỉnh sửa
+                </Button>
             </Stack>
             {modalProduct(type)}
             {/* <Spin tip="Loading..." spinning={loading}> */}

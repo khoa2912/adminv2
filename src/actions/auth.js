@@ -176,6 +176,29 @@ export var addUser = (form) => {
     };
 };
 
+export var updateUser = (form) => {
+    return async (dispatch) => {
+        dispatch({ type: authConstants.UPDATE_USER_REQUEST });
+        try {
+            const res = await axios.post('admin/updateUser', form);
+            if (res.status === 201) {
+                dispatch({ type: authConstants.UPDATE_USER_SUCCESS });
+                dispatch(getUsers());
+                return 'success';
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: authConstants.UPDATE_USER_FAILURE,
+                    payload: {error}
+                });
+            }
+        } catch (error) {
+            dispatch({ type: authConstants.UPDATE_USER_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var deleteAccountById = (payload) => {
     return async (dispatch) => {
         try {

@@ -68,6 +68,29 @@ export var deleteRoleById = (payload) => {
     };
 };
 
+export var updateRole = (form) => {
+    return async (dispatch) => {
+        dispatch({ type: roleConstants.UPDATE_ROLE_REQUEST });
+        try {
+            const res = await axios.post('role/updateRole', form);
+            if (res.status === 201) {
+                dispatch({ type: roleConstants.UPDATE_ROLE_SUCCESS });
+                dispatch(getRoles());
+                return 'success';
+            } else {
+                const { error } = res.data;
+                dispatch({
+                    type: roleConstants.UPDATE_ROLE_FAILURE,
+                    payload: {error}
+                });
+            }
+        } catch (error) {
+            dispatch({ type: roleConstants.UPDATE_ROLE_FAILURE });
+            return 'error';
+        }
+    };
+};
+
 export var addRole = (form) => {
     return async (dispatch) => {
         try {
