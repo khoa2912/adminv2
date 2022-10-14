@@ -35,7 +35,7 @@ import { notification, Space, Popconfirm } from 'antd';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUsers, getDataFilterUser, addUser, deleteAccountById } from 'actions/auth';
+import { getUsers, getDataFilterUser, addUser, updateUser, deleteAccountById } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { PlusOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
@@ -92,7 +92,7 @@ const AccountPage = () => {
         });
     }, [dispatch]);
     const handlePreview = async (file) => {
-        console.log(file);
+        // console.log(file);
         setPreviewImage(file.url);
         setPreviewVisible(true);
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
@@ -114,19 +114,19 @@ const AccountPage = () => {
 
     // Filter Role
     var filterArrayRole = removeDuplicates(userInPage, "role");
-    console.log(filterArrayRole);
+    // console.log(filterArrayRole);
 
     // Filter Status
     var filterArrayStatus = removeDuplicates(userInPage, "status");
-    console.log(filterArrayStatus);
+    // console.log(filterArrayStatus);
 
     // Filter Name
     var filterArrayName = removeDuplicates(userInPage, "lastName");
-    console.log(filterArrayName);
+    // console.log(filterArrayName);
 
     // Filter email
     var filterArrayEmail = removeDuplicates(userInPage, "email");
-    console.log(filterArrayEmail);
+    // console.log(filterArrayEmail);
 
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
@@ -277,24 +277,68 @@ const AccountPage = () => {
                 });
         } catch (err) {
             throw new Error('Something went wrong');
+        }     
+    };
+    const handleUpdateUser = async (e) => {
+        if (!fileList) return;
+        const list = [];
+        for (let pic of fileList) {
+            const reader = new FileReader();
+            if (pic) {
+                const link = await getBase64(pic.originFileObj);
+                list.push(link);
+            }
         }
-        // else {
-        //     await dispatch(addUser({ firstName, lastName, email, hash_password, role, contactNumber, profilePicture, status })).then(() => {
-        //         dispatch(getDataFilterUser()).then((data) => {
-        //             data.map((item, index) => (item.id = index + 1));
-        //             setUserInPage(data);
-        //             setLoading(false);
-        //         });
-        //     });
-        //     handleClose();
-
-        //     if (auth.error) {
-        //         notification['error']({
-        //             message: 'Thêm tài khoản mới',
-        //             description: 'Thêm tài khoản mới thất bại.'
-        //         });
-        //     }
-        // }        
+        try {
+            await fetch('http://localhost:3001/product/uploadPicture', {
+                method: 'POST',
+                body: JSON.stringify({ data: list }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Something went wrong');
+                })
+                .then((responseJson) => {
+                    const data = {
+                        _id: selectedRows[0]._id,
+                        createdBy: selectedRows[0].createdBy,
+                        firstName,
+                        lastName,
+                        hash_password,
+                        role,
+                        contactNumber,
+                        status,
+                        profilePicture: responseJson.result[0]
+                    };
+                    console.log(data);
+                    dispatch(updateUser(data)).then((data) => {
+                        dispatch(getDataFilterUser()).then((data) => {
+                            data.map((item, index) => (item.id = index + 1));
+                            setUserInPage(data);
+                            setLoading(false);
+                        });
+                        if (data === 'success') {
+                            handleClose();
+                            notification['success']({
+                                message: 'Chỉnh sửa User',
+                                description: 'Chỉnh sửa User thành công.'
+                            });
+                        } else {
+                            handleClose();
+                            notification['error'] ({
+                                message: 'Chỉnh sửa User',
+                                description: 'Chỉnh sửa User thất bại.',
+                            });
+                            
+                        }
+                    });
+                });
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }     
     };
     const handleCreate = () => {
         setType('create');
@@ -340,8 +384,8 @@ const AccountPage = () => {
                             description: 'Xoá Tài khoản không thành công.'
                         });
                     }
-                    console.log(temp);
-                    console.log(data.length);
+                    // console.log(temp);
+                    // console.log(data.length);
                 });
             });
 
@@ -380,15 +424,11 @@ const AccountPage = () => {
                 description: 'Vui lòng chỉ chọn một tài khoản.'
             });
         } else {
-            // notification['success']({
-            //     message: 'Chỉnh sửa sản phẩm',
-            //     description: 'Coming Soon'
-            // });
+            // setHash_password('');
             setType('edit');
             handleOpen();
         }
     };
-    const handleEdit = () => {};
     const handleChangeRole = (value) => {
         searchModel.RoleName = value;
         setSearchModel(searchModel);
@@ -407,7 +447,7 @@ const AccountPage = () => {
     };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
+        // console.log(searchModel);
         dispatch(getDataFilterUser(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setUserInPage(data);
@@ -424,14 +464,22 @@ const AccountPage = () => {
     const modalUser = (type) => {
         let title;
         let disable;
+        let Setonclick;
+        let disableUser;
         if (type === 'edit') {
             title = 'Chỉnh sửa tài khoản';
             disable = false;
+            disableUser = true;
+            Setonclick = handleUpdateUser;
         } else if (type === 'view') {
             title = 'Xem chi tiết tài khoản';
             disable = true;
+            disableUser = true;
         } else {
             title = 'Tạo mới tài khoản';
+            disable = false;
+            disableUser = false;
+            Setonclick = handleAddUser;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -442,7 +490,7 @@ const AccountPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addProduct"
+                                className="container_infoUser"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -451,7 +499,7 @@ const AccountPage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_addProduct"
+                                    className="container_form_infoUser"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',
@@ -499,24 +547,13 @@ const AccountPage = () => {
                                             label="hash_password"
                                         />
                                     </FormControl>
-                                    {/* <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Mật khẩu"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        // type="password"
-                                        type={hash_password ? 'text' : 'hash_password'}
-                                        value={hash_password}
-                                        disabled={disable}
-                                        onChange={(e) => setHash_password(e.target.value)}
-                                    /> */}
                                     <TextField margin = "normal"
                                         required
                                         id="outlined-number"
                                         label="Email"
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         value={email}
-                                        disabled={disable}
+                                        disabled={disableUser}
                                         onChange={(e) => setEmail(e.target.value)}
                                     />
                                     <TextField
@@ -590,7 +627,7 @@ const AccountPage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleAddUser} disabled = {disable}>
+                        <Button size="small" variant="outlined" color="success" onClick={Setonclick} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -622,7 +659,7 @@ const AccountPage = () => {
                                             >
                                                 {filterArrayRole.map((item) => (
                                                     <Option key={item.role} data={item._id} text={item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}>
-                                                        {console.log(item)}
+                                                        {/* {console.log(item)} */}
                                                         <div className="global-search-item">
                                                             <span>{item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}</span>
                                                         </div>

@@ -239,14 +239,14 @@ const ListScreenPage = () => {
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Cập nhập Screen',
-                        description: 'Cập nhập Screen thành công.'
+                        message: 'Chỉnh sửa Screen',
+                        description: 'Chỉnh sửa Screen thành công.'
                     });
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Cập nhập Screen',
-                        description: 'Cập nhập Screen thất bại.',
+                        message: 'Chỉnh sửa Screen',
+                        description: 'Chỉnh sửa Screen thất bại.',
                     });
                     
                 }
@@ -347,7 +347,7 @@ const ListScreenPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addScreen"
+                                className="container_infoScreen"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -356,7 +356,7 @@ const ListScreenPage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_addProduct"
+                                    className="container_form_infoScreen"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',

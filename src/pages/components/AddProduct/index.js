@@ -102,10 +102,6 @@ export const AddProduct = (props) => {
     const navigate = useNavigate();
     useEffect(() => {
         if (product.addProduct != null) {
-            notification['success']({
-                message: 'Thêm mới Sản phẩm',
-                description: 'Thêm mới Sản phẩm thành công.'
-            });
             navigate('/product');
         }
     }, [product.loading]);
@@ -171,22 +167,18 @@ export const AddProduct = (props) => {
                     };
                     
                     dispatch(addProduct(data)).then((data) => {
-                        dispatch(getProducts()).then((data) => {
-                            data.map((item, index) => (item.id = index + 1));
-                            // if(temp<data.length) {
-                            //     notification['success']({
-                            //         message: 'Thêm mới Sản phẩm',
-                            //         description: 'Thêm mới Sản phẩm thành công'
-                            //     });
-                                
-                            // }
-                            // else {
-                            //     notification['error']({
-                            //         message: 'Thêm mới Sản phẩm',
-                            //         description: 'Thêm mới Sản phẩm thất bại'
-                            //     });
-                            // }
-                        });
+                        if (data === 'success') {
+                            notification['success']({
+                                message: 'Thêm Sản phẩm',
+                                description: 'Thêm Sản phẩm thành công.'
+                            });
+                        } else {
+                            notification['error'] ({
+                                message: 'Thêm Sản phẩm',
+                                description: 'Thêm Sản phẩm thất bại.',
+                            });
+                            
+                        }
                     });
                 });
         } catch (err) {

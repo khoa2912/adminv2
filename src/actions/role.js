@@ -7,7 +7,7 @@ export var getRoles = () => {
         try {
             dispatch({ type: roleConstants.GET_ALL_ROLE_REQUEST });
             const res = await axios.post('role/getRoles');
-            console.log(res);
+            // console.log(res);
             if (res.status === 200) {
                 const { roles } = res.data;
                 roles.map((item, index) => (item.id = index + 1));
@@ -29,7 +29,7 @@ export var getDataFilterRole = (searchModel) => {
     return async (dispatch) => {
         try {
             const res = await axios.post('role/getDataFilterRole', searchModel);
-            console.log(res);
+            // console.log(res);
             return res.data.result.docs;
         } catch (e) {
             console.log(e);

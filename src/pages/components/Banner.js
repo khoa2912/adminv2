@@ -36,6 +36,7 @@ import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
 import { addBanner, getDataFilterBanner, deleteBannerById, updateBanner } from 'actions/banner';
 import { PlusOutlined } from '@ant-design/icons';
+import { object } from 'prop-types';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -318,63 +319,105 @@ const BannerPage = () => {
         }
     };
     const handleUpdateBanner = async () => {
-        if (!fileList) return;
+        console.log(selectedRows[0]);
+        console.log(fileList);
+        // if (!fileList) return;
         const list = [];
-        for (let pic of fileList) {
-            const reader = new FileReader();
-            if (pic) {
-                const link = await getBase64(pic.originFileObj);
-                list.push(link);
+        if(fileList&&fileList[0]&&fileList[0].type!=null)
+        {
+            
+            for (let pic of fileList) {
+                const reader = new FileReader();
+                if (pic) {
+                    const link = await getBase64(pic.originFileObj);
+                    list.push(link);
+                }
             }
-        }
-        try {
-            await fetch('http://localhost:3001/product/uploadPicture', {
-                method: 'POST',
-                body: JSON.stringify({ data: list }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error('Something went wrong');
+            try {
+                await fetch('http://localhost:3001/product/uploadPicture', {
+                    method: 'POST',
+                    body: JSON.stringify({ data: list }),
+                    headers: { 'Content-Type': 'application/json' }
                 })
-                .then((responseJson) => {
-                    const data = {
-                        _id: selectedRows[0]._id,
-                        createdBy: selectedRows[0].createdBy,
-                        nameBanner,
-                        codeBanner,
-                        slug,
-                        image: responseJson.result[0]
-                    };
-                    console.log(data);
-                    dispatch(updateBanner(data)).then((data) => {
-                        dispatch(getDataFilterBanner()).then((data) => {
-                            data.map((item, index) => (item.id = index + 1));
-                            setBannerInPage(data);
-                            setLoading(false);
-                        });
-                        console.log(data);
-                        if (data === 'success') {
-                            handleClose();
-                            notification['success']({
-                                message: 'Cập nhập Banenr',
-                                description: 'Cập nhập Banenr thành công.'
-                            });
-                        } else {
-                            handleClose();
-                            notification['error'] ({
-                                message: 'Cập nhập Banenr',
-                                description: 'Cập nhập Banenr thất bại.',
-                            });
-                            
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
                         }
+                        throw new Error('Something went wrong');
+                    })
+                    .then((responseJson) => {
+                        const data = {
+                            _id: selectedRows[0]._id,
+                            createdBy: selectedRows[0].createdBy,
+                            nameBanner,
+                            codeBanner,
+                            slug,
+                            image: responseJson.result[0]
+                        };
+                        console.log(data);
+                        dispatch(updateBanner(data)).then((data) => {
+                            console.log('run if')
+                            dispatch(getDataFilterBanner()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setBannerInPage(data);
+                                setLoading(false);
+                            });
+                            console.log(data);
+                            if (data === 'success') {
+                                handleClose();
+                                notification['success']({
+                                    message: 'Cập nhập Banenr',
+                                    description: 'Cập nhập Banenr thành công.'
+                                });
+                            } else {
+                                handleClose();
+                                notification['error'] ({
+                                    message: 'Cập nhập Banenr',
+                                    description: 'Cập nhập Banenr thất bại.',
+                                });
+                                
+                            }
+                        });
                     });
+            } catch (err) {
+                throw new Error('Something went wrong');
+            }
+        } 
+        else {
+            const data = {
+                _id: selectedRows[0]._id,
+                createdBy: selectedRows[0].createdBy,
+                nameBanner,
+                codeBanner,
+                slug,
+                image: fileList.length!=0?fileList[0].url:null
+            };
+            console.log(data);
+            dispatch(updateBanner(data)).then((data) => {
+                console.log('run else')
+                dispatch(getDataFilterBanner()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setBannerInPage(data);
+                    setLoading(false);
                 });
-        } catch (err) {
-            throw new Error('Something went wrong');
+                console.log(data);
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Cập nhập Banenr',
+                        description: 'Cập nhập Banenr thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Cập nhập Banenr',
+                        description: 'Cập nhập Banenr thất bại.',
+                    });
+                    
+                }
+            });
         }
+        
     };
     const modalUser = (type) => {
         let title;
@@ -401,7 +444,7 @@ const BannerPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addProduct"
+                                className="container_infoBanner"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -410,7 +453,7 @@ const BannerPage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_addProduct"
+                                    className="container_form_infoBanner"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',

@@ -6,7 +6,7 @@ export var getOrders = () => {
         try {
             dispatch({ type: orderConstants.GET_ALL_ORDER_REQUEST });
             const res = await axios.post('admin/order/getOrders');
-            console.log(res);
+            // console.log(res);
             if (res.status === 200) {
                 const { orders } = res.data;
                 orders.map((item, index) => (item.id = index + 1));
@@ -101,7 +101,7 @@ export var getDataFilterOrder = (searchModel) => {
     return async (dispatch) => {
         try {
             const res = await axios.post('admin/order/getDataFilterOrder', searchModel);
-            console.log(res);
+            // console.log(res);
             return res.data.result.docs;
         } catch (e) {
             console.log(e);

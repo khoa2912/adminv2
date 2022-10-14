@@ -49,6 +49,7 @@ export var addProduct = (form) => {
             if (res.status === 201) {
                 dispatch({ type: productConstants.ADD_PRODUCT_SUCCESS });
                 dispatch(getProducts());
+                return 'success';
             } else {
                 const { error } = res.data;
                 dispatch({ type: productConstants.ADD_PRODUCT_FAILURE, payload: { error } });

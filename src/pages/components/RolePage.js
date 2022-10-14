@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addRole, getDataFilterRole, deleteRoleById } from 'actions/role';
+import { addRole, getDataFilterRole, deleteRoleById, updateRole } from 'actions/role';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -161,8 +161,8 @@ const RolePage = () => {
                             description: 'Xoá Role không thành công.'
                         });
                     }
-                    console.log(temp);
-                    console.log(data.length);
+                    // console.log(temp);
+                    // console.log(data.length);
                 });
             });
 
@@ -189,7 +189,7 @@ const RolePage = () => {
         duration: 3,
         rtl: false
     });
-    const handleEditUser = () => {
+    const handleEdit = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
                 message: 'Chỉnh sửa vai trò',
@@ -201,10 +201,6 @@ const RolePage = () => {
                 description: 'Vui lòng chỉ chọn một vai trò.'
             });
         } else {
-            // notification['success']({
-            //     message: 'Chỉnh sửa sản phẩm',
-            //     description: 'Coming Soon'
-            // });
             setType('edit');
             handleOpen();
         }
@@ -221,10 +217,6 @@ const RolePage = () => {
                 description: 'Vui lòng chỉ chọn một vai trò.'
             });
         } else {
-            // notification['success']({
-            //     message: 'Chỉnh sửa sản phẩm',
-            //     description: 'Coming Soon'
-            // });
             setType('edit');
             handleOpen();
         }
@@ -272,6 +264,43 @@ const RolePage = () => {
             throw new Error('Something went wrong');
         }
     };
+
+    const handleUpdateRole = async (e) => {
+        try {
+            const data = {
+                _id: selectedRows[0]._id,
+                createdBy: selectedRows[0].createdBy,
+                codeRole,
+                nameRole,
+                descriptionRole,
+                status
+            };        
+            console.log(data);
+            dispatch(updateRole(data)).then((data) => {
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                    setLoading(false);
+                });
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Cập nhập Role',
+                        description: 'Cập nhập Role thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Cập nhập Role',
+                        description: 'Cập nhập Role thất bại.',
+                    });
+                    
+                }
+            });
+        } catch (err) {
+            throw new Error('Something went wrong');
+        }  
+    };
     // Filter in Role
     function removeDuplicates(startArray, prop) {
         var newArray = [];
@@ -289,11 +318,11 @@ const RolePage = () => {
    
     // Filter role
     var filterArrayRole = removeDuplicates(roleInPage, "role");
-    console.log(filterArrayRole);
+    // console.log(filterArrayRole);
     
     // Filter Status
     var filterArrayStatus = removeDuplicates(roleInPage, "status");
-    console.log(filterArrayStatus);
+    // console.log(filterArrayStatus);
 
     const handleChangeRoleName = (value) => {
         searchModel.Role_Name = value;
@@ -305,7 +334,6 @@ const RolePage = () => {
     };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
         dispatch(getDataFilterRole(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setRoleInPage(data);
@@ -315,13 +343,17 @@ const RolePage = () => {
     const modalUser = (type) => {
         let title;
         let disable;
+        let Setonclick;
         if (type === 'edit') {
             title = 'Chỉnh sửa vai trò';
             disable = false;
+            Setonclick = handleUpdateRole;
         } else if (type === 'view') {
             title = 'Xem chi tiết vai trò';
             disable = true;
         } else {
+            disable = false;
+            Setonclick = handleAddRole;
             title = 'Tạo mới vai trò';
         }
         return (
@@ -333,7 +365,7 @@ const RolePage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addProduct"
+                                className="container_infoRole"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -342,7 +374,7 @@ const RolePage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_addProduct"
+                                    className="container_form_infoRole"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',
@@ -394,7 +426,7 @@ const RolePage = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{ padding: '0' }}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleAddRole}>
+                        <Button size="small" variant="outlined" color="success" onClick={Setonclick}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -487,7 +519,7 @@ const RolePage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
+                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEdit}>
                         Chỉnh sửa
                     </Button>
                     <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={hanlePermistion}>
@@ -507,7 +539,6 @@ const RolePage = () => {
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = roleInPage.filter((row) => selectedIDs.has(row._id));
-                                console.log(selectedRows);
                                 if (selectedRows.length === 1) {
                                     setCodeRole(selectedRows[0].codeRole);
                                     setNameRole(selectedRows[0].nameRole);

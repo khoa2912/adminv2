@@ -68,7 +68,8 @@ const OrderPage = () => {
     const [totalAmount, setTotalAmount] = useState('');
     const [paymentType, setPaymentType] = useState('');
     const [paymentStatus, setPaymentStatus] = useState('');
-    
+    const [orderStatus, setOrderStatus] = useState('');
+
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterOrder()).then((data) => {
@@ -98,19 +99,19 @@ const OrderPage = () => {
    
     // Filter User
     var filterArrayUser = removeDuplicates(orderInPage, "user");
-    console.log(filterArrayUser);
+    // console.log(filterArrayUser);
 
     //Filter TotalAmount
     var filterArrayTotalAmount = removeDuplicates(orderInPage, "totalAmount");
-    console.log(filterArrayTotalAmount);
+    // console.log(filterArrayTotalAmount);
 
     //Filter Address
     var filterArrayAddress = removeDuplicates(orderInPage, "addressId");
-    console.log(filterArrayAddress);
+    // console.log(filterArrayAddress);
 
     //Filter Paymentstatus
     var filterArrayPaymentstatus = removeDuplicates(orderInPage, "paymentStatus");
-    console.log(filterArrayPaymentstatus);
+    // console.log(filterArrayPaymentstatus);
 
     //Filter Paymenttype
     var filterArrayPaymenttype = removeDuplicates(orderInPage, "paymentType");
@@ -158,7 +159,14 @@ const OrderPage = () => {
                 if (params.value) {
                     for (let i = 0; i < 4; i++) {
                         if (params.value[i].isCompleted === true) {
-                            return <div className="rowitem">{params.value[i].type}</div>;
+                            if(params.value[i].type=='packed')
+                                return <div className="rowitem">{'Đang đóng gói'}</div>;
+                            else if(params.value[i].type=='ordered')
+                                return <div className="rowitem">{'Đã đặt hàng'}</div>;
+                            else if(params.value[i].type=='shiped')
+                                return <div className="rowitem">{'Đang giao'}</div>;
+                            else
+                                return <div className="rowitem">{'Đã giao'}</div>;
                         }
                     }
                 }
@@ -296,7 +304,6 @@ const OrderPage = () => {
         searchModel.Payment_Type = value;
         setSearchModel(searchModel);
     };
-    
     const createUserList = (users, options = []) => {
         for (let user of users) {
             options.push({ value: user._id, name: user.lastName });
@@ -319,15 +326,24 @@ const OrderPage = () => {
             setLoading(false);
         });
     };
+    
+    // var result = selectedRows[0].orderStatus.filter(obj=>obj.isCompleted===true);
     const modalOrder = (type) => {
         let title;
         let disable;
+        var arraytemp;
+        // console.log(tempOrderStatus);
+        
         if (type === 'update') {
             title = 'Cập nhập đơn hàng';
             disable = false;
         } else if (type === 'view') {
             title = 'Xem chi tiết đơn hàng';
             disable = true;
+            console.log(selectedRows[0]);
+            const tempOrderStatus = selectedRows[0]?.orderStatus?.find(data => data.isCompleted === true);
+            console.log(tempOrderStatus)
+            arraytemp = tempOrderStatus;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -338,7 +354,97 @@ const OrderPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_addProduct"
+                                className="container_infoOrder"
+                                style={{
+                                    display: 'flex',
+                                    paddingTop: '0px',
+                                    color: 'black',
+                                    fontSize: '17px'
+                                }}
+                            >
+                                <div
+                                    className="container_form_infoOrder"
+                                    style={{
+                                        paddingBottom: '20px',
+                                        width: '100%',
+                                        paddingRight: '30px'
+                                    }}
+                                >
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Mã đơn hàng"
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0]._id : null}
+                                        disabled="true"
+                                        
+                                    />
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Họ"
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.firstName : null}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Tên"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.lastName : null}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Tổng tiền hàng"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].totalAmount : null}
+                                        disabled="true"
+                                    />
+                                    <TextField
+                                        required
+                                        id="outlined-number"
+                                        label="Loại thanh toán"
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentType : null}
+                                        disabled="true"
+                                    />
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Thanh toán</InputLabel>
+                                        <SelectMui
+                                            disabled={disable}
+                                            defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : null}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                        >
+                                            <MenuItem value={'pending'}>pending</MenuItem>
+                                            <MenuItem value={'cancelled'}>cancelled</MenuItem>
+                                        </SelectMui>
+                                    </FormControl>
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Đơn hàng</InputLabel>
+                                        <SelectMui
+                                            disabled={disable}
+                                            // defaultValue={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].orderStatus[0].type : null}
+                                            defaultValue={arraytemp ? arraytemp.type: null}
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            
+                                        >
+                                            <MenuItem value={'ordered'}>Đã đặt hàng</MenuItem>
+                                            <MenuItem value={'packed'}>Đang đóng gói</MenuItem>
+                                            <MenuItem value={'shipped'}>Đang giao</MenuItem>
+                                            <MenuItem value={'delivered'}>Đã giao</MenuItem>
+                                        </SelectMui>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </TabPane>
+                        {/* <TabPane tab={<span>Thông tin chi tiết</span>} key="2">
+                            <div
+                                className="container_infoOrder"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -378,14 +484,6 @@ const OrderPage = () => {
                                         value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.lastName : lastName}
                                         disabled="true"
                                     />
-                                    {/* <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Sản phẩm mua"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].item[0].purchasedQty : item}
-                                        disabled={disable}
-                                    /> */}
                                     <TextField
                                         required
                                         id="outlined-number"
@@ -402,14 +500,6 @@ const OrderPage = () => {
                                         value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentType : paymentType}
                                         disabled="true"
                                     />
-                                    {/* <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Trạng thái thanh toán"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={type === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : paymentStatus}
-                                        disabled={disable}
-                                    /> */}
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Thanh toán</InputLabel>
                                         <SelectMui
@@ -424,7 +514,7 @@ const OrderPage = () => {
                                     </FormControl>
                                 </div>
                             </div>
-                        </TabPane>
+                        </TabPane> */}
                     </Tabs>
                     <CardActions sx={{padding: '0'}}>
                         <Button size="small" variant="outlined" color="success" onClick={handleEdit} disabled = {disable}>
@@ -489,7 +579,7 @@ const OrderPage = () => {
                                                             data = {item.userObject.firstName + ' ' + item.userObject.lastName}
                                                             text = {item.userObject.firstName + ' ' + item.userObject.lastName}
                                                         >
-                                                            {console.log(item)}
+                                                            {/* {console.log(item)} */}
                                                             <div className="global-search-item">
                                                                 <span>{item.userObject.firstName + ` ` + item.userObject.lastName}</span>
                                                             </div>
