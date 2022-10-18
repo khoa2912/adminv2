@@ -34,6 +34,7 @@ export var addCategory = (form) => {
                     payload: { category: res.data.category }
                 });
                 dispatch(getAllCategory());
+                return 'success';
             } else {
                 dispatch({
                     type: categoryConstants.ADD_NEW_CATEGORIES_FAILURE,

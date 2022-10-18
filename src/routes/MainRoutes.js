@@ -9,6 +9,7 @@ import NotFound from 'pages/components/NotFound';
 import MediaPage from 'pages/components/MediaPage';
 import ListScreenPage from 'pages/components/ListScreenPage';
 import BannerPage from 'pages/components/Banner';
+import { AddCategory } from 'pages/components/AddCategory/index';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -78,6 +79,10 @@ const MainRoutes = {
         {
             path: 'createProduct',
             element: <AddProduct />
+        },
+        {
+            path: 'createCategory',
+            element: <AddCategory />
         },
         ,
         {

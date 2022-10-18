@@ -93,7 +93,7 @@ const RolePage = () => {
             field: 'status',
             headerName: 'Trạng thái',
             type: 'number',
-            width: 90,
+            width: 150,
             renderCell: (params) => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>

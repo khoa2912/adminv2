@@ -25,7 +25,8 @@ const ComponentTypography = () => {
     const [categoryInPage, setCategoryInPage] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
-    const [type,setType]=useState('')
+    const [type, setType]=useState('')
+    
     const [searchModel, setSearchModel] = useState({
         CategoryName: '',
         CategoryId: ''
@@ -53,57 +54,12 @@ const ComponentTypography = () => {
             setLoading(false);
         });
     };
-    // const handleView = () => {
-    //     if (selectedRows.length === 0) {
-    //         notification['warning']({
-    //             message: 'Xem sản phẩm',
-    //             description: 'Vui lòng chọn sản phẩm bạn muốn xem.'
-    //         });
-    //     } else if (selectedRows.length >= 2) {
-    //         notification['warning']({
-    //             message: 'Xem sản phẩm',
-    //             description: 'Vui lòng chỉ chọn một sản phẩm.'
-    //         });
-    //     } else {
-    //         setType('view');
-    //         handleOpen();
-    //     }
-    // };
-    // const confirm = (value) => {
-    //     dispatch(deleteCategories(value));
-    //     if (product.deleteMessage === 'success') {
-    //         notification['success']({
-    //             message: 'Xoá sản phẩm',
-    //             description: 'Xoá sản phẩm thành công.'
-    //         });
-    //     }
-    //     if (product.deleteMessage === 'error') {
-    //         notification['error']({
-    //             message: 'Xoá sản phẩm',
-    //             description: 'Xoá sản phẩm không thành công.'
-    //         });
-    //     }
-    // };
-
-    // const handleEditProduct = () => {
-    //     if (selectedRows.length === 0) {
-    //         notification['warning']({
-    //             message: 'Chỉnh sửa sản phẩm',
-    //             description: 'Vui lòng chọn sản phẩm bạn muốn chỉnh sửa.'
-    //         });
-    //     } else if (selectedRows.length >= 2) {
-    //         notification['warning']({
-    //             message: 'Xem sản phẩm',
-    //             description: 'Vui lòng chỉ chọn một sản phẩm.'
-    //         });
-    //     } else {
-    //         // notification['success']({
-    //         //     message: 'Chỉnh sửa sản phẩm',
-    //         //     description: 'Coming Soon'
-    //         // });
-    //         setType('edit');
-    //         handleOpen();
-    //     }
+    // const handleCreate = () => {
+    //     setType('create');
+    //     setNameCategory('');
+    //     setSlug('');
+    //     setCategoryImage('');
+    //     handleOpen();
     // };
     return (
         <ComponentSkeleton>
@@ -150,7 +106,7 @@ const ComponentTypography = () => {
                 <Button variant="outlined" onClick={handleSearch} startIcon={<SearchIcon />} style={{ cursor: 'pointer' }}>
                     Tìm kiếm
                 </Button>
-                <Button variant="outlined" href="/createProduct" color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
+                <Button variant="outlined" href="/createCategory" color="success" startIcon={<AddIcon />} style={{ cursor: 'pointer' }}>
                     Thêm mới
                 </Button>
             </Stack>

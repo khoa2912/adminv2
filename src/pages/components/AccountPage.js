@@ -280,65 +280,103 @@ const AccountPage = () => {
         }     
     };
     const handleUpdateUser = async (e) => {
-        if (!fileList) return;
         const list = [];
-        for (let pic of fileList) {
-            const reader = new FileReader();
-            if (pic) {
-                const link = await getBase64(pic.originFileObj);
-                list.push(link);
+        if(fileList&&fileList[0]&&fileList[0].type!=null) {
+            for (let pic of fileList) {
+                const reader = new FileReader();
+                if (pic) {
+                    const link = await getBase64(pic.originFileObj);
+                    list.push(link);
+                }
             }
-        }
-        try {
-            await fetch('http://localhost:3001/product/uploadPicture', {
-                method: 'POST',
-                body: JSON.stringify({ data: list }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    throw new Error('Something went wrong');
+            try {
+                await fetch('http://localhost:3001/product/uploadPicture', {
+                    method: 'POST',
+                    body: JSON.stringify({ data: list }),
+                    headers: { 'Content-Type': 'application/json' }
                 })
-                .then((responseJson) => {
-                    const data = {
-                        _id: selectedRows[0]._id,
-                        createdBy: selectedRows[0].createdBy,
-                        firstName,
-                        lastName,
-                        hash_password,
-                        role,
-                        contactNumber,
-                        status,
-                        profilePicture: responseJson.result[0]
-                    };
-                    console.log(data);
-                    dispatch(updateUser(data)).then((data) => {
-                        dispatch(getDataFilterUser()).then((data) => {
-                            data.map((item, index) => (item.id = index + 1));
-                            setUserInPage(data);
-                            setLoading(false);
-                        });
-                        if (data === 'success') {
-                            handleClose();
-                            notification['success']({
-                                message: 'Chỉnh sửa User',
-                                description: 'Chỉnh sửa User thành công.'
-                            });
-                        } else {
-                            handleClose();
-                            notification['error'] ({
-                                message: 'Chỉnh sửa User',
-                                description: 'Chỉnh sửa User thất bại.',
-                            });
-                            
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
                         }
+                        throw new Error('Something went wrong');
+                    })
+                    .then((responseJson) => {
+                        const data = {
+                            _id: selectedRows[0]._id,
+                            createdBy: selectedRows[0].createdBy,
+                            firstName,
+                            lastName,
+                            hash_password,
+                            role,
+                            contactNumber,
+                            status,
+                            profilePicture: responseJson.result[0]
+                        };
+                        console.log(data);
+                        dispatch(updateUser(data)).then((data) => {
+                            console.log('run if')
+                            dispatch(getDataFilterUser()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setUserInPage(data);
+                                setLoading(false);
+                            });
+                            if (data === 'success') {
+                                handleClose();
+                                notification['success']({
+                                    message: 'Chỉnh sửa User',
+                                    description: 'Chỉnh sửa User thành công.'
+                                });
+                            } else {
+                                handleClose();
+                                notification['error'] ({
+                                    message: 'Chỉnh sửa User',
+                                    description: 'Chỉnh sửa User thất bại.',
+                                });
+                                
+                            }
+                        });
                     });
+            } catch (err) {
+                throw new Error('Something went wrong');
+            }   
+        } else {
+            const data = {
+                _id: selectedRows[0]._id,
+                createdBy: selectedRows[0].createdBy,
+                firstName,
+                lastName,
+                hash_password,
+                role,
+                contactNumber,
+                status,
+                profilePicture: fileList.length!=0?fileList[0].url:null
+            };
+            console.log(data);
+            dispatch(updateUser(data)).then((data) => {
+                dispatch(getDataFilterUser()).then((data) => {
+                    console.log('run else')
+                    data.map((item, index) => (item.id = index + 1));
+                    setUserInPage(data);
+                    setLoading(false);
                 });
-        } catch (err) {
-            throw new Error('Something went wrong');
-        }     
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Chỉnh sửa User',
+                        description: 'Chỉnh sửa User thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Chỉnh sửa User',
+                        description: 'Chỉnh sửa User thất bại.',
+                    });
+                    
+                }
+            });
+        }
+          
     };
     const handleCreate = () => {
         setType('create');

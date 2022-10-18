@@ -6,7 +6,7 @@ import { Box, Modal, TextField } from '../../../node_modules/@mui/material/index
 import { Tabs } from 'antd';
 import { Popconfirm, Upload } from '../../../node_modules/antd/lib/index';
 import { PlusOutlined } from '@ant-design/icons';
-import { deleteCategories } from 'actions/category';
+import { deleteCategories, addCategory } from 'actions/category';
 import DeleteIcon from '@mui/icons-material/Delete';
 // import { makeStyles } from '@mui/styles';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -19,6 +19,11 @@ const SimpleCard = (props) => {
     const category = useSelector((state) => state.category);
     const [open, setOpen] = useState(false);
     const [type, setType] = useState('');
+    const [nameCategory, setNameCategory] = useState('');
+    const [categoryImage, setCategoryImage] = useState('');
+    const [slug, setSlug] = useState('');
+    const [fileList, setFileList] = useState([]);
+    
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const handleView = () => {
@@ -67,12 +72,23 @@ const SimpleCard = (props) => {
         setType('edit');
         handleOpen();
     };
+    // const handleCreate = () => {
+    //     setType('create');
+    //     setNameCategory('');
+    //     setSlug('');
+    //     setCategoryImage('');
+    //     handleOpen();
+    // };
     const text = 'Bạn có chắc chắn muốn xoá?';
     const modalProduct = (type) => {
         let title;
         let disable;
         if (type === 'edit') {
             title = 'Chỉnh sửa nhãn hàng';
+            disable = false;
+        }
+        else if (type === 'create') {
+            title = 'Thêm nhãn hàng';
             disable = false;
         } else {
             title = 'Xem chi tiết nhãn hàng';
