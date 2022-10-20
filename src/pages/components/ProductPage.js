@@ -135,14 +135,14 @@ const ComponentColor = () => {
             }
         },
         { field: 'name', headerName: 'Tên sản phẩm', width: 300 },
-        {
-            field: 'category',
-            headerName: 'Hãng',
-            width: 130,
-            renderCell: (params) => {
-                return <div className="rowitem">{params.value.name}</div>;
-            }
-        },
+        // {
+        //     field: 'category',
+        //     headerName: 'Hãng',
+        //     width: 130,
+        //     renderCell: (params) => {
+        //         return <div className="rowitem">{params.value.name}</div>;
+        //     }
+        // },
         {
             field: 'salePrice',
             headerName: 'Giá tiền',
@@ -416,7 +416,7 @@ const ComponentColor = () => {
                                             label="Giá tiền giảm giá"
                                         />
                                     </FormControl>
-                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                    {/* <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Thương hiệu</InputLabel>
                                         <SelectMui
                                             disabled={disable}
@@ -430,7 +430,7 @@ const ComponentColor = () => {
                                                 <option value={option.value}>{option.name}</option>
                                             ))}
                                         </SelectMui>
-                                    </FormControl>
+                                    </FormControl> */}
                                     <Upload
                                         listType="picture-card"
                                         defaultFileList={productPicture ? productPicture : []}

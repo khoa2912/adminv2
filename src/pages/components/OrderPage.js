@@ -71,8 +71,7 @@ const OrderPage = () => {
     const [orderStatus, setOrderStatus] = useState([]);
     const [type, SetType] = useState('');
     const [typeExactly, SetTypeExactly] = useState('');
-    const [dateorderStatus, SetDateorderStatus] = useState('');
-    const [isCompletedorderStatus, SetIsCompletedorderStatus] = useState(false);
+    const [date, SetDate] = useState('');
 
     useEffect(() => {
         setLoading(true);
@@ -167,10 +166,10 @@ const OrderPage = () => {
                                 return <div className="rowitem">{'Đang đóng gói'}</div>;
                             else if(params.value[i].type=='ordered')
                                 return <div className="rowitem">{'Đã đặt hàng'}</div>;
-                            else if(params.value[i].type=='shiped')
-                                return <div className="rowitem">{'Đang giao'}</div>;
+                            else if(params.value[i].type=='shipped')
+                                return <div className="rowitem">{'Đang vận chuyển'}</div>;
                             else
-                                return <div className="rowitem">{'Đã giao'}</div>;
+                                return <div className="rowitem">{'Đã nhận'}</div>;
                         }
                     }
                 }
@@ -271,30 +270,49 @@ const OrderPage = () => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
+                date: Date.now(),
                 type
             };        
             console.log(data);
-            dispatch(updateOrder(data)).then((data) => {
-                dispatch(getDataFilterOrder()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setOrderInPage(data);
-                    setLoading(false);
+            if(typeofOrderStatus!== data.type && data.type!=="") {
+                
+                dispatch(updateOrder(data)).then((data) => {
+                    if (data === 'success') {
+                        dispatch(getDataFilterOrder()).then((data) => {
+                            data.map((item, index) => (item.id = index + 1));
+                            data.map((item) => {
+                                if(item._id === selectedRows[0]._id) 
+                                {
+                                    selectedRows[0] = item;
+                                setSelectedRows(selectedRows)
+                                }
+                            });
+                            setOrderInPage(data);
+                            setLoading(false);
+                        });
+                        console.log(selectedRows)
+                        handleClose();
+                        SetType("");
+                        notification['success']({
+                            message: 'Cập nhập trạng thái đơn hàng',
+                            description: 'Cập nhập trạng thái đơn hàng thành công.'
+                        });
+                    } else {
+                        handleClose();
+                        notification['error'] ({
+                            message: 'Cập nhập trạng thái đơn hàng',
+                            description: 'Cập nhập trạng thái đơn hàng thất bại.',
+                        });
+                        
+                    }
                 });
-                if (data === 'success') {
-                    handleClose();
-                    notification['success']({
-                        message: 'Cập nhập trạng thái đơn hàng',
-                        description: 'Cập nhập trạng thái đơn hàng thành công.'
-                    });
-                } else {
-                    handleClose();
-                    notification['error'] ({
-                        message: 'Cập nhập trạng thái đơn hàng',
-                        description: 'Cập nhập trạng thái đơn hàng thất bại.',
-                    });
-                    
-                }
-            });
+            } else {
+                notification['warning']({
+                    message: 'Cập nhập đơn hàng',
+                    description: 'Chưa cập nhập đơn hàng.'
+                });
+            }
+            
         } catch (err) {
             throw new Error('Something went wrong');
         }  
@@ -345,7 +363,38 @@ const OrderPage = () => {
             setLoading(false);
         });
     };
-    
+    var typeofOrderStatus;
+    let disableType1;
+    let disableType2;
+    let disableType3;
+    let disableType4;
+    const resultType = (e) => {
+        // console.log(type);
+        if(e === 'ordered') {
+            disableType1 = true;
+            disableType2 = false;
+            disableType3 = false;
+            disableType4 = false;
+        }
+        else if(e === 'packed') {
+            disableType1 = true;
+            disableType2 = true;
+            disableType3 = false;
+            disableType4 = false;
+        }
+        else if(e === 'shipped') {
+            disableType1 = true;
+            disableType2 = true;
+            disableType3 = true;
+            disableType4 = false;
+        }
+        else {
+            disableType1 = true;
+            disableType2 = true;
+            disableType3 = true;
+            disableType4 = true;
+        }
+    }
     // var result = selectedRows[0].orderStatus.filter(obj=>obj.isCompleted===true);
     const modalOrder = (typeofModal) => {
         let title;
@@ -361,7 +410,11 @@ const OrderPage = () => {
             disable = false;
             Setonclick = handleUpdateOrderStatus;
             const tempOrderStatus = selectedRows[0]?.orderStatus?.find(data => data.isCompleted === true);
+            console.log(tempOrderStatus);
             arraytemp = tempOrderStatus;
+            typeofOrderStatus = arraytemp?.type;
+            resultType(typeofOrderStatus);
+            // console.log(typeofOrderStatus);
         } else if (typeofModal === 'view') {
             title = 'Xem chi tiết đơn hàng';
             disable = true;
@@ -377,11 +430,13 @@ const OrderPage = () => {
             });
             const listNeed = selectedRows[0]?.items?.values();
             //lỗi lấy danh sách sản phẩm
-            // for (const value of listNeed) {
-            //     ListProductOrder = ListProductOrder + value.productId.name + `
-            //     `;
-            // }
-            // console.log(ListProductOrder);
+            if( listNeed&&listNeed.length !== 0) {
+                for (const value of listNeed) {
+                    ListProductOrder = ListProductOrder + value.productId.name + ``;
+                }
+            }
+            
+            console.log(ListProductOrder);
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -450,7 +505,7 @@ const OrderPage = () => {
                                         <SelectMui
                                             disabled={disable}
                                             // defaultValue={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].orderStatus[0].type : null}
-                                            defaultValue={arraytemp ? arraytemp.type: type}
+                                            value={type ? type : arraytemp?.type}
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                             onChange = {(e) => 
@@ -458,10 +513,10 @@ const OrderPage = () => {
                                             }
                                             
                                         >
-                                            <MenuItem value={'ordered'}>Đã đặt hàng</MenuItem>
-                                            <MenuItem value={'packed'}>Đang đóng gói</MenuItem>
-                                            <MenuItem value={'shipped'}>Đang giao</MenuItem>
-                                            <MenuItem value={'delivered'}>Đã giao</MenuItem>
+                                            <MenuItem value={'ordered'} disabled={disableType1}>Đã đặt hàng</MenuItem>
+                                            <MenuItem value={'packed'} disabled={disableType2}>Đang đóng gói</MenuItem>
+                                            <MenuItem value={'shipped'} disabled={disableType3}>Đang vận chuyển</MenuItem>
+                                            <MenuItem value={'delivered'} disabled={disableType4}>Đã nhận</MenuItem>
                                         </SelectMui>
                                     </FormControl>
                                 </div>
@@ -742,6 +797,12 @@ const OrderPage = () => {
                         onSelectionModelChange={(ids) => {
                             const selectedIDs = new Set(ids);
                             const selectedRows = orderInPage&&orderInPage.filter((row) => selectedIDs.has(row._id));
+                            // if (selectedRows.length === 1) {
+                            //     setCodeBanner(selectedRows[0].codeBanner);
+                            //     setNameBanner(selectedRows[0].nameBanner);
+                            //     setSlug(selectedRows[0].slug);
+                            //     setFileList([{ url: selectedRows[0].image }]);
+                            // }
                             setSelectedRows(selectedRows);
                         }}
                         loading={loading}

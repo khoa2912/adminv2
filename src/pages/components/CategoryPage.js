@@ -28,16 +28,16 @@ const ComponentTypography = () => {
     const [type, setType]=useState('')
     
     const [searchModel, setSearchModel] = useState({
-        CategoryName: '',
-        CategoryId: ''
+        CategoryName: ''
     });
     useEffect(() => {
         setLoading(true);
-        dispatch(getAllCategory()).then((data) => {
+        dispatch(getDataFilter()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
             setCategoryInPage(data);
             setLoading(false);
         });
-    }, [dispatch]);
+    }, [dispatch, category]);
     const handleChangeCategory = (value) => {
         searchModel.CategoryId = value;
         setSearchModel(searchModel);
@@ -85,7 +85,7 @@ const ComponentTypography = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeProduct}
                                             >
-                                                {category.categories.map((item, index) => (
+                                                {categoryInPage&&categoryInPage.map((item, index) => (
                                                     <Option key={item._id} data={item.name} text={item.name}>
                                                         <div className="global-search-item">
                                                             <span>{item.name}</span>

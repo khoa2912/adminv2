@@ -32,6 +32,7 @@ import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory, addCategory, getDataFilter } from 'actions/category';
 import { useHistory } from 'react-router-dom';
 import {useNavigate} from "react-router-dom"
+import { Category } from '../../../../node_modules/@mui/icons-material/index';
 
 export const AddCategory = (props) => {
     // eslint-disable-next-line
@@ -41,6 +42,7 @@ export const AddCategory = (props) => {
     const [name, setName] = useState('');
     const [categoryImage, setCategoryImage] = useState('');
     const [file, setFile] = useState([]);
+    const [categoryInPage, setCategoryInPage] = useState([]);
     const [loading, setLoading] = useState(false);
     const category = useSelector((state) => state.category);
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
@@ -85,6 +87,14 @@ export const AddCategory = (props) => {
     useEffect(() => {
         dispatch(getAllCategory());
     }, []);
+    useEffect(() => {
+        setLoading(true);
+        dispatch(getAllCategory()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setCategoryInPage(data);
+            setLoading(false);
+        });
+    }, [dispatch]);
     const navigate = useNavigate();
     // useEffect(() => {
     //     if (category.addCategory != null) {
@@ -135,25 +145,33 @@ export const AddCategory = (props) => {
                         name,
                         categoryImage: responseJson.result[0]
                     };
-                    dispatch(addCategory(data)).then((data) => {
-                        dispatch(getDataFilter()).then((data) => {
-                            data.map((item, index) => (item.id = index + 1));
-                            setLoading(false);
+                    const findOther = categoryInPage.find(item => item.name === data.name);
+                    if(findOther === undefined) {
+                        dispatch(addCategory(data)).then((data) => {
+                            dispatch(getDataFilter()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setLoading(false);
+                            });
+                            if (data === 'success') {
+                                notification['success']({
+                                    message: 'Thêm mới Nhãn hàng',
+                                    description: 'Thêm mới Nhãn hàng thành công.'
+                                });
+                                navigate('/category');
+                            } else {
+                                notification['error'] ({
+                                    message: 'Thêm mới Nhãn hàng',
+                                    description: 'Thêm mới Nhãn hàng thất bại.',
+                                });
+                            }
                         });
-                        if (data === 'success') {
-                            notification['success']({
-                                message: 'Thêm mới Nhãn hàng',
-                                description: 'Thêm mới Nhãn hàng thành công.'
-                            });
-                            navigate('/category');
-                        } else {
-                            notification['error'] ({
-                                message: 'Thêm mới Nhãn hàng',
-                                description: 'Thêm mới Nhãn hàng thất bại.',
-                            });
-                            
-                        }
-                    });
+                    }
+                    else {
+                        notification['error'] ({
+                            message: 'Thêm mới Nhãn hàng',
+                            description: 'Thêm mới Nhãn hàng thất bại.',
+                        });
+                    }
                 });
         } catch (err) {
             throw new Error('Something went wrong');

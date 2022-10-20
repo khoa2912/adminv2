@@ -1,12 +1,14 @@
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
 // import { generatePublicUrl } from 'urlConfig';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Modal, TextField } from '../../../node_modules/@mui/material/index';
 import { Tabs } from 'antd';
+import { notification, Image, Space } from 'antd';
 import { Popconfirm, Upload } from '../../../node_modules/antd/lib/index';
+import { useDispatch} from 'react-redux';
 import { PlusOutlined } from '@ant-design/icons';
-import { deleteCategories, addCategory } from 'actions/category';
+import { deleteCategories, updateCategories, getAllCategory, getDataFilter } from 'actions/category';
 import DeleteIcon from '@mui/icons-material/Delete';
 // import { makeStyles } from '@mui/styles';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -15,35 +17,61 @@ import { useSelector } from 'react-redux';
 const SimpleCard = (props) => {
     const { TabPane } = Tabs;
     const { card, image, name, value } = props.item;
-    console.log('props.item;', props.item);
+    // console.log('props.item;', props.item);
     const category = useSelector((state) => state.category);
     const [open, setOpen] = useState(false);
     const [type, setType] = useState('');
     const [nameCategory, setNameCategory] = useState('');
-    const [categoryImage, setCategoryImage] = useState('');
     const [slug, setSlug] = useState('');
+    const [ids, SetIds] = useState('');
     const [fileList, setFileList] = useState([]);
-    
+    const [categoryInPage, setCategoryInPage] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const handleCancel = () => setPreviewVisible(false);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [previewImage, setPreviewImage] = useState('');
+    const [categoryImage, setCategoryImage] = useState('');
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handlePreview = async (file) => {
+        console.log(file);
+        setPreviewImage(file.url);
+        setPreviewVisible(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    };
     const handleView = () => {
         setType('view');
         handleOpen();
     };
+    useEffect(() => {
+        setLoading(true);
+        dispatch(getDataFilter()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setCategoryInPage(data);
+            setLoading(false);
+        });
+    }, [dispatch]);
     const confirm = () => {
-        dispatch(deleteCategories(value));
-        if (category.message === 'deletesuccess') {
-            notification['success']({
-                message: 'Xoá nhãn hàng',
-                description: 'Xoá nhãn hàng thành công.'
-            });
+        console.log(props.item);
+        var idTemp = props.item._id;
+        const data = {
+            ids: idTemp,
         }
-        if (category.deleteMessage === 'deleteerror') {
-            notification['error']({
-                message: 'Xoá nhãn hàng',
-                description: 'Xoá nhãn hàng không thành công.'
+        console.log(data)
+        const tempLenght = category.length;
+        console.log(tempLenght)
+        dispatch(deleteCategories(data)).then((data) => {
+            setLoading(true);
+            dispatch(getDataFilter()).then((data) => {
+                data.map((item, index) => (item.id = index + 1));
+                setCategoryInPage(data);
+                setLoading(false);
             });
-        }
+        });
+        
     };
     const style = {
         position: 'absolute',
@@ -56,6 +84,16 @@ const SimpleCard = (props) => {
         boxShadow: 24,
         p: 4
     };
+    const getBase64 = (file) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = () => resolve(reader.result);
+
+            reader.onerror = (error) => reject(error);
+        }
+    );
     const uploadButton = (
         <div>
             <PlusOutlined />
@@ -72,13 +110,100 @@ const SimpleCard = (props) => {
         setType('edit');
         handleOpen();
     };
-    // const handleCreate = () => {
-    //     setType('create');
-    //     setNameCategory('');
-    //     setSlug('');
-    //     setCategoryImage('');
-    //     handleOpen();
-    // };
+    const handleUpdateCategory = async () => {
+        console.log(fileList);
+        // if (!fileList) return;
+        const list = [];
+        if(fileList&&fileList[0]&&fileList[0].type!=null)
+        {
+            
+            for (let pic of fileList) {
+                const reader = new FileReader();
+                if (pic) {
+                    const link = await getBase64(pic.originFileObj);
+                    list.push(link);
+                }
+            }
+            try {
+                await fetch('http://localhost:3001/product/uploadPicture', {
+                    method: 'POST',
+                    body: JSON.stringify({ data: list }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Something went wrong');
+                    })
+                    .then((responseJson) => {
+                        const data = {
+                            _id: props.item._id,
+                            nameCategory,
+                            categoryImage: responseJson.result[0]
+                        };
+                        console.log(data);
+                        dispatch(updateCategories(data)).then((data) => {
+                            console.log('run if')
+                            dispatch(getDataFilter()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setCategoryInPage(data);
+                                setLoading(false);
+                            });
+                            console.log(data);
+                            if (data === 'success') {
+                                handleClose();
+                                notification['success']({
+                                    message: 'Cập nhập Nhãn hàng',
+                                    description: 'Cập nhập Nhãn hàng thành công.'
+                                });
+                            } else {
+                                handleClose();
+                                notification['error'] ({
+                                    message: 'Cập nhập Nhãn hàng',
+                                    description: 'Cập nhập Nhãn hàng thất bại.',
+                                });
+                                
+                            }
+                        });
+                    });
+            } catch (err) {
+                throw new Error('Something went wrong');
+            }
+        } 
+        else {
+            const data = {
+                _id: props.item._id,
+                nameCategory,
+                categoryImage: fileList.length!=0?fileList[0].url:null
+            };
+            console.log(data);
+            dispatch(updateCategories(data)).then((data) => {
+                console.log('run else')
+                dispatch(getDataFilter()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setCategoryInPage(data);
+                    setLoading(false);
+                });
+                console.log(data);
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Cập nhập Nhãn hàng',
+                        description: 'Cập nhập Nhãn hàng thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Cập nhập Nhãn hàng',
+                        description: 'Cập nhập Nhãn hàng thất bại.',
+                    });
+                    
+                }
+            });
+        }
+        
+    };
     const text = 'Bạn có chắc chắn muốn xoá?';
     const modalProduct = (type) => {
         let title;
@@ -124,28 +249,41 @@ const SimpleCard = (props) => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Tên nhãn hàng"
-                                        defaultValue={name ? name : ''}
+                                        defaultValue={props?.item ? props?.item.name : ''}
                                         disabled={disable}
+                                        onChange={(e) => setNameCategory(e.target.value)}
                                     />
-
                                     <ul></ul>
                                     <Upload
                                         listType="picture-card"
-                                        fileList={
-                                            image
-                                                ? [{ url: image }]
-                                                : [{ url: 'https://theme.hstatic.net/1000026716/1000440777/14/solid1.jpg?v=27314' }]
-                                        }
-                                        // onPreview={handlePreview}
+                                        defaultValue={fileList !== '' ? fileList : [{url: ''}]}
+                                        onChange={handleChange}
+                                        onPreview={handlePreview}
                                         // onChange={handleChange}
-                                        // beforeUpload={() => {
-                                        //     /* update state here */
-                                        //     return false;
-                                        // }}
+                                        beforeUpload={() => {
+                                            /* update state here */
+                                            return false;
+                                        }}
                                         disabled={disable}
                                     >
-                                        {type === 'view' ? null : uploadButton}
+                                        {fileList.length > 0 ? null : uploadButton}
+                                        
                                     </Upload>
+                                    <Modal
+                                        visible={previewVisible}
+                                        title={previewTitle}
+                                        footer={null}
+                                        onCancel={handleCancel}
+                                        style={{ zIndex: 9999999 }}
+                                    >
+                                        <img
+                                            alt="example"
+                                            style={{
+                                                width: '100%'
+                                            }}
+                                            src={previewImage}
+                                        />
+                                    </Modal>
                                     {/* <Modal visible={previewVisible} title={previewTitle} footer={null} onCancel={handleCancel}>
                                         <img
                                             alt="example"
@@ -160,7 +298,7 @@ const SimpleCard = (props) => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{}}>
-                        <Button size="small" variant="contained" color="success" onClick={handleEdit}>
+                        <Button size="small" variant="contained" color="success" disabled={disable} onClick={handleUpdateCategory}>
                             Lưu
                         </Button>
                         <Button size="small" variant="contained" onClick={handleClose}>

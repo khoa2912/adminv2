@@ -21,6 +21,13 @@ const pages = {
             type: 'item',
             url: '/role',
             icon: icons.ApartmentOutlined
+        },
+        {
+            id: 'logouted',
+            title: 'Action',
+            type: 'item',
+            url: '/action',
+            icon: icons.ApartmentOutlined
         }
     ]
 };

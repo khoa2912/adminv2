@@ -82,20 +82,16 @@ export default (state = initState, action) => {
         case categoryConstants.UPDATE_CATEGORIES_REQUEST:
             state = {
                 ...state,
-                loading: true
-            };
+                loading: true,
+                message: '',
+                error: ''
+                };
             break;
         case categoryConstants.UPDATE_CATEGORIES_SUCCESS:
             state = {
                 ...state,
-                loading: false
-            };
-            break;
-        case categoryConstants.UPDATE_CATEGORIES_FAILURE:
-            state = {
-                ...state,
-                error: action.payload.error,
-                loading: false
+                loading: false,
+                message: 'success'
             };
             break;
         case categoryConstants.DELETE_CATEGORIES_REQUEST:
