@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addRole, getDataFilterRole, deleteRoleById, updateRole } from 'actions/role';
+import { addRole, getDataFilterRole, deleteRoleById, updateRole, getRoles } from 'actions/role';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -53,14 +53,6 @@ const RolePage = () => {
     });
     const [loading, setLoading] = useState(false);
     const [roleInPage, setRoleInPage] = useState([]);
-    useEffect(() => {
-        setLoading(true);
-        dispatch(getDataFilterRole()).then((data) => {
-            data.map((item, index) => (item.id = index + 1));
-            setRoleInPage(data);
-            setLoading(false);
-        });
-    }, [dispatch]);
     // useEffect(() => {
     //     dispatch(getAllRole());
     // }, []);
@@ -76,13 +68,21 @@ const RolePage = () => {
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     useEffect(() => {
-        if (role.message === 'successcreate') {
-            notification['success']({
-                message: 'Thêm mới vai trò',
-                description: 'Thêm mới vai trò thành công.'
-            });
-        }
-    }, [role.message]);
+        setLoading(true);
+        dispatch(getDataFilterRole()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setRoleInPage(data);
+            setLoading(false);
+        });
+    }, [dispatch, role]);
+    // useEffect(() => {
+    //     if (role.message === 'successcreate') {
+    //         notification['success']({
+    //             message: 'Thêm mới vai trò',
+    //             description: 'Thêm mới vai trò thành công.'
+    //         });
+    //     }
+    // }, [role.message]);
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         { field: 'codeRole', headerName: 'Mã vai trò', width: 150 },
@@ -142,28 +142,20 @@ const RolePage = () => {
             const payload = {
                 roleId: listIdRole
             };
-            const temp = roleInPage.length;
-            
             dispatch(deleteRoleById(payload)).then((data) => {
-                dispatch(getDataFilterRole()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setRoleInPage(data);
-                    setLoading(false);
-                    if(temp!=data.length) {
-                        notification['success']({
-                            message: 'Xoá Role',
-                            description: 'Xoá Role thành công.'
-                        });
-                    } 
-                    else {
-                        notification['error']({
-                            message: 'Xoá Role',
-                            description: 'Xoá Role không thành công.'
-                        });
-                    }
-                    // console.log(temp);
-                    // console.log(data.length);
-                });
+                dispatch(getRoles());
+                if(data==='success') {
+                    notification['success']({
+                        message: 'Xoá Role',
+                        description: 'Xoá Role thành công.'
+                    });
+                } 
+                else {
+                    notification['error']({
+                        message: 'Xoá Role',
+                        description: 'Xoá Role không thành công.'
+                    });
+                }
             });
 
         }
@@ -235,31 +227,51 @@ const RolePage = () => {
                 descriptionRole,
                 status
             };
+            // const findOther = roleInPage.find(item => item.nameRole === data.nameRole);
             dispatch(addRole(data)).then((data) => {
-                dispatch(getDataFilterRole()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setRoleInPage(data);
-                    setLoading(false);
-                });
+                dispatch(getRoles());
+                console.log(data)
                 if (data === 'success') {
-                    handleClose();
                     notification['success']({
                         message: 'Thêm mới Role',
                         description: 'Thêm mới Role thành công.'
                     });
-                    setCodeRole('');
-                    setNameRole('');
-                    setDescriptionRole('');
-                    setStatus('');
-                } else {
                     handleClose();
+                } else {
                     notification['error'] ({
                         message: 'Thêm mới Role',
                         description: 'Thêm mới Role thất bại.',
                     });
-                    
+                    handleClose();
                 }
-            });
+            })
+            // if(findOther === undefined) {
+            //     dispatch(addRole(data)).then((data) => {
+            //         dispatch(getRoles());
+            //         console.log(data)
+            //         if (data === 'success') {
+            //             notification['success']({
+            //                 message: 'Thêm mới Role',
+            //                 description: 'Thêm mới Role thành công.'
+            //             });
+            //             handleClose();
+            //         } else {
+            //             notification['error'] ({
+            //                 message: 'Thêm mới Role',
+            //                 description: 'Thêm mới Role thất bại.',
+            //             });
+            //             handleClose();
+            //         }
+                    
+            //     });
+            // } else {
+            //     notification['error'] ({
+            //         message: 'Thêm mới Role',
+            //         description: 'Thêm mới Role thất bại.',
+            //     });
+            //     handleClose();
+            // }
+            
         } catch (err) {
             throw new Error('Something went wrong');
         }
@@ -274,29 +286,51 @@ const RolePage = () => {
                 nameRole,
                 descriptionRole,
                 status
-            };        
-            console.log(data);
+            };
+            // const findOther = roleInPage.find(item => item.nameRole === data.nameRole);
             dispatch(updateRole(data)).then((data) => {
-                dispatch(getDataFilterRole()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setRoleInPage(data);
-                    setLoading(false);
-                });
+                dispatch(getRoles());
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Cập nhập Role',
-                        description: 'Cập nhập Role thành công.'
+                        message: 'Chỉnh sửa Role',
+                        description: 'Chỉnh sửa Role thành công.'
                     });
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Cập nhập Role',
-                        description: 'Cập nhập Role thất bại.',
+                        message: 'Chỉnh sửa Role',
+                        description: 'Chỉnh sửa Role thất bại.',
                     });
                     
                 }
             });
+            // if(findOther === undefined || findOther._id === data._id) {
+            //     dispatch(updateRole(data)).then((data) => {
+            //         dispatch(getRoles());
+            //         if (data === 'success') {
+            //             handleClose();
+            //             notification['success']({
+            //                 message: 'Chỉnh sửa Role',
+            //                 description: 'Chỉnh sửa Role thành công.'
+            //             });
+            //         } else {
+            //             handleClose();
+            //             notification['error'] ({
+            //                 message: 'Chỉnh sửa Role',
+            //                 description: 'Chỉnh sửa Role thất bại.',
+            //             });
+                        
+            //         }
+            //     });
+            // } else {
+            //     handleClose();
+            //     notification['error'] ({
+            //         message: 'Chỉnh sửa Role',
+            //         description: 'Chỉnh sửa Role thất bại.',
+            //     });
+            // }
+            
         } catch (err) {
             throw new Error('Something went wrong');
         }  

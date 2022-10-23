@@ -87,7 +87,14 @@ const utilities = {
             type: 'item',
             url: '/banner',
             icon: icons.DesktopOutlined
-        }
+        },
+        {
+            id: 'tag',
+            title: 'Tag',
+            type: 'item',
+            url: '/tag',
+            icon: icons.TagsOutlined
+        },
     ]
 };
 

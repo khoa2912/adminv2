@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { addAction, getDataFilterAction, deleteActionById, updateAction } from 'actions/action';
+import { addTag, getDataFilterTag, deleteTagById, updateTag, getTags } from 'actions/tag';
 import { PlusOutlined } from '@ant-design/icons';
 import { object } from 'prop-types';
 const { TabPane } = Tabs;
@@ -44,52 +44,50 @@ const IFrameWrapper = styled('iframe')(() => ({
     border: 'none'
 }));
 
-// ============================|| Action Page ||============================ //
+// ============================|| Tag Page ||============================ //
 
-const ActionPage = () => {
+const TagPage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        ActionName: '',
-        Description: ''
+        TagName: '',
     });
+    const tag = useSelector((state) => state.tag);
     const [open, setOpen] = useState(false);
     const text = 'Bạn có chắc chắn muốn xoá?';
     const [loading, setLoading] = useState(false);
-    const [actionInPage, setActionInPage] = useState([]);
+    const [tagInPage, setTagInPage] = useState([]);
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [nameAction, setNameAction] = useState('');
-    const [description, setDescription] = useState('');
-    const [date, setDate] = useState('');
-    
+    const [tagName, setTagName] = useState('');
+    const [updatedTime, setUpdatedTime] = useState('');
     useEffect(() => {
         setLoading(true);
-        dispatch(getDataFilterAction()).then((data) => {
+        dispatch(getDataFilterTag()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
-            setActionInPage(data);
+            setTagInPage(data);
             setLoading(false);
         });
-    }, [dispatch]);
+    }, [dispatch, tag]);
     const columns = [
-        { field: '_id', headerName: 'Mã Action', width: 200 },
-        { field: 'nameAction', headerName: 'Tên Action', width: 300 },
-        { field: 'description', headerName: 'Mô tả', width: 350 },
-        { field: 'date', headerName: 'Ngày cập nhập', width: 200 }
+        { field: '_id', headerName: 'Mã Tag', width: 200 },
+        { field: 'tagName', headerName: 'Tên Tag', width: 300 },
+        { field: 'createdTime', headerName: 'Mô tả', width: 250 },
+        { field: 'updatedTime', headerName: 'Mô tả', width: 250 }
     ];
     // eslint-disable-next-line
     const [selectedRows, setSelectedRows] = useState([]);
     const handleView = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chọn Action bạn muốn xem.'
+                message: 'Xem Tag',
+                description: 'Vui lòng chọn Tag bạn muốn xem.'
             });
         } else if (selectedRows.length >= 2) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chỉ chọn một Action.'
+                message: 'Xem Tag',
+                description: 'Vui lòng chỉ chọn một Tag.'
             });
         } else {
             setType('view');
@@ -98,47 +96,42 @@ const ActionPage = () => {
     };
     const handleCreate = () => {
         setType('create');
-        setNameAction('');
-        setDescription('');
+        setTagName('');
         handleOpen();
     };
     
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xoá Action',
-                description: 'Vui lòng chọn Action bạn muốn xoá.'
+                message: 'Xoá Tag',
+                description: 'Vui lòng chọn Tag bạn muốn xoá.'
             });
         } else {
-            let listAction = [];
+            let listTag = [];
             selectedRows.map((item) => {
-                listAction.push(item._id);
+                listTag.push(item._id);
             });
             const payload = {
-                actionId: listAction
-            };
-            const temp = actionInPage.length;
-            
-            dispatch(deleteActionById(payload)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+                tagId: listTag
+            };            
+            dispatch(deleteTagById(payload)).then((data) => {
+                dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setTagInPage(data);
                     setLoading(false);
-                    if(temp!=data.length) {
-                        notification['success']({
-                            message: 'Xoá Action',
-                            description: 'Xoá Action thành công.'
-                        });
-                    } 
-                    else {
-                        notification['error']({
-                            message: 'Xoá Action',
-                            description: 'Xoá Action không thành công.'
-                        });
-                    }
-                    console.log(temp);
-                    console.log(data.length);
                 });
+                if(data === 'success') {
+                    notification['success']({
+                        message: 'Xoá Tag',
+                        description: 'Xoá Tag thành công.'
+                    });
+                } 
+                else {
+                    notification['error']({
+                        message: 'Xoá Tag',
+                        description: 'Xoá Tag không thành công.'
+                    });
+                }
             });
 
         }
@@ -166,33 +159,28 @@ const ActionPage = () => {
         rtl: false,
         zIndex: 100
     });
-    const handleChangeActionName = (value) => {
-        searchModel.ActionName = value;
-        setSearchModel(searchModel);
-    };
-    const handleChangeDescription = (value) => {
-        searchModel.Description = value;
+    const handleChangeTagName = (value) => {
+        searchModel.TagName = value;
         setSearchModel(searchModel);
     };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
-        dispatch(getDataFilterAction(searchModel)).then((data) => {
+        dispatch(getDataFilterTag(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
-            setActionInPage(data);
+            setTagInPage(data);
             setLoading(false);
         });
     };
-    const handleEditUser = () => {
+    const handleEditTag = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Chỉnh sửa Action',
-                description: 'Vui lòng chọn Action bạn muốn chỉnh sửa.'
+                message: 'Chỉnh sửa Tag',
+                description: 'Vui lòng chọn Tag bạn muốn chỉnh sửa.'
             });
         } else if (selectedRows.length >= 2) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chỉ chọn một Action.'
+                message: 'Xem Tag',
+                description: 'Vui lòng chỉ chọn một Tag.'
             });
         } else {
             setType('edit');
@@ -200,39 +188,36 @@ const ActionPage = () => {
         }
     };
 
-    const handleAddAction = async () => {
-        if (nameAction.trim() === '') {
+    const handleAddTag = async () => {
+        if (tagName.trim() === '') {
             notification['warning']({
-                message: 'Thêm mới Action',
+                message: 'Thêm mới Tag',
                 description: 'Vui lòng nhập dữ liệu.'
             });
             return;
         }
         try {
             const data = {
-                nameAction,
-                description,
-                date: Date.now()
+                tagName,
+                updatedTime: Date.now()
             };
-            dispatch(addAction(data)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+            dispatch(addTag(data)).then((data) => {
+                dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setTagInPage(data);
                     setLoading(false);
                 });
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Thêm mới Action',
-                        description: 'Thêm mới Action thành công.'
+                        message: 'Thêm mới Tag',
+                        description: 'Thêm mới Tag thành công.'
                     });
-                    setNameAction('');
-                    setDescription('');
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Thêm mới Action',
-                        description: 'Thêm mới Action thất bại.',
+                        message: 'Thêm mới Tag',
+                        description: 'Thêm mới Tag thất bại.',
                     });
                     
                 }
@@ -241,34 +226,32 @@ const ActionPage = () => {
             throw new Error('Something went wrong');
         }
     };
-    const handleUpdateAction = async (e) => {
+    const handleUpdateTag = async (e) => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
-                nameAction,
-                description,
-                date: Date.now()
+                tagName,
+                updatedTime: Date.now()
             };        
             console.log(data);
-            dispatch(updateAction(data)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+            dispatch(updateTag(data)).then((data) => {
+                dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setTagInPage(data);
                     setLoading(false);
                 });
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Cập nhập Action',
-                        description: 'Cập nhập Action thành công.'
+                        message: 'Cập nhập Tag',
+                        description: 'Cập nhập Tag thành công.'
                     });
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Cập nhập Action',
-                        description: 'Cập nhập Action thất bại.',
+                        message: 'Cập nhập Tag',
+                        description: 'Cập nhập Tag thất bại.',
                     });
-                    
                 }
             });
         } catch (err) {
@@ -280,16 +263,16 @@ const ActionPage = () => {
         let disable;
         let Setonclick;
         if (type === 'edit') {
-            title = 'Chỉnh sửa Action';
+            title = 'Chỉnh sửa Tag';
             disable = false;
-            Setonclick = handleUpdateAction;
+            Setonclick = handleUpdateTag;
         } else if (type === 'view') {
-            title = 'Xem chi tiết Action';
+            title = 'Xem chi tiết Tag';
             disable = true;
         } else if (type === 'create') {
-            title = 'Tạo mới Action';
+            title = 'Tạo mới Tag';
             disable = false;
-            Setonclick = handleAddAction;
+            Setonclick = handleAddTag;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -300,7 +283,7 @@ const ActionPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_infoAction"
+                                className="container_infoTag"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -309,31 +292,21 @@ const ActionPage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_infoAction"
+                                    className="container_form_infoTag"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',
                                         paddingRight: '30px'
                                     }}
                                 >
-                                
                                     <TextField
                                         required
                                         id="outlined-number"
-                                        label="Tên Action"
+                                        label="Tên Tag"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={nameAction}
+                                        value={tagName}
                                         disabled={disable}
-                                        onChange={(e) => setNameAction(e.target.value)}
-                                    />
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Mô tả"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={description}
-                                        disabled={disable}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        onChange={(e) => setTagName(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -360,7 +333,7 @@ const ActionPage = () => {
                         <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
-                                        <Form.Item>Tên Action</Form.Item>
+                                        <Form.Item>Tên Tag</Form.Item>
                                     </Col>
                                     <Col span={16}>
                                         <Form.Item>
@@ -368,37 +341,12 @@ const ActionPage = () => {
                                                 mode="multiple"
                                                 optionFilterProp="data"
                                                 optionLabelProp="text"
-                                                onChange={handleChangeActionName}
+                                                onChange={handleChangeTagName}
                                             >
-                                                {actionInPage.map((item) => (
-                                                    <Option key={item.nameAction} data={item._id} text={item.nameAction}>
+                                                {tagInPage.map((item) => (
+                                                    <Option key={item.tagName} data={item.tagName} text={item.tagName}>
                                                         <div className="global-search-item">
-                                                            <span>{item.nameAction}</span>
-                                                        </div>
-                                                    </Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </CardANTD.Grid>
-                            <CardANTD.Grid style={gridStyle}>
-                                <Row>
-                                    <Col span={8}>
-                                        <Form.Item>Mô tả</Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item>
-                                            <Select
-                                                mode="multiple"
-                                                optionFilterProp="data"
-                                                optionLabelProp="text"
-                                                onChange={handleChangeDescription}
-                                            >
-                                                {actionInPage.map((item) => (
-                                                    <Option key={item.description} data={item._id} text={item.description}>
-                                                        <div className="global-search-item">
-                                                            <span>{item.description}</span>
+                                                            <span>{item.tagName}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -433,7 +381,7 @@ const ActionPage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditUser}>
+                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditTag}>
                         Chỉnh sửa
                     </Button>
                 </Stack>
@@ -441,18 +389,17 @@ const ActionPage = () => {
                 <Grid container spacing={3}>
                     <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
                         <DataGrid
-                            rows={actionInPage.length !== 0 ? actionInPage : []}
-                            columns={actionInPage.length !== 0 ? columns : []}
+                            rows={tagInPage.length !== 0 ? tagInPage : []}
+                            columns={tagInPage.length !== 0 ? columns : []}
                             pageSize={8}
                             rowsPerPageOptions={[8]}
                             checkboxSelection
                             getRowId={(row) => row._id}
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
-                                const selectedRows = actionInPage.filter((row) => selectedIDs.has(row._id));
+                                const selectedRows = tagInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
-                                    setNameAction(selectedRows[0].nameAction);
-                                    setDescription(selectedRows[0].description);
+                                    setTagName(selectedRows[0].tagName);
                                 }
                                 setSelectedRows(selectedRows);
                             }}
@@ -465,4 +412,4 @@ const ActionPage = () => {
     );
 };
 
-export default ActionPage;
+export default TagPage;

@@ -70,21 +70,45 @@ export var getDataFilter = (searchModel) => {
         }
     };
 };
+// export var editProduct = (form) => {
+//     return async (dispatch) => {
+//         try {
+//             dispatch({ type: productConstants.UPDATE_PRODUCT_REQUEST });
+//             const res = await axios.post('product/update', form);
+//             console.log(res);
+//             if (res.status === 201) {
+//                 dispatch({ type: productConstants.UPDATE_PRODUCT_SUCCESS });
+//                 dispatch(getProducts());
+//                 return 'success';
+//             } else {
+//                 const { error } = res.data;
+//                 dispatch({ type: productConstants.UPDATE_PRODUCT_FAILURE, payload: { error } });
+//             }
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     };
+// };
+
 export var editProduct = (form) => {
     return async (dispatch) => {
+        dispatch({ type: productConstants.UPDATE_PRODUCT_REQUEST });
         try {
-            dispatch({ type: productConstants.UPDATE_PRODUCT_REQUEST });
             const res = await axios.post('product/update', form);
-            console.log(res);
             if (res.status === 201) {
                 dispatch({ type: productConstants.UPDATE_PRODUCT_SUCCESS });
                 dispatch(getProducts());
+                return 'success';
             } else {
                 const { error } = res.data;
-                dispatch({ type: productConstants.UPDATE_PRODUCT_FAILURE, payload: { error } });
+                dispatch({
+                    type: productConstants.UPDATE_PRODUCT_FAILURE,
+                    payload: {error}
+                });
             }
         } catch (error) {
-            console.log(error);
+            dispatch({ type: productConstants.UPDATE_PRODUCT_FAILURE });
+            return 'error';
         }
     };
 };

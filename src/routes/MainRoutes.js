@@ -10,6 +10,7 @@ import MediaPage from 'pages/components/MediaPage';
 import ListScreenPage from 'pages/components/ListScreenPage';
 import BannerPage from 'pages/components/Banner';
 import ActionPage from 'pages/components/ActionPage';
+import TagPage from 'pages/components/TagPage';
 import { AddCategory } from 'pages/components/AddCategory/index';
 
 // render - dashboard
@@ -84,6 +85,10 @@ const MainRoutes = {
         {
             path: 'createCategory',
             element: <AddCategory />
+        },
+        {
+            path: 'tag',
+            element: <TagPage />
         },
         ,
         {

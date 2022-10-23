@@ -53,23 +53,25 @@ const SimpleCard = (props) => {
             setCategoryInPage(data);
             setLoading(false);
         });
+        fileList.push({url : props.item.image});
+        setFileList(fileList);
     }, [dispatch]);
     const confirm = () => {
-        console.log(props.item);
-        var idTemp = props.item._id;
+        // let listIdCat = [];
+        // const tempItem = props?.item;
+        // listIdCat.push(tempItem._id);
+        // const payload = {
+        //     catId: listIdCat
+        // };
+        // console.log(listIdCat)
+        // console.log(props.item);
+        // var idTemp = props.item._id;
         const data = {
-            ids: idTemp,
+            _id: props?.item._id,
         }
         console.log(data)
-        const tempLenght = category.length;
-        console.log(tempLenght)
         dispatch(deleteCategories(data)).then((data) => {
-            setLoading(true);
-            dispatch(getDataFilter()).then((data) => {
-                data.map((item, index) => (item.id = index + 1));
-                setCategoryInPage(data);
-                setLoading(false);
-            });
+            dispatch(getAllCategory());
         });
         
     };
@@ -208,6 +210,9 @@ const SimpleCard = (props) => {
     const modalProduct = (type) => {
         let title;
         let disable;
+        
+        const imgCat = props.item.image;
+        console.log(imgCat);
         if (type === 'edit') {
             title = 'Chỉnh sửa nhãn hàng';
             disable = false;
@@ -218,6 +223,8 @@ const SimpleCard = (props) => {
         } else {
             title = 'Xem chi tiết nhãn hàng';
             disable = true;
+            console.log(imgCat);
+            // imgCat = props.item.image;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -256,18 +263,17 @@ const SimpleCard = (props) => {
                                     <ul></ul>
                                     <Upload
                                         listType="picture-card"
-                                        defaultValue={fileList !== '' ? fileList : [{url: ''}]}
+                                        fileList={fileList}
+                                        // defaultValue={props?.item ? props?.item.image : ''}
+                                        // defaultFileList={props?.item ? props?.item.image : []}                                        // onPreview={handlePreview}
                                         onChange={handleChange}
-                                        onPreview={handlePreview}
-                                        // onChange={handleChange}
                                         beforeUpload={() => {
                                             /* update state here */
                                             return false;
                                         }}
-                                        disabled={disable}
                                     >
+                                        {/* {console.log(fileList)} */}
                                         {fileList.length > 0 ? null : uploadButton}
-                                        
                                     </Upload>
                                     <Modal
                                         visible={previewVisible}

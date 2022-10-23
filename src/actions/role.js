@@ -47,6 +47,7 @@ export var deleteRoleById = (payload) => {
             if (res.status === 202) {
                 dispatch({ type: roleConstants.DELETE_ROLE_BY_ID_SUCCESS });
                 dispatch(getRoles());
+                return 'success';
             } else {
                 const { error } = res.data;
                 dispatch({
@@ -99,6 +100,7 @@ export var addRole = (form) => {
             if (res.status === 201) {
                 dispatch({ type: roleConstants.CREATE_ROLE_SUCCESS });
                 dispatch(getRoles());
+                return 'success';
             } else {
                 dispatch({ type: roleConstants.CREATE_ROLE_FAILURE });
             }

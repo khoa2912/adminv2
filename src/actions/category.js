@@ -90,13 +90,13 @@ export var updateCategories = (form) => {
 // export var deleteCategories = (payload) => {
 //     return async (dispatch) => {
 //         try {
-//             const res = await axios.delete(`/category/delete`, {
+//             const res = await axios.delete('category/delete', {
 //                 data: { payload }
 //             });
 //             dispatch({ type: categoryConstants.DELETE_CATEGORIES_REQUEST });
 //             if (res.status === 202) {
 //                 dispatch({ type: categoryConstants.DELETE_CATEGORIES_SUCCESS });
-//                 dispatch(getDataFilter());
+//                 dispatch(getAllCategory());
 //             } else {
 //                 const { error } = res.data;
 //                 dispatch({
@@ -136,6 +136,7 @@ export var deleteCategories = (ids) => {
         }
     };
 };
+
 export var getDataFilter = (searchModel) => {
     return async (dispatch) => {
         try {

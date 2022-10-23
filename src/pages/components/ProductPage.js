@@ -11,6 +11,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Card as CardANTD, Spin } from 'antd';
 import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/antd/lib/index';
 import { FormGroup } from 'react-bootstrap';
+import { EditorState, convertToRaw } from 'draft-js';
 import { PlusOutlined } from '@ant-design/icons';
 
 import {
@@ -33,10 +34,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { notification, Popconfirm } from 'antd';
 import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
-import { deleteProductById, getDataFilter, getProducts, getProductWarning } from 'actions/product';
+import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataArraySharp } from '../../../node_modules/@mui/icons-material/index';
+import { DataArraySharp, SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
 
 // ===============================|| COLOR BOX ||=============================== //
 const { TabPane } = Tabs;
@@ -106,16 +107,58 @@ const ComponentColor = () => {
     const category = useSelector((state) => state.category);
     const [productPicture, setProductPicture] = useState([]);
     const [productInPage, setProductInPage] = useState([]);
-    const [categoryId,setCategoryId]=useState('')
+    const [name, setName] = useState('');
+    const [file, setFile] = useState([]);
+    const [quantity, setQuantity] = useState('');
+    const [regularPrice, setRegularPrice] = useState('');
+    const [salePrice, setSalePrice] = useState('');
+    const [description, setDescription] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [timeBaoHanh, setTimeBaoHanh] = useState('');
+    const [series, setSeries] = useState('');
+    const [color, setColor] = useState('');
+    const [cpu, setCPU] = useState('');
+    const [card, setCard] = useState('');
+    const [ram, setRam] = useState('');
+    const [manhinh, setManHinh] = useState('');
+    const [ocung, setOCung] = useState('');
+    const [hedieuhanh, setHeDieuHanh] = useState('');
+    const [khoiluong, setKhoiLuong] = useState('');
+    const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [fileList, setFileList] = useState([]);
+    const [filebase64, setFileBase64] = useState([]);
+    const handleCancel = () => setPreviewVisible(false);
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handlePreview = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+
+        setPreviewImage(file.url || file.preview);
+        setPreviewVisible(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    };
+    const getBase64 = (file) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = () => resolve(reader.result);
+
+            reader.onerror = (error) => reject(error);
+        });
+    
     useEffect(() => {
         setLoading(true);
-        dispatch(getProducts()).then((data) => {
+        dispatch(getDataFilter()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
             setLoading(false);
         });
-        dispatch(getAllCategory());
-    }, [dispatch]);
+    }, [dispatch], product);
     useEffect(() => {
         if (selectedRows[0]) {
             selectedRows[0] && selectedRows[0].productPicture.map((item) => Object.assign(item, { url: item.img }));
@@ -124,6 +167,134 @@ const ComponentColor = () => {
     }, [selectedRows]);
 
     const handleEdit = () => {};
+    const handleUpdateProduct = async () => {
+        if (name.trim() === '') {
+            notification['warning']({
+                message: 'Thêm mới Sản phẩm',
+                description: 'Vui lòng nhập dữ liệu.'
+            });
+            return;
+        }
+        const list = [];
+        console.log(fileList);
+        console.log(productPicture);
+        
+        if(fileList && fileList.length > 0 && fileList[0].type && fileList[0].type  !== null)
+        {
+            
+            for (let pic of fileList) {
+                const reader = new FileReader();
+                if (pic) {
+                    const link = await getBase64(pic.originFileObj);
+                    list.push(link);
+                }
+            }
+            try {
+                await fetch('http://localhost:3001/product/uploadPicture', {
+                    method: 'POST',
+                    body: JSON.stringify({ data: list }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Something went wrong');
+                    })
+                    .then((responseJson) => {
+                        const data = {
+                            _id: selectedRows[0]._id,
+                            name,
+                            quantity,
+                            regularPrice,
+                            salePrice,
+                            description,
+                            categoryId: selectedRows[0].category,
+                            productPicture: responseJson,
+                            timeBaoHanh,
+                            series,
+                            color,
+                            cpu,
+                            card,
+                            ram,
+                            manhinh,
+                            ocung,
+                            hedieuhanh,
+                            khoiluong
+                        };
+                        console.log('run if')
+                        dispatch(editProduct(data)).then((data) => {
+                            dispatch(getDataFilter()).then((data) => {
+                                data.map((item, index) => (item.id = index + 1));
+                                setProductInPage(data);
+                                setLoading(false);
+                            });
+                            if (data === 'success') {
+                                notification['success']({
+                                    message: 'Chỉnh sửa Sản phẩm',
+                                    description: 'Chỉnh sửa Sản phẩm thành công.'
+                                });
+                            } else {
+                                notification['error'] ({
+                                    message: 'Chỉnh sửa Sản phẩm',
+                                    description: 'Chỉnh sửa Sản phẩm thất bại.',
+                                });
+                                
+                            }
+                        });
+                    });
+            } catch (err) {
+                throw new Error('Something went wrong');
+            }
+        }
+        else {
+            console.log(fileList)
+            const data = {
+                _id: selectedRows[0]._id,
+                name,
+                quantity,
+                regularPrice,
+                salePrice,
+                description,
+                categoryId: selectedRows[0].category,
+                productPicture: fileList.length!=0&&fileList[0].url.length!=0?fileList[0].url:[],
+                timeBaoHanh,
+                series,
+                color,
+                cpu,
+                card,
+                ram,
+                manhinh,
+                ocung,
+                hedieuhanh,
+                khoiluong
+            };
+            console.log(data);
+            dispatch(editProduct(data)).then((data) => {
+                console.log('run else')
+                dispatch(getDataFilter()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setProductInPage(data);
+                    setLoading(false);
+                });
+                console.log(data);
+                if (data === 'success') {
+                    handleClose();
+                    notification['success']({
+                        message: 'Chỉnh sửa Sản phẩm',
+                        description: 'Chỉnh sửa Sản phẩm thành công.'
+                    });
+                } else {
+                    handleClose();
+                    notification['error'] ({
+                        message: 'Chỉnh sửa Sản phẩm',
+                        description: 'Chỉnh sửa Sản phẩm thất bại.',
+                    });
+                    
+                }
+            });
+        } 
+    };
     const text = 'Bạn có chắc chắn muốn xoá?';
     const columns = [
         {
@@ -228,7 +399,7 @@ const ComponentColor = () => {
             };
             const temp = product.length;
             dispatch(deleteProductById(payload)).then((data) => {
-                dispatch(getProducts()).then((data) => {
+                dispatch(getDataFilter()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setProductInPage(data);
                     setLoading(false);
@@ -376,8 +547,11 @@ const ComponentColor = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Tên sản phẩm"
-                                        value={selectedRows[0] ? selectedRows[0].name : ''}
+                                        defaultValue={name ? name : ''}
                                         disabled={disable}
+                                        onChange={(e) => {
+                                            setName(e.target.value);
+                                        }}
                                     />
                                     <TextField
                                         required
@@ -385,22 +559,28 @@ const ComponentColor = () => {
                                         label="Số lượng"
                                         type="number"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={selectedRows[0] ? selectedRows[0].quantity : ''}
+                                        defaultValue={quantity ? quantity : ''}
                                         InputLabelProps={{
                                             shrink: true
                                         }}
                                         disabled={disable}
+                                        onChange={(e) => {
+                                            setQuantity(e.target.value);
+                                        }}
                                     />
 
                                     <FormControl fullWidth style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel htmlFor="outlined-adornment-amount" disabled = {disable}>Giá tiền gốc</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-amount"
-                                            placeholder={formatThousand(selectedRows[0] ? selectedRows[0].regularPrice : '')}
-                                            value={selectedRows[0] ? formatThousand(selectedRows[0].regularPrice) : ''}
+                                            placeholder={formatThousand(regularPrice ? regularPrice : '')}
+                                            defaultValue={regularPrice ? regularPrice : null}
                                             startAdornment={<InputAdornment position="start">VNĐ</InputAdornment>}
                                             label="Giá tiền gốc"
                                             disabled={disable}
+                                            onChange={(e) => {
+                                                setRegularPrice(e.target.value);
+                                            }}
                                             // InputProps={{
                                             //     inputComponent: NumberFormatCustom
                                             // }}
@@ -410,10 +590,13 @@ const ComponentColor = () => {
                                         <InputLabel htmlFor="outlined-adornment-amount" disabled = {disable}>Giá tiền giảm giá</InputLabel>
                                         <OutlinedInput
                                             id="outlined-adornment-amount"
-                                            defaultValue={selectedRows[0] ? formatThousand(selectedRows[0].salePrice) : ''}
+                                            defaultValue={salePrice ? salePrice : null}
                                             disabled={disable}
                                             startAdornment={<InputAdornment position="start">VNĐ</InputAdornment>}
                                             label="Giá tiền giảm giá"
+                                            onChange={(e) => {
+                                                setSalePrice(e.target.value);
+                                            }}
                                         />
                                     </FormControl>
                                     {/* <FormControl style={{ width: '100%', marginBottom: '15px' }}>
@@ -434,27 +617,17 @@ const ComponentColor = () => {
                                     <Upload
                                         listType="picture-card"
                                         defaultFileList={productPicture ? productPicture : []}
-                                        // onPreview={handlePreview}
-                                        // onChange={handleChange}
+                                        onPreview={handlePreview}
                                         beforeUpload={() => {
                                             /* update state here */
                                             return false;
                                         }}
                                         disabled={disable}
+                                        onChange={handleChange}
                                     >
                                         {uploadButton}
                                     </Upload>
-                                    {/* <Modal visible={previewVisible} title={previewTitle} footer={null} onCancel={handleCancel}>
-                            <img
-                                alt="example"
-                                style={{
-                                    width: '100%'
-                                }}
-                                src={previewImage}
-                            />
-                        </Modal> */}
-                                    {/* {productPicture.length > 0 ? productPicture.map((pic, index) => <div key={index}>{pic.name}</div>) : null}
-                    <input type="file" name="productPicture" onChange={handleProductPictures} /> */}
+                                    
                                 </div>
                             </div>
                         </TabPane>
@@ -471,7 +644,10 @@ const ComponentColor = () => {
                                         pasteFromWordNumberedHeadingToList: true,
                                         pasteFromWordPromptCleanup: true
                                     }}
-                                    initData={selectedRows[0] ? selectedRows[0].description : null}
+                                    initData={description ? description : null}
+                                    onChange={(e) => {
+                                        setDescription(e.target.value);
+                                    }}
                                     readOnly={disable}
                                 />
                             </FormGroup>
@@ -484,9 +660,12 @@ const ComponentColor = () => {
                                         id="outlined-number"
                                         label="Thời gian bảo hành"
                                         style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].baohanh : null}
+                                        defaultValue={timeBaoHanh ? timeBaoHanh : null}
                                         InputLabelProps={{
                                             shrink: true
+                                        }}
+                                        onChange={(e) => {
+                                            setTimeBaoHanh(e.target.value);
                                         }}
                                         disable={disable}
                                     />
@@ -496,9 +675,12 @@ const ComponentColor = () => {
                                         id="outlined-number"
                                         label="Series"
                                         style={{ width: '45%', marginBottom: '15px' }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].Series : null}
+                                        defaultValue={series ? series : null}
                                         InputLabelProps={{
                                             shrink: true
+                                        }}
+                                        onChange={(e) => {
+                                            setSeries(e.target.value);
                                         }}
                                         disable={disable}
                                     />
@@ -512,7 +694,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].color : null}
+                                        defaultValue={color ? color : null}
+                                        onChange={(e) => {
+                                            setColor(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
 
@@ -524,7 +709,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].cpu : null}
+                                        defaultValue={cpu ? cpu : null}
+                                        onChange={(e) => {
+                                            setCPU(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
                                 </div>
@@ -537,7 +725,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].cardDohoa : null}
+                                        defaultValue={card ? card : null}
+                                        onChange={(e) => {
+                                            setCard(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
 
@@ -549,7 +740,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].ram : null}
+                                        defaultValue={ram ? ram : null}
+                                        onChange={(e) => {
+                                            setRam(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
                                 </div>
@@ -562,7 +756,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].manhinh : null}
+                                        defaultValue={manhinh ? manhinh : null}
+                                        onChange={(e) => {
+                                            setManHinh(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
 
@@ -574,7 +771,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].ocung : null}
+                                        defaultValue={ocung ? ocung : null}
+                                        onChange={(e) => {
+                                            setOCung(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
                                 </div>
@@ -587,7 +787,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0].hedieuhanh : null}
+                                        value={hedieuhanh ? hedieuhanh : null}
+                                        onChange={(e) => {
+                                            setHeDieuHanh(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
 
@@ -599,7 +802,10 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        vdefaultValuealue={selectedRows[0] ? selectedRows[0].descriptionTable[0].khoiluong : null}
+                                        value={khoiluong ? khoiluong : null}
+                                        onChange={(e) => {
+                                            setKhoiLuong(e.target.value);
+                                        }}
                                         disable={disable}
                                     />
                                 </div>
@@ -607,7 +813,7 @@ const ComponentColor = () => {
                         </TabPane>
                     </Tabs>
                     <CardActions sx={{ paddingLeft: '0' }}>
-                        <Button size="small" variant="outlined" color="success" onClick={handleEdit} disabled = {disable}>
+                        <Button size="small" variant="outlined" color="success" onClick={handleUpdateProduct} disabled = {disable}>
                             Lưu
                         </Button>
                         <Button size="small" variant="outlined" onClick={handleClose}>
@@ -775,7 +981,25 @@ const ComponentColor = () => {
                         onSelectionModelChange={(ids) => {
                             const selectedIDs = new Set(ids);
                             const selectedRows = productInPage.filter((row) => selectedIDs.has(row._id));
-
+                            if (selectedRows.length === 1) {
+                                setName(selectedRows[0].name);
+                                setRegularPrice(selectedRows[0].regularPrice);
+                                setSalePrice(selectedRows[0].salePrice);
+                                setQuantity(selectedRows[0].quantity);
+                                setCategoryId(selectedRows[0].category);
+                                setFileList([{ url: selectedRows[0].productPicture }]);
+                                setDescription(selectedRows[0].description);
+                                setKhoiLuong(selectedRows[0].descriptionTable[0].baohanh);
+                                setSeries(selectedRows[0].descriptionTable[0].Series);
+                                setColor(selectedRows[0].descriptionTable[0].color);
+                                setCPU(selectedRows[0].descriptionTable[0].cpu);
+                                setCard(selectedRows[0].descriptionTable[0].cardDohoa);
+                                setRam(selectedRows[0].descriptionTable[0].ram);
+                                setManHinh(selectedRows[0].descriptionTable[0].manhinh);
+                                setOCung(selectedRows[0].descriptionTable[0].ocung);
+                                setHeDieuHanh(selectedRows[0].descriptionTable[0].hedieuhanh);
+                                setKhoiLuong(selectedRows[0].descriptionTable[0].khoiluong);
+                            }
                             setSelectedRows(selectedRows);
                         }}
                         loading={loading}
