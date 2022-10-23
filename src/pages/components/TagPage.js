@@ -58,6 +58,7 @@ const TagPage = () => {
     const [loading, setLoading] = useState(false);
     const [tagInPage, setTagInPage] = useState([]);
     const [type, setType] = useState('');
+    const [parentId, setParentId] = useState(null);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [tagName, setTagName] = useState('');
@@ -69,7 +70,8 @@ const TagPage = () => {
             setTagInPage(data);
             setLoading(false);
         });
-    }, [dispatch, tag]);
+        dispatch(getTags());
+    }, [dispatch]);
     const columns = [
         { field: '_id', headerName: 'Mã Tag', width: 200 },
         { field: 'tagName', headerName: 'Tên Tag', width: 300 },
@@ -199,8 +201,10 @@ const TagPage = () => {
         try {
             const data = {
                 tagName,
+                parentId,
                 updatedTime: Date.now()
             };
+            console.log(data)
             dispatch(addTag(data)).then((data) => {
                 dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -308,6 +312,21 @@ const TagPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setTagName(e.target.value)}
                                     />
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Tag</InputLabel>
+                                        <SelectMui
+                                            disabled={disable}
+                                            defaultValue={parentId ? parentId: null}
+                                            label="Tag"
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            onChange={(e) => setParentId(e.target.value)}
+                                        >
+                                            {tag.tags.map((option) => (
+                                                <MenuItem value={option._id}>{option.tagName}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
                                 </div>
                             </div>
                         </TabPane>
@@ -400,6 +419,7 @@ const TagPage = () => {
                                 const selectedRows = tagInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
                                     setTagName(selectedRows[0].tagName);
+                                    setParentId(selectedRows[0].parentId);
                                 }
                                 setSelectedRows(selectedRows);
                             }}

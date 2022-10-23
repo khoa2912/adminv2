@@ -14,6 +14,7 @@ export var getTags = () => {
                     type: tagConstants.GET_ALL_TAG_SUCCESS,
                     payload: { tags }
                 });
+                console.log(tags);
                 return tags;
             } else {
                 dispatch({ type: tagConstants.GET_ALL_TAG_FAILURE });

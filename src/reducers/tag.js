@@ -1,4 +1,4 @@
-import { tagConstants } from 'tags/constants';
+import { tagConstants } from 'actions/constants';
 
 const initState = {
     error: null,

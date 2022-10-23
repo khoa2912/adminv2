@@ -8,6 +8,7 @@ import pageReducer from './page';
 import menu from './menu';
 import role from './role';
 import banner from './banner';
+import tag from './tag';
 export const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
@@ -17,7 +18,8 @@ export const rootReducer = combineReducers({
     page: pageReducer,
     menu: menu,
     role: role,
-    banner: banner
+    banner: banner,
+    tag: tag
 });
 
 export default rootReducer;
