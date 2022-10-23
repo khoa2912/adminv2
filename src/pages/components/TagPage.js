@@ -62,6 +62,7 @@ const TagPage = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [tagName, setTagName] = useState('');
+    const [listTag, setListTag] = useState([]);
     const [updatedTime, setUpdatedTime] = useState('');
     useEffect(() => {
         setLoading(true);
@@ -173,6 +174,7 @@ const TagPage = () => {
             setLoading(false);
         });
     };
+    
     const handleEditTag = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -316,7 +318,7 @@ const TagPage = () => {
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Tag</InputLabel>
                                         <SelectMui
                                             disabled={disable}
-                                            defaultValue={parentId ? parentId: null}
+                                            value={parentId ? parentId: null}
                                             label="Tag"
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
@@ -327,6 +329,7 @@ const TagPage = () => {
                                             ))}
                                         </SelectMui>
                                     </FormControl>
+                                    
                                 </div>
                             </div>
                         </TabPane>

@@ -13,6 +13,8 @@ import '../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.cs
 import Tab from '@mui/material/Tab';
 import { CKEditor } from 'ckeditor4-react';
 import ComponentSkeleton from '../ComponentSkeleton';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
 import 'antd/dist/antd.css';
 import { PlusOutlined } from '@ant-design/icons';
 import {
@@ -30,7 +32,8 @@ import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
 import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory } from 'actions/category';
-import { addProduct, getProducts } from 'actions/product';
+import { getTags } from 'actions/tag';
+import { addProduct, getProducts, getDataFilter } from 'actions/product';
 import { useHistory } from 'react-router-dom';
 import {useNavigate} from "react-router-dom"
 
@@ -38,6 +41,8 @@ export const AddProduct = (props) => {
     // eslint-disable-next-line
     const { TabPane } = Tabs;
     const product = useSelector((state) => state.product);
+    const [loading, setLoading] = useState(false);
+    const [productInPage, setProductInPage] = useState([]);
     const dispatch = useDispatch();
     const [name, setName] = useState('');
     const [file, setFile] = useState([]);
@@ -63,6 +68,8 @@ export const AddProduct = (props) => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
+    const tag = useSelector((state) => state.tag);
+    const [listTag, setListTag] = useState([]);
     const [filebase64, setFileBase64] = useState([]);
     const handleCancel = () => setPreviewVisible(false);
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
@@ -97,8 +104,19 @@ export const AddProduct = (props) => {
         </div>
     );
     useEffect(() => {
+        setLoading(true);
+        dispatch(getDataFilter()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setProductInPage(data);
+            setLoading(false);
+        });
         dispatch(getAllCategory());
-    }, []);
+        dispatch(getTags());
+    }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(getAllCategory());
+    //     dispatch(getTags());
+    // }, []);
     const navigate = useNavigate();
     useEffect(() => {
         if (product.addProduct != null) {
@@ -117,7 +135,7 @@ export const AddProduct = (props) => {
     };
     const temp = product.length;
     const uploadPicture = async () => {
-        if (name.trim() === '' || categoryId.trim() === '' || regularPrice.trim() === '' || quantity.trim() === '') {
+        if (name.trim() === '' || regularPrice.trim() === '' || quantity.trim() === '') {
             notification['warning']({
                 message: 'Thêm mới Sản phẩm',
                 description: 'Vui lòng nhập dữ liệu.'
@@ -153,6 +171,7 @@ export const AddProduct = (props) => {
                         salePrice,
                         description,
                         categoryId,
+                        listTag,
                         productPicture: responseJson.result,
                         timeBaoHanh,
                         series,
@@ -184,6 +203,27 @@ export const AddProduct = (props) => {
         } catch (err) {
             throw new Error('Something went wrong');
         }
+    };
+
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+            },
+        },
+    };
+    const handleChangeTag = (e) => {
+        const {
+          target: { value },
+        } = e;
+        console.log(e)
+        setListTag(
+          // On autofill we get a stringified value.
+          typeof value === 'string' ? value.split(',') : value,
+        );
     };
 
     const handleProductPictures = (e) => {
@@ -268,7 +308,26 @@ export const AddProduct = (props) => {
                                         label="Giá tiền giảm giá"
                                     />
                                 </FormControl>
-
+                                <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                    <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
+                                    <Select
+                                        // disabled={disable}
+                                        value={listTag}
+                                        label="Tag"
+                                        labelId="demo-multiple-checkbox-label"
+                                        id="demo-multiple-checkbox"
+                                        multiple
+                                        input={<OutlinedInput label="Tag" />}
+                                        // renderValue={(selected) => selected.join(', ')}
+                                        MenuProps={MenuProps}
+                                        // onChange={(e) => setParentId(e.target.value)}
+                                        onChange={handleChangeTag}
+                                    >
+                                        {tag.tags.map((option) => (
+                                            <MenuItem value={option._id}>{option.tagName}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>        
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Thương hiệu</InputLabel>
                                     <Select
