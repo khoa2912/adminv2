@@ -9,6 +9,8 @@ import menu from './menu';
 import role from './role';
 import banner from './banner';
 import tag from './tag';
+import action from './action';
+import roleaction from './roleaction';
 export const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
@@ -19,7 +21,9 @@ export const rootReducer = combineReducers({
     menu: menu,
     role: role,
     banner: banner,
-    tag: tag
+    tag: tag,
+    action: action,
+    roleaction: roleaction
 });
 
 export default rootReducer;

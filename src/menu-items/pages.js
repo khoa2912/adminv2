@@ -28,6 +28,13 @@ const pages = {
             type: 'item',
             url: '/action',
             icon: icons.ApartmentOutlined
+        },
+        {
+            id: 'roleaction',
+            title: 'RoleActions',
+            type: 'item',
+            url: '/roleaction',
+            icon: icons.ApartmentOutlined
         }
     ]
 };

@@ -14,6 +14,7 @@ export var getActions = () => {
                     type: actionConstants.GET_ALL_ACTION_SUCCESS,
                     payload: { actions }
                 });
+                console.log(actions);
                 return actions;
             } else {
                 dispatch({ type: actionConstants.GET_ALL_ACTION_FAILURE });
@@ -54,6 +55,7 @@ export var deleteActionById = (payload) => {
             if (res.status === 202) {
                 dispatch({ type: actionConstants.DELETE_ACTION_BY_ID_SUCCESS });
                 dispatch(getActions());
+                return 'success';
             } else {
                 const { error } = res.data;
                 dispatch({

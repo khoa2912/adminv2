@@ -50,7 +50,8 @@ const OrderPage = () => {
         UserId: '',
         Address_Name: '',
         Payment_Status: '',
-        Payment_Type: ''
+        Payment_Type: '',
+        Order_Status: '',
     });
     const { TabPane } = Tabs;
     const order = useSelector((state) => state.order);
@@ -341,6 +342,10 @@ const OrderPage = () => {
         searchModel.Payment_Type = value;
         setSearchModel(searchModel);
     };
+    const handleChangeOrderStatus = (value) => {
+        searchModel.Order_Status = value;
+        setSearchModel(searchModel);
+    };
     const createUserList = (users, options = []) => {
         for (let user of users) {
             options.push({ value: user._id, name: user.lastName });
@@ -395,6 +400,21 @@ const OrderPage = () => {
             disableType4 = true;
         }
     }
+    const objOrderStatus = [
+        {type: 'ordered'},
+        {type: 'packed'},
+        {type: 'shipped'},
+        {type: 'delivered'},
+    ]
+    console.log(objOrderStatus.type)
+    // const [temporderStatus, setTempOrderStatus] = useState([]); 
+    // const ListOrderStatus = () => {
+    //     objOrderStatus.map((item) => {
+    //         const tempOrder1 = item.type;
+    //         console.log(tempOrder1);
+    //     })
+    // }
+    // ListOrderStatus();
     // var result = selectedRows[0].orderStatus.filter(obj=>obj.isCompleted===true);
     const modalOrder = (typeofModal) => {
         let title;
@@ -641,7 +661,7 @@ const OrderPage = () => {
                                                 onChange={handleChangeUser}
                                             >
                                                 {orderInPage &&
-                                                    filterArrayUser.map((item, index) => ( item.userObject &&
+                                                    orderInPage.map((item, index) => ( item.userObject &&
                                                         <Option 
                                                             key = {item.user}
                                                             data = {item.userObject.firstName + ' ' + item.userObject.lastName}
@@ -683,41 +703,6 @@ const OrderPage = () => {
                                     </Col>
                                 </Row>
                             </CardANTD.Grid>
-                            {/* <CardANTD.Grid style={gridStyle}>
-                                <Row>
-                                    <Col span={8}>
-                                        <Form.Item>Địa chỉ</Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item>
-                                            <Select
-                                                mode="multiple"
-                                                optionFilterProp="data"
-                                                optionLabelProp="text"
-                                                onChange={handleChangeAddress}
-                                            >
-                                                {orderInPage &&
-                                                    filterArrayAddress.map((item, index) => ( item.addressObject && 
-                                                        <Option 
-                                                            key = {item.addressId}
-                                                            // data = {item.addressId}
-                                                            // text = {item.addressId}
-                                                            data = {item.addressId}
-                                                            text = {item.addressObject.address[0].districtName + ' ' + item.addressObject.address[0].provinceName}
-                                                        >
-                                                            {console.log(item)}
-                                                            <div className="global-search-item">
-                                                                <span> {
-                                                                    item.addressObject.address[0].districtName + ' ' + item.addressObject.address[0].provinceName }
-                                                                </span>
-                                                            </div>
-                                                        </Option>
-                                                    ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </CardANTD.Grid> */}
                             <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
@@ -760,6 +745,34 @@ const OrderPage = () => {
                                                     <Option key={item.paymentType} data={item.paymentType} text={item.paymentType}>
                                                         <div className="global-search-item">
                                                             <span>{item.paymentType}</span>
+                                                        </div>
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </CardANTD.Grid>
+                            <CardANTD.Grid style={gridStyle}>
+                                <Row>
+                                    <Col span={8}>
+                                        <Form.Item>Trạng thái đơn hàng</Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item>
+                                            <Select
+                                                mode="multiple"
+                                                optionFilterProp="data"
+                                                optionLabelProp="text"
+                                                onChange={handleChangeOrderStatus}
+                                            >
+                                                {objOrderStatus&&objOrderStatus.map((item) => (
+                                                    <Option
+                                                        key={item.type}
+                                                        data={item.type}
+                                                        text={item.type === 'ordered' ? 'Đã đặt hàng' : item.type === 'packed' ? 'Đang đóng gói' : item.type === 'shipped' ? 'Đang vận chuyển' : 'Đã nhận'}>
+                                                        <div className="global-search-item">
+                                                            <span>{item.type === 'ordered' ? 'Đã đặt hàng' : item.type === 'packed' ? 'Đang đóng gói' : item.type === 'shipped' ? 'Đang vận chuyển' : 'Đã nhận'}</span>
                                                         </div>
                                                     </Option>
                                                 ))}

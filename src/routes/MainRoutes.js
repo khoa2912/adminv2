@@ -11,6 +11,7 @@ import ListScreenPage from 'pages/components/ListScreenPage';
 import BannerPage from 'pages/components/Banner';
 import ActionPage from 'pages/components/ActionPage';
 import TagPage from 'pages/components/TagPage';
+import RoleAction from 'pages/components/RoleAction';
 import { AddCategory } from 'pages/components/AddCategory/index';
 
 // render - dashboard
@@ -89,6 +90,10 @@ const MainRoutes = {
         {
             path: 'tag',
             element: <TagPage />
+        },
+        {
+            path: 'roleaction',
+            element: <RoleAction />
         },
         ,
         {

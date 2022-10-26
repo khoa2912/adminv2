@@ -34,9 +34,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
-import { getActions, addAction, deleteActionById, updateAction, getDataFilterAction } from 'actions/action';
+import { getRoleActions, addRoleAction, deleteRoleActionById, updateRoleAction, getDataFilterRoleAction } from 'actions/roleaction';
+import { getActions } from 'actions/action';
+import { getRoles } from 'actions/role';
 import { PlusOutlined } from '@ant-design/icons';
 import { object } from 'prop-types';
+import role from 'reducers/role';
+import action from 'reducers/action';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -44,35 +48,39 @@ const IFrameWrapper = styled('iframe')(() => ({
     border: 'none'
 }));
 
-// ============================|| Action Page ||============================ //
+// ============================|| Tag Page ||============================ //
 
-const ActionPage = () => {
+const RoleActionPage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        ActionName: '',
+        RoleID: '',
     });
     const action = useSelector((state) => state.action);
+    const role = useSelector((state) => state.role);
     const [open, setOpen] = useState(false);
     const text = 'Bạn có chắc chắn muốn xoá?';
     const [loading, setLoading] = useState(false);
-    const [actionInPage, setActionInPage] = useState([]);
+    const [roleactionInPage, setRoleActionInPage] = useState([]);
     const [type, setType] = useState('');
-    const [actionName, setActionName] = useState('');
+    const [roleId, setRoleId] = useState('');
+    const [listAction, setListAction] = useState([]);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     useEffect(() => {
         setLoading(true);
-        dispatch(getDataFilterAction()).then((data) => {
+        dispatch(getDataFilterRoleAction()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
-            setActionInPage(data);
+            setRoleActionInPage(data);
             setLoading(false);
         });
+        dispatch(getRoles());
         dispatch(getActions());
+        
     }, [dispatch]);
+    console.log(roleactionInPage);
     const columns = [
-        { field: '_id', headerName: 'Mã Action', width: 200 },
-        { field: 'actionName', headerName: 'Tên Action', width: 250 },
+        { field: '_id', headerName: 'Mã Role Action', width: 200 },
         { field: 'createdTime', headerName: 'Ngày tạo', width: 250 },
         { field: 'updatedTime', headerName: 'Ngày cập nhập', width: 250 }
     ];
@@ -81,13 +89,13 @@ const ActionPage = () => {
     const handleView = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chọn Action bạn muốn xem.'
+                message: 'Xem Role Action',
+                description: 'Vui lòng chọn Role Action bạn muốn xem.'
             });
         } else if (selectedRows.length >= 2) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chỉ chọn một Action.'
+                message: 'Xem Role Action',
+                description: 'Vui lòng chỉ chọn một Role Action.'
             });
         } else {
             setType('view');
@@ -96,40 +104,41 @@ const ActionPage = () => {
     };
     const handleCreate = () => {
         setType('create');
-        setActionName('');
+        setRoleId('');
+        setListAction([]);
         handleOpen();
     };
     
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Xoá Action',
-                description: 'Vui lòng chọn Action bạn muốn xoá.'
+                message: 'Xoá Role Action',
+                description: 'Vui lòng chọn Role Action bạn muốn xoá.'
             });
         } else {
-            let listAction = [];
+            let listRoleaction = [];
             selectedRows.map((item) => {
-                listAction.push(item._id);
+                listRoleaction.push(item._id);
             });
             const payload = {
-                actionId: listAction
+                roleactionId: listRoleaction
             };            
-            dispatch(deleteActionById(payload)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+            dispatch(deleteRoleActionById(payload)).then((data) => {
+                dispatch(getDataFilterRoleAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setRoleActionInPage(data);
                     setLoading(false);
                 });
                 if(data === 'success') {
                     notification['success']({
-                        message: 'Xoá Action',
-                        description: 'Xoá Action thành công.'
+                        message: 'Xoá Role Action',
+                        description: 'Xoá Role Action thành công.'
                     });
                 } 
                 else {
                     notification['error']({
-                        message: 'Xoá Action',
-                        description: 'Xoá Action không thành công.'
+                        message: 'Xoá Role Action',
+                        description: 'Xoá Role Action không thành công.'
                     });
                 }
             });
@@ -159,29 +168,29 @@ const ActionPage = () => {
         rtl: false,
         zIndex: 100
     });
-    const handleChangeActionName = (value) => {
-        searchModel.ActionName = value;
+    const handleChangeRole = (value) => {
+        searchModel.RoleID = value;
         setSearchModel(searchModel);
     };
     const handleSearch = () => {
         setLoading(true);
-        dispatch(getDataFilterAction(searchModel)).then((data) => {
+        dispatch(getDataFilterRoleAction(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
-            setActionInPage(data);
+            setRoleActionInPage(data);
             setLoading(false);
         });
     };
     
-    const handleEditAction = () => {
+    const handleEditTag = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
-                message: 'Chỉnh sửa Action',
-                description: 'Vui lòng chọn Action bạn muốn chỉnh sửa.'
+                message: 'Chỉnh sửa Role Action',
+                description: 'Vui lòng chọn Role Action bạn muốn chỉnh sửa.'
             });
         } else if (selectedRows.length >= 2) {
             notification['warning']({
-                message: 'Xem Action',
-                description: 'Vui lòng chỉ chọn một Action.'
+                message: 'Xem Role Action',
+                description: 'Vui lòng chỉ chọn một Role Action.'
             });
         } else {
             setType('edit');
@@ -189,37 +198,38 @@ const ActionPage = () => {
         }
     };
 
-    const handleAddAction = async () => {
-        if (actionName.trim() === '') {
+    const handleAddRoleAction = async () => {
+        if (roleId.trim() === '') {
             notification['warning']({
-                message: 'Thêm mới Action',
+                message: 'Thêm mới Role Action',
                 description: 'Vui lòng nhập dữ liệu.'
             });
             return;
         }
         try {
             const data = {
-                actionName,
+                roleId,
+                listAction,
                 updatedTime: Date.now()
             };
             console.log(data)
-            dispatch(addAction(data)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+            dispatch(addRoleAction(data)).then((data) => {
+                dispatch(getDataFilterRoleAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setRoleActionInPage(data);
                     setLoading(false);
                 });
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Thêm mới Action',
-                        description: 'Thêm mới Action thành công.'
+                        message: 'Thêm mới Role Action',
+                        description: 'Thêm mới Role Action thành công.'
                     });
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Thêm mới Action',
-                        description: 'Thêm mới Action thất bại.',
+                        message: 'Thêm mới Role Action',
+                        description: 'Thêm mới Role Action thất bại.',
                     });
                     
                 }
@@ -228,31 +238,32 @@ const ActionPage = () => {
             throw new Error('Something went wrong');
         }
     };
-    const handleUpdateAction = async (e) => {
+    const handleUpdateRoleAction = async (e) => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
-                actionName,
+                roleId,
+                listAction,
                 updatedTime: Date.now()
             };        
             console.log(data);
-            dispatch(updateAction(data)).then((data) => {
-                dispatch(getDataFilterAction()).then((data) => {
+            dispatch(updateRoleAction(data)).then((data) => {
+                dispatch(getDataFilterRoleAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
-                    setActionInPage(data);
+                    setRoleActionInPage(data);
                     setLoading(false);
                 });
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
-                        message: 'Cập nhập Action',
-                        description: 'Cập nhập Action thành công.'
+                        message: 'Cập nhập Role Action',
+                        description: 'Cập nhập Role Action thành công.'
                     });
                 } else {
                     handleClose();
                     notification['error'] ({
-                        message: 'Cập nhập Action',
-                        description: 'Cập nhập Action thất bại.',
+                        message: 'Cập nhập Role Action',
+                        description: 'Cập nhập Role Action thất bại.',
                     });
                 }
             });
@@ -260,21 +271,41 @@ const ActionPage = () => {
             throw new Error('Something went wrong');
         }  
     };
-    const modalAction = (type) => {
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+            },
+        },
+    };
+    const handleChangeAction = (e) => {
+        const {
+          target: { value },
+        } = e;
+        console.log(e)
+        setListAction(
+          // On autofill we get a stringified value.
+          typeof value === 'string' ? value.split(',') : value,
+        );
+    };
+    const modalRoleAction = (type) => {
         let title;
         let disable;
         let Setonclick;
         if (type === 'edit') {
-            title = 'Chỉnh sửa Action';
+            title = 'Chỉnh sửa Role Action';
             disable = false;
-            Setonclick = handleUpdateAction;
+            Setonclick = handleUpdateRoleAction;
         } else if (type === 'view') {
-            title = 'Xem chi tiết Action';
+            title = 'Xem chi tiết Role Action';
             disable = true;
         } else if (type === 'create') {
-            title = 'Tạo mới Action';
+            title = 'Tạo mới Role Action';
             disable = false;
-            Setonclick = handleAddAction;
+            Setonclick = handleAddRoleAction;
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -285,7 +316,7 @@ const ActionPage = () => {
                     <Tabs defaultActiveKey="1" style={{ color: 'black', fontSize: '19px' }}>
                         <TabPane tab={<span>Thông tin chung</span>} key="1">
                             <div
-                                className="container_infoAction"
+                                className="container_infoRoleAction"
                                 style={{
                                     display: 'flex',
                                     paddingTop: '0px',
@@ -294,22 +325,46 @@ const ActionPage = () => {
                                 }}
                             >
                                 <div
-                                    className="container_form_infoAction"
+                                    className="container_form_infoRoleAction"
                                     style={{
                                         paddingBottom: '20px',
                                         width: '100%',
                                         paddingRight: '30px'
                                     }}
                                 >
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Tên Action"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={actionName ? actionName : ''}
-                                        disabled={disable}
-                                        onChange={(e) => setActionName(e.target.value)}
-                                    />
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Role</InputLabel>
+                                        <SelectMui
+                                            disabled={disable}
+                                            value={roleId ? roleId: null}
+                                            label="Role"
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            onChange={(e) => setRoleId(e.target.value)}
+                                        >
+                                            {role.roles.map((option) => (
+                                                <MenuItem value={option._id}>{option.nameRole}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Action</InputLabel>
+                                        <SelectMui
+                                            disabled={disable}
+                                            value={listAction ? listAction: []}
+                                            label="Action"
+                                            labelId="demo-multiple-checkbox-label"
+                                            id="demo-multiple-checkbox"
+                                            multiple
+                                            input={<OutlinedInput label="Action" />}
+                                            onChange={handleChangeAction}
+                                            MenuProps={MenuProps}
+                                        >
+                                            {action.actions.map((option) => (
+                                                <MenuItem value={option._id}>{option.actionName}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
                                 </div>
                             </div>
                         </TabPane>
@@ -335,7 +390,7 @@ const ActionPage = () => {
                         <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
-                                        <Form.Item>Tên Action</Form.Item>
+                                        <Form.Item>Tên Role</Form.Item>
                                     </Col>
                                     <Col span={16}>
                                         <Form.Item>
@@ -343,12 +398,12 @@ const ActionPage = () => {
                                                 mode="multiple"
                                                 optionFilterProp="data"
                                                 optionLabelProp="text"
-                                                onChange={handleChangeActionName}
+                                                onChange={handleChangeRole}
                                             >
-                                                {actionInPage.map((item) => (
-                                                    <Option key={item.actionName} data={item.actionName} text={item.actionName}>
+                                                {roleactionInPage.map((item) => (
+                                                    <Option key={item.roleId} data={item.roleId} text={item.roleId}>
                                                         <div className="global-search-item">
-                                                            <span>{item.actionName}</span>
+                                                            <span>{item.roleId}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -383,25 +438,26 @@ const ActionPage = () => {
                             Xoá
                         </Button>
                     </Popconfirm>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditAction}>
+                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditTag}>
                         Chỉnh sửa
                     </Button>
                 </Stack>
-                {modalAction(type)}
+                {modalRoleAction(type)}
                 <Grid container spacing={3}>
                     <div style={{ height: 600, width: '100%', marginLeft: '10px' }}>
                         <DataGrid
-                            rows={actionInPage.length !== 0 ? actionInPage : []}
-                            columns={actionInPage.length !== 0 ? columns : []}
+                            rows={roleactionInPage.length !== 0 ? roleactionInPage : []}
+                            columns={roleactionInPage.length !== 0 ? columns : []}
                             pageSize={8}
                             rowsPerPageOptions={[8]}
                             checkboxSelection
                             getRowId={(row) => row._id}
                             onSelectionModelChange={(ids) => {
                                 const selectedIDs = new Set(ids);
-                                const selectedRows = actionInPage.filter((row) => selectedIDs.has(row._id));
+                                const selectedRows = roleactionInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
-                                    setActionName(selectedRows[0].actionName);
+                                    setRoleId(selectedRows[0].roleId);
+                                    setListAction(selectedRows[0].listAction);
                                 }
                                 setSelectedRows(selectedRows);
                             }}
@@ -414,4 +470,4 @@ const ActionPage = () => {
     );
 };
 
-export default ActionPage;
+export default RoleActionPage;
