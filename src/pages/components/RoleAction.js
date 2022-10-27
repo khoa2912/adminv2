@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles';
 import ComponentSkeleton from './ComponentSkeleton';
 import MainCard from 'components/MainCard';
 import { DataGrid } from '@mui/x-data-grid';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
 import { Card as CardANTD, Spin } from 'antd';
 import { Col, Collapse, Form, Row, Upload, Select } from '../../../node_modules/antd/lib/index';
 import {
@@ -16,6 +18,7 @@ import {
     Stack,
     NativeSelect,
     Select as SelectMui,
+    SelectChangeEvent,
     Typography,
     TextField,
     FormControl,
@@ -154,7 +157,7 @@ const RoleActionPage = () => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 1000,
+        width: 1200,
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
@@ -285,10 +288,8 @@ const RoleActionPage = () => {
         const {
           target: { value },
         } = e;
-        console.log(e)
         setListAction(
-          // On autofill we get a stringified value.
-          typeof value === 'string' ? value.split(',') : value,
+            typeof value === 'string' ? value.split(',') : value,
         );
     };
     const modalRoleAction = (type) => {
@@ -357,12 +358,31 @@ const RoleActionPage = () => {
                                             id="demo-multiple-checkbox"
                                             multiple
                                             input={<OutlinedInput label="Action" />}
+                                            renderValue={
+                                                (selected) => {
+                                                    const newArr = selected.map((element, index) => {
+                                                        const a = action.actions.find(data => data._id === element)
+                                                        return a.actionName
+                                                    })
+                                                    selected = newArr;
+                                                    // console.log(selected);
+                                                    return selected.join(', ')
+                                                }
+                                            }
                                             onChange={handleChangeAction}
                                             MenuProps={MenuProps}
                                         >
                                             {action.actions.map((option) => (
-                                                <MenuItem value={option._id}>{option.actionName}</MenuItem>
+                                                // <MenuItem value={option._id}>{option.actionName}</MenuItem>
+                                                <MenuItem key={option._id} value={option._id}>
+                                                    <Checkbox checked={listAction.indexOf(option._id) > -1}/>
+                                                    <ListItemText primary={option.actionName} />
+                                                </MenuItem>
                                             ))}
+                                            {/* <MenuItem key={option._id} value={option._id}>
+                                                <Checkbox checked={option.indexOf(_id) > -1} />
+                                                <ListItemText primary={option.actionName} />
+                                            </MenuItem> */}
                                         </SelectMui>
                                     </FormControl>
                                 </div>

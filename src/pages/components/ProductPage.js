@@ -34,7 +34,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { notification, Popconfirm } from 'antd';
 import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
-import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct } from 'actions/product';
+import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct, getProductRelated } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataArraySharp, SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
@@ -156,8 +156,11 @@ const ComponentColor = () => {
         dispatch(getDataFilter()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
+            // setRalateInPage(data);
             setLoading(false);
         });
+        dispatch(getProductRelated());
+        dispatch(getAllCategory());
     }, [dispatch], product);
     useEffect(() => {
         if (selectedRows[0]) {
@@ -480,11 +483,11 @@ const ComponentColor = () => {
    
     // Filter Name
     var filterArrayName = removeDuplicates(product.products, "name");
-    console.log(filterArrayName);
+    // console.log(filterArrayName);
 
     // Filter Price
     var filterArrayPrice = removeDuplicates(product.products, "salePrice");
-    console.log(filterArrayPrice);
+    // console.log(filterArrayPrice);
 
     const handleSearch = () => {
         setLoading(true);
@@ -507,13 +510,32 @@ const ComponentColor = () => {
             </div>
         </div>
     );
+    const [searchData, setSearchData] = useState({
+        productId: '',
+        categoryId: ''
+    });
+    const [ralateInPage, setRalateInPage] = useState([]);
+    const testRelate = () => {
+        // searchData.productId = selectedRows[0]?selectedRows[0]._id : '';
+        // searchData.categoryId = selectedRows[0]?selectedRows[0].category._id : '';
+        // setSearchData(searchData);
+        
+        // const data = {
+        //     productId: selectedRows[0]?selectedRows[0]._id:'',
+        //     categoryId: selectedRows[0]?selectedRows[0].category:''
+        // }
+        // dispatch(getProductRelated(data));
+        // console.log(ralateInPage)
+        // console.log(productInPage)
+    }
     const modalProduct = (type) => {
         let title;
         let disable;
         if (type === 'edit') {
             title = 'Chỉnh sửa sản phẩm';
             disable = false;
-        } else {
+        } 
+        if (type === 'view') {
             title = 'Xem chi tiết sản phẩm';
             disable = true;
         }
@@ -599,7 +621,7 @@ const ComponentColor = () => {
                                             }}
                                         />
                                     </FormControl>
-                                    {/* <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Thương hiệu</InputLabel>
                                         <SelectMui
                                             disabled={disable}
@@ -613,7 +635,7 @@ const ComponentColor = () => {
                                                 <option value={option.value}>{option.name}</option>
                                             ))}
                                         </SelectMui>
-                                    </FormControl> */}
+                                    </FormControl>
                                     <Upload
                                         listType="picture-card"
                                         defaultFileList={productPicture ? productPicture : []}
@@ -659,15 +681,15 @@ const ComponentColor = () => {
                                         required
                                         id="outlined-number"
                                         label="Thời gian bảo hành"
+                                        disabled={disable}
                                         style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}
-                                        defaultValue={timeBaoHanh ? timeBaoHanh : null}
+                                        value={timeBaoHanh ? timeBaoHanh: null}
                                         InputLabelProps={{
                                             shrink: true
                                         }}
                                         onChange={(e) => {
                                             setTimeBaoHanh(e.target.value);
                                         }}
-                                        disable={disable}
                                     />
 
                                     <TextField
@@ -682,8 +704,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setSeries(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
                                     <TextField
@@ -698,8 +719,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setColor(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
 
                                     <TextField
                                         required
@@ -713,8 +733,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setCPU(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
                                     <TextField
@@ -729,8 +748,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setCard(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
 
                                     <TextField
                                         required
@@ -744,8 +762,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setRam(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
                                     <TextField
@@ -760,8 +777,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setManHinh(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
 
                                     <TextField
                                         required
@@ -775,8 +791,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setOCung(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
                                     <TextField
@@ -791,8 +806,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setHeDieuHanh(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
 
                                     <TextField
                                         required
@@ -806,8 +820,7 @@ const ComponentColor = () => {
                                         onChange={(e) => {
                                             setKhoiLuong(e.target.value);
                                         }}
-                                        disable={disable}
-                                    />
+                                        disabled={disable}                                    />
                                 </div>
                             </div>
                         </TabPane>
@@ -962,6 +975,9 @@ const ComponentColor = () => {
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditProduct}>
                     Chỉnh sửa
                 </Button>
+                <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={testRelate}>
+                    Test
+                </Button>
             </Stack>
             {modalProduct(type)}
             {/* <Spin tip="Loading..." spinning={loading}> */}
@@ -989,7 +1005,7 @@ const ComponentColor = () => {
                                 setCategoryId(selectedRows[0].category);
                                 setFileList([{ url: selectedRows[0].productPicture }]);
                                 setDescription(selectedRows[0].description);
-                                setKhoiLuong(selectedRows[0].descriptionTable[0].baohanh);
+                                setTimeBaoHanh(selectedRows[0].descriptionTable[0].baohanh);
                                 setSeries(selectedRows[0].descriptionTable[0].Series);
                                 setColor(selectedRows[0].descriptionTable[0].color);
                                 setCPU(selectedRows[0].descriptionTable[0].cpu);

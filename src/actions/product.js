@@ -25,6 +25,18 @@ export var getProducts = () => {
     };
 };
 
+export var getProductRelated = (data) => {
+    return async (dispatch) => {
+        try {
+            const res = await axios.post('/product/getProductRelated', data);
+            console.log(res);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+};
+
+
 export var getProductWarning = () => {
     return async (dispatch) => {
         try {
