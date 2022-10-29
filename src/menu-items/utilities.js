@@ -95,6 +95,13 @@ const utilities = {
             url: '/tag',
             icon: icons.TagsOutlined
         },
+        {
+            id: 'infoProduct',
+            title: 'Info Product',
+            type: 'item',
+            url: '/infoProduct',
+            icon: icons.TagsOutlined
+        },
     ]
 };
 

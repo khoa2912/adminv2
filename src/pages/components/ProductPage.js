@@ -36,8 +36,10 @@ import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
 import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct, getProductRelated } from 'actions/product';
 import { getAllCategory } from 'actions/category';
+import { getTags } from 'actions/tag';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataArraySharp, SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
+import tag from 'reducers/tag';
 
 // ===============================|| COLOR BOX ||=============================== //
 const { TabPane } = Tabs;
@@ -95,9 +97,10 @@ const ComponentColor = () => {
     const [searchModel, setSearchModel] = useState({
         ProductName: '',
         CategoryId: '',
-        Price: ''
+        Product_Tag: ''
     });
     const product = useSelector((state) => state.product);
+    const tag = useSelector((state) => state.tag);
     const [selectedRows, setSelectedRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -156,12 +159,12 @@ const ComponentColor = () => {
         dispatch(getDataFilter()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
-            // setRalateInPage(data);
             setLoading(false);
         });
-        dispatch(getProductRelated());
+        // dispatch(getProductRelated());
         dispatch(getAllCategory());
-    }, [dispatch], product);
+        dispatch(getTags());
+    }, [dispatch]);
     useEffect(() => {
         if (selectedRows[0]) {
             selectedRows[0] && selectedRows[0].productPicture.map((item) => Object.assign(item, { url: item.img }));
@@ -309,14 +312,14 @@ const ComponentColor = () => {
             }
         },
         { field: 'name', headerName: 'Tên sản phẩm', width: 300 },
-        // {
-        //     field: 'category',
-        //     headerName: 'Hãng',
-        //     width: 130,
-        //     renderCell: (params) => {
-        //         return <div className="rowitem">{params.value.name}</div>;
-        //     }
-        // },
+        {
+            field: 'category',
+            headerName: 'Hãng',
+            width: 130,
+            renderCell: (params) => {
+                return <div className="rowitem">{params.value.name}</div>;
+            }
+        },
         {
             field: 'salePrice',
             headerName: 'Giá tiền',
@@ -457,8 +460,8 @@ const ComponentColor = () => {
         searchModel.CategoryId = value;
         setSearchModel(searchModel);
     };
-    const handleChangePrice = (value) => {
-        searchModel.Price = value;
+    const handleChangeTag = (value) => {
+        searchModel.Product_Tag = value;
         setSearchModel(searchModel);
     };
     const handleChangeProduct = (value) => {
@@ -510,24 +513,6 @@ const ComponentColor = () => {
             </div>
         </div>
     );
-    const [searchData, setSearchData] = useState({
-        productId: '',
-        categoryId: ''
-    });
-    const [ralateInPage, setRalateInPage] = useState([]);
-    const testRelate = () => {
-        // searchData.productId = selectedRows[0]?selectedRows[0]._id : '';
-        // searchData.categoryId = selectedRows[0]?selectedRows[0].category._id : '';
-        // setSearchData(searchData);
-        
-        // const data = {
-        //     productId: selectedRows[0]?selectedRows[0]._id:'',
-        //     categoryId: selectedRows[0]?selectedRows[0].category:''
-        // }
-        // dispatch(getProductRelated(data));
-        // console.log(ralateInPage)
-        // console.log(productInPage)
-    }
     const modalProduct = (type) => {
         let title;
         let disable;
@@ -715,7 +700,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={color ? color : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.color[0]?.name : null}
                                         onChange={(e) => {
                                             setColor(e.target.value);
                                         }}
@@ -729,7 +714,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={cpu ? cpu : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.cpu[0]?.name : null}
                                         onChange={(e) => {
                                             setCPU(e.target.value);
                                         }}
@@ -758,7 +743,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={ram ? ram : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.ram[0]?.name : null}
                                         onChange={(e) => {
                                             setRam(e.target.value);
                                         }}
@@ -773,7 +758,7 @@ const ComponentColor = () => {
                                         InputLabelProps={{
                                             shrink: true
                                         }}
-                                        defaultValue={manhinh ? manhinh : null}
+                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.manhinh[0]?.name : null}
                                         onChange={(e) => {
                                             setManHinh(e.target.value);
                                         }}
@@ -924,7 +909,7 @@ const ComponentColor = () => {
                             <CardANTD.Grid style={gridStyle}>
                                 <Row>
                                     <Col span={8}>
-                                        <Form.Item>Giá tiền</Form.Item>
+                                        <Form.Item>Tag</Form.Item>
                                     </Col>
                                     <Col span={16}>
                                         <Form.Item>
@@ -932,13 +917,12 @@ const ComponentColor = () => {
                                                 mode="multiple"
                                                 optionFilterProp="data"
                                                 optionLabelProp="text"
-                                                onChange={handleChangeCategory}
+                                                onChange={handleChangeTag}
                                             >
-                                                {filterArrayName.map((item, index) => (
-                                                    <Option key={item.salePrice} data={item.salePrice} text={item.salePrice}>
+                                                {tag.tags.map((item, index) => (
+                                                    <Option key={item._id} data={item._id} text={item.tagName}>
                                                         <div className="global-search-item">
-                                                            <span>{item.salePrice}</span>
-                                                            {/* <span style={{ float: 'right' }}> {index} </span> */}
+                                                            <span>{item.tagName}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -974,9 +958,6 @@ const ComponentColor = () => {
                 </Popconfirm>
                 <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEditProduct}>
                     Chỉnh sửa
-                </Button>
-                <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={testRelate}>
-                    Test
                 </Button>
             </Stack>
             {modalProduct(type)}

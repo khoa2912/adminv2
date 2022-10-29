@@ -24,7 +24,7 @@ import {
     InputLabel,
     MenuItem,
     OutlinedInput,
-    Select,
+    Select as SelectMui,
     TextField
 } from '../../../../node_modules/@mui/material/index';
 import { Tabs } from 'antd';
@@ -33,14 +33,17 @@ import formatThousand from 'util/formatThousans';
 import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory } from 'actions/category';
 import { getTags } from 'actions/tag';
+import { getInfoProducts } from 'actions/infoProduct';
 import { addProduct, getProducts, getDataFilter } from 'actions/product';
 import { useHistory } from 'react-router-dom';
 import {useNavigate} from "react-router-dom"
+import infoProduct from 'reducers/infoProduct';
 
 export const AddProduct = (props) => {
     // eslint-disable-next-line
     const { TabPane } = Tabs;
     const product = useSelector((state) => state.product);
+    const infoProduct = useSelector((state) => state.infoProduct);
     const [loading, setLoading] = useState(false);
     const [productInPage, setProductInPage] = useState([]);
     const dispatch = useDispatch();
@@ -112,6 +115,7 @@ export const AddProduct = (props) => {
         });
         dispatch(getAllCategory());
         dispatch(getTags());
+        dispatch(getInfoProducts());
     }, [dispatch]);
     // useEffect(() => {
     //     dispatch(getAllCategory());
@@ -151,6 +155,11 @@ export const AddProduct = (props) => {
                 list.push(link);
             }
         }
+        const objFilterColor = filterColor?.find(data => data._id === color);
+        const objFilterRam = filterRam?.find(data => data._id === ram);
+        const objFilterCpu = filterCpu?.find(data => data._id === cpu);
+        const objFilterScreen = filterScreen?.find(data => data._id === manhinh);
+        console.log(objFilterColor)
         try {
             await fetch('http://localhost:3001/product/uploadPicture', {
                 method: 'POST',
@@ -165,6 +174,18 @@ export const AddProduct = (props) => {
                 })
                 .then((responseJson) => {
                     const data = {
+                        cpuId: objFilterCpu ? objFilterCpu._id : '',
+                        nameCpu: objFilterCpu ? objFilterCpu.name : '',
+                        typeCpu: objFilterCpu ? objFilterCpu.type : '',
+                        colorId: objFilterColor ? objFilterColor._id : '',
+                        nameColor: objFilterColor ? objFilterColor.name : '',
+                        typeColor: objFilterColor ? objFilterColor.type : '',
+                        ramId: objFilterRam ? objFilterRam._id : '',
+                        nameRam: objFilterRam ? objFilterRam.name : '',
+                        typeRam: objFilterRam ? objFilterRam.type : '',
+                        screenId: objFilterScreen ? objFilterScreen._id : '',
+                        nameScreen: objFilterScreen ? objFilterScreen.name : '',
+                        typeScreen: objFilterScreen ? objFilterScreen.type : '',
                         name,
                         quantity,
                         regularPrice,
@@ -175,16 +196,12 @@ export const AddProduct = (props) => {
                         productPicture: responseJson.result,
                         timeBaoHanh,
                         series,
-                        color,
-                        cpu,
                         card,
-                        ram,
-                        manhinh,
                         ocung,
                         hedieuhanh,
                         khoiluong
                     };
-                    
+                    console.log(data)
                     dispatch(addProduct(data)).then((data) => {
                         if (data === 'success') {
                             notification['success']({
@@ -235,6 +252,23 @@ export const AddProduct = (props) => {
     const handleOnChangeDesciption = (event) => {
         setDescription(event.editor.getData());
     };
+
+    var filterColor = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'mausac')
+            return item;
+    });
+    var filterScreen = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'manhinh')
+            return item;
+    });
+    var filterRam = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'ram')
+            return item;
+    });
+    var filterCpu = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'cpu')
+            return item;
+    });
 
     return (
         <ComponentSkeleton>
@@ -310,7 +344,7 @@ export const AddProduct = (props) => {
                                 </FormControl>
                                 <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                     <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
-                                    <Select
+                                    <SelectMui
                                         // disabled={disable}
                                         value={listTag}
                                         label="Tag"
@@ -326,11 +360,11 @@ export const AddProduct = (props) => {
                                         {tag.tags.map((option) => (
                                             <MenuItem value={option._id}>{option.tagName}</MenuItem>
                                         ))}
-                                    </Select>
+                                    </SelectMui>
                                 </FormControl>        
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Thương hiệu</InputLabel>
-                                    <Select
+                                    <SelectMui
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         value={categoryId}
@@ -340,7 +374,7 @@ export const AddProduct = (props) => {
                                         {createCategoryList(category.categories).map((option) => (
                                             <MenuItem value={option.value}>{option.name}</MenuItem>
                                         ))}
-                                    </Select>
+                                    </SelectMui>
                                 </FormControl>
 
                                 <ul></ul>
@@ -421,7 +455,7 @@ export const AddProduct = (props) => {
                                 />
                             </div>
                             <div style={{ display: 'block', width: '100%' }}>
-                                <TextField
+                                {/* <TextField
                                     required
                                     id="outlined-number"
                                     label="Màu sắc"
@@ -433,8 +467,37 @@ export const AddProduct = (props) => {
                                     onChange={(e) => {
                                         setColor(e.target.value);
                                     }}
-                                />
+                                /> */}
+                                <FormControl style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}>
+                                    <InputLabel id="demo-simple-select-label">Màu sắc</InputLabel>
+                                    <SelectMui
+                                        value={color ? color: null}
+                                        label="Màu sắc"
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        onChange={(e) => setColor(e.target.value)}
+                                    >
+                                        {filterColor.map((option) => (
+                                            <MenuItem value={option._id}>{option.name}</MenuItem>
+                                        ))}
+                                    </SelectMui>
+                                </FormControl>
 
+                                <FormControl style={{ width: '45%', marginBottom: '15px' }}>
+                                    <InputLabel id="demo-simple-select-label" >CPU</InputLabel>
+                                    <SelectMui
+                                        value={cpu ? cpu: null}
+                                        label="CPU"
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        onChange={(e) => setCPU(e.target.value)}
+                                    >
+                                        {filterCpu.map((option) => (
+                                            <MenuItem value={option._id}>{option.name}</MenuItem>
+                                        ))}
+                                    </SelectMui>
+                                </FormControl>
+{/* 
                                 <TextField
                                     required
                                     id="outlined-number"
@@ -447,7 +510,7 @@ export const AddProduct = (props) => {
                                     onChange={(e) => {
                                         setCPU(e.target.value);
                                     }}
-                                />
+                                /> */}
                             </div>
                             <div style={{ display: 'block', width: '100%' }}>
                                 <TextField
@@ -464,7 +527,21 @@ export const AddProduct = (props) => {
                                     }}
                                 />
 
-                                <TextField
+                                <FormControl style={{ width: '45%', marginBottom: '15px' }}>
+                                    <InputLabel id="demo-simple-select-label" >Ram</InputLabel>
+                                    <SelectMui
+                                        value={ram ? ram: null}
+                                        label="Ram"
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        onChange={(e) => setRam(e.target.value)}
+                                    >
+                                        {filterRam.map((option) => (
+                                            <MenuItem value={option._id}>{option.name}</MenuItem>
+                                        ))}
+                                    </SelectMui>
+                                </FormControl>
+                                {/* <TextField
                                     required
                                     id="outlined-number"
                                     label="Ram"
@@ -476,10 +553,10 @@ export const AddProduct = (props) => {
                                     onChange={(e) => {
                                         setRam(e.target.value);
                                     }}
-                                />
+                                /> */}
                             </div>
                             <div style={{ display: 'block', width: '100%' }}>
-                                <TextField
+                                {/* <TextField
                                     required
                                     id="outlined-number"
                                     label="Màn hình"
@@ -491,7 +568,21 @@ export const AddProduct = (props) => {
                                     onChange={(e) => {
                                         setManHinh(e.target.value);
                                     }}
-                                />
+                                /> */}
+                                <FormControl style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}>
+                                    <InputLabel id="demo-simple-select-label" >Màn hình</InputLabel>
+                                    <SelectMui
+                                        value={manhinh ? manhinh: null}
+                                        label="Màn hình"
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        onChange={(e) => setManHinh(e.target.value)}
+                                    >
+                                        {filterScreen.map((option) => (
+                                            <MenuItem value={option._id}>{option.name}</MenuItem>
+                                        ))}
+                                    </SelectMui>
+                                </FormControl>
 
                                 <TextField
                                     required

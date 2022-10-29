@@ -10,6 +10,7 @@ import MediaPage from 'pages/components/MediaPage';
 import ListScreenPage from 'pages/components/ListScreenPage';
 import BannerPage from 'pages/components/Banner';
 import ActionPage from 'pages/components/ActionPage';
+import InfoProductPage from 'pages/components/InfoProductPage';
 import TagPage from 'pages/components/TagPage';
 import RoleAction from 'pages/components/RoleAction';
 import { AddCategory } from 'pages/components/AddCategory/index';
@@ -95,7 +96,10 @@ const MainRoutes = {
             path: 'roleaction',
             element: <RoleAction />
         },
-        ,
+        {
+            path: 'infoProduct',
+            element: <InfoProductPage />
+        },
         {
             path: 'banner',
             element: <BannerPage />

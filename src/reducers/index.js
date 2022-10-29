@@ -11,6 +11,7 @@ import banner from './banner';
 import tag from './tag';
 import action from './action';
 import roleaction from './roleaction';
+import infoProduct from './infoProduct';
 export const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
@@ -23,7 +24,8 @@ export const rootReducer = combineReducers({
     banner: banner,
     tag: tag,
     action: action,
-    roleaction: roleaction
+    roleaction: roleaction,
+    infoProduct: infoProduct
 });
 
 export default rootReducer;

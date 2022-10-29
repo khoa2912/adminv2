@@ -406,16 +406,11 @@ const OrderPage = () => {
         {type: 'shipped'},
         {type: 'delivered'},
     ]
+    const objTypePayment = [
+        {}
+    ]
     console.log(objOrderStatus.type)
-    // const [temporderStatus, setTempOrderStatus] = useState([]); 
-    // const ListOrderStatus = () => {
-    //     objOrderStatus.map((item) => {
-    //         const tempOrder1 = item.type;
-    //         console.log(tempOrder1);
-    //     })
-    // }
-    // ListOrderStatus();
-    // var result = selectedRows[0].orderStatus.filter(obj=>obj.isCompleted===true);
+    
     const modalOrder = (typeofModal) => {
         let title;
         let disable;
