@@ -403,13 +403,11 @@ const ComponentColor = () => {
             const payload = {
                 productId: listIdProduct
             };
-            const temp = product.length;
             dispatch(deleteProductById(payload)).then((data) => {
                 dispatch(getDataFilter()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setProductInPage(data);
-                    setLoading(false);
-                    if(temp!=data.length) {
+                    if(data === 'success') {
                         notification['success']({
                             message: 'Xoá Sản phẩm',
                             description: 'Xoá Sản phẩm thành công.'
@@ -421,8 +419,6 @@ const ComponentColor = () => {
                             description: 'Xoá Sản phẩm không thành công.'
                         });
                     }
-                    console.log(temp);
-                    console.log(data.length);
                 });
             });
         }

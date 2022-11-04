@@ -35,6 +35,7 @@ import { notification, Space, Popconfirm } from 'antd';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getRoles } from 'actions/role';
 import { getUsers, getDataFilterUser, addUser, updateUser, deleteAccountById } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { PlusOutlined } from '@ant-design/icons';
@@ -62,15 +63,15 @@ const AccountPage = () => {
     // }, []);
     const text = 'Bạn có chắc chắn muốn xoá?';
     const auth = useSelector((state) => state.auth);
+    const role = useSelector((state) => state.role);
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [userName, setUserName] = useState('');
+    const [roleId, setRoldId] = useState('');
     const [email, setEmail] = useState('');
     const [hash_password, setHash_password] = useState('');
-    const [role, setRole] = useState('user');
     const [contactNumber, setContactNumber] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
@@ -90,6 +91,7 @@ const AccountPage = () => {
             setUserInPage(data);
             setLoading(false);
         });
+        dispatch(getRoles());
     }, [dispatch]);
     const handlePreview = async (file) => {
         // console.log(file);
@@ -147,7 +149,7 @@ const AccountPage = () => {
             renderCell: (params) => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
-                        {params.row.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}
+                        {params.row.role === '63604156b949802220aa04c9' ? 'Khách hàng' : 'Quản trị viên'}
                     </div>
                 );
             }
@@ -155,7 +157,7 @@ const AccountPage = () => {
         {
             field: 'status',
             headerName: 'Trạng thái',
-            type: 'number',
+            // type: 'number',
             width: 150,
             renderCell: (params) => {
                 return (
@@ -241,7 +243,7 @@ const AccountPage = () => {
                         lastName,
                         email,
                         hash_password,
-                        role,
+                        roleId,
                         contactNumber,
                         status,
                         profilePicture: responseJson.result[0]
@@ -251,7 +253,6 @@ const AccountPage = () => {
                             dispatch(getDataFilterUser()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setUserInPage(data);
-                                setLoading(false);
                             });
                             notification['success']({
                                 message: 'Thêm mới Tài khoản',
@@ -262,7 +263,7 @@ const AccountPage = () => {
                             setLastName('');
                             setEmail('');
                             setHash_password('');
-                            setRole('');
+                            setRoldId('');
                             setContactNumber('');
                             setStatus('');
                             setFileList([]);
@@ -308,7 +309,7 @@ const AccountPage = () => {
                             firstName,
                             lastName,
                             hash_password,
-                            role,
+                            roleId,
                             contactNumber,
                             status,
                             profilePicture: responseJson.result[0]
@@ -319,7 +320,6 @@ const AccountPage = () => {
                             dispatch(getDataFilterUser()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setUserInPage(data);
-                                setLoading(false);
                             });
                             if (data === 'success') {
                                 handleClose();
@@ -347,7 +347,7 @@ const AccountPage = () => {
                 firstName,
                 lastName,
                 hash_password,
-                role,
+                roleId,
                 contactNumber,
                 status,
                 profilePicture: fileList.length!=0?fileList[0].url:null
@@ -384,7 +384,7 @@ const AccountPage = () => {
         setLastName('');
         setEmail('');
         setHash_password('');
-        setRole('');
+        setRoldId('');
         setContactNumber('');
         setStatus('');
         handleOpen();
@@ -608,12 +608,13 @@ const AccountPage = () => {
                                         <SelectMui
                                             labelId="demo-simple-select-label"
                                             disabled={disable}
-                                            value={role}
+                                            value={roleId}
                                             id="demo-simple-select"
-                                            onChange={(e) => setRole(e.target.value)}
+                                            onChange={(e) => setRoldId(e.target.value)}
                                         >
-                                            <MenuItem value={'user'}>Khách hàng</MenuItem>
-                                            <MenuItem value={'admin'}>Quản trị viên</MenuItem>
+                                            {role.roles.map((option) => (
+                                                <MenuItem value={option._id}>{option.nameRole}</MenuItem>
+                                            ))}
                                         </SelectMui>
                                     </FormControl>
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
@@ -831,7 +832,7 @@ const AccountPage = () => {
                                     setLastName(selectedRows[0].lastName);
                                     setEmail(selectedRows[0].email);
                                     setHash_password(selectedRows[0].hash_password);
-                                    setRole(selectedRows[0].role);
+                                    setRoldId(selectedRows[0].role);
                                     setContactNumber(selectedRows[0].contactNumber);
                                     setStatus(selectedRows[0].status);
                                     setFileList([{ url: selectedRows[0].profilePicture }]);

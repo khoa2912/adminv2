@@ -201,14 +201,16 @@ export const AddProduct = (props) => {
                         hedieuhanh,
                         khoiluong
                     };
-                    console.log(data)
+                    // console.log(data)
                     dispatch(addProduct(data)).then((data) => {
+                        console.log(data)
                         if (data === 'success') {
                             notification['success']({
                                 message: 'Thêm Sản phẩm',
                                 description: 'Thêm Sản phẩm thành công.'
                             });
-                        } else {
+                        }
+                        else {
                             notification['error'] ({
                                 message: 'Thêm Sản phẩm',
                                 description: 'Thêm Sản phẩm thất bại.',

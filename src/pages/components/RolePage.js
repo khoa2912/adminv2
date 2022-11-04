@@ -48,8 +48,7 @@ const RolePage = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
-        Role_Name: '',
-        Status: ''
+        RoleID: '',
     });
     const [loading, setLoading] = useState(false);
     const [roleInPage, setRoleInPage] = useState([]);
@@ -62,9 +61,8 @@ const RolePage = () => {
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [codeRole, setCodeRole] = useState('');
     const [nameRole, setNameRole] = useState('');
-    const [descriptionRole, setDescriptionRole] = useState('');
+    const [description, setDescription] = useState('');
     const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     useEffect(() => {
@@ -74,34 +72,13 @@ const RolePage = () => {
             setRoleInPage(data);
             setLoading(false);
         });
-    }, [dispatch, role]);
-    // useEffect(() => {
-    //     if (role.message === 'successcreate') {
-    //         notification['success']({
-    //             message: 'Thêm mới vai trò',
-    //             description: 'Thêm mới vai trò thành công.'
-    //         });
-    //     }
-    // }, [role.message]);
+    }, [dispatch]);
+    console.log(roleInPage)
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
-        { field: 'codeRole', headerName: 'Mã vai trò', width: 150 },
         { field: 'nameRole', headerName: 'Tên vai trò', width: 150 },
-        { field: 'descriptionRole', headerName: 'Mô tả', width: 130 },
-
-        {
-            field: 'status',
-            headerName: 'Trạng thái',
-            type: 'number',
-            width: 150,
-            renderCell: (params) => {
-                return (
-                    <div className="rowitem" style={{ textAlign: 'center' }}>
-                        {params.row.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}
-                    </div>
-                );
-            }
-        }
+        { field: 'description', headerName: 'Mô tả', width: 150 },
+        { field: 'createdTime', headerName: 'Thời gian tạo', width: 230 },
     ];
     // eslint-disable-next-line
     const [selectedRows, setSelectedRows] = useState([]);
@@ -123,9 +100,8 @@ const RolePage = () => {
     };
     const handleCreate = () => {
         setType('create');
-        setCodeRole('');
-        setDescriptionRole('');
         setNameRole('');
+        setDescription('');
         handleOpen();
     };
     const confirm = () => {
@@ -143,7 +119,10 @@ const RolePage = () => {
                 roleId: listIdRole
             };
             dispatch(deleteRoleById(payload)).then((data) => {
-                dispatch(getRoles());
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                });
                 if(data==='success') {
                     notification['success']({
                         message: 'Xoá Role',
@@ -214,7 +193,7 @@ const RolePage = () => {
         }
     };
     const handleAddRole = async (e) => {
-        if (codeRole.trim() === '' || nameRole.trim() === '') {
+        if (nameRole.trim() === '') {
             notification['warning']({
                 message: 'Thêm mới vai trò',
                 description: 'Vui lòng nhập dữ liệu.'
@@ -222,14 +201,15 @@ const RolePage = () => {
         }
         try {
             const data = {
-                codeRole,
                 nameRole,
-                descriptionRole,
-                status
+                description
             };
             // const findOther = roleInPage.find(item => item.nameRole === data.nameRole);
             dispatch(addRole(data)).then((data) => {
-                dispatch(getRoles());
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                });
                 console.log(data)
                 if (data === 'success') {
                     notification['success']({
@@ -244,34 +224,7 @@ const RolePage = () => {
                     });
                     handleClose();
                 }
-            })
-            // if(findOther === undefined) {
-            //     dispatch(addRole(data)).then((data) => {
-            //         dispatch(getRoles());
-            //         console.log(data)
-            //         if (data === 'success') {
-            //             notification['success']({
-            //                 message: 'Thêm mới Role',
-            //                 description: 'Thêm mới Role thành công.'
-            //             });
-            //             handleClose();
-            //         } else {
-            //             notification['error'] ({
-            //                 message: 'Thêm mới Role',
-            //                 description: 'Thêm mới Role thất bại.',
-            //             });
-            //             handleClose();
-            //         }
-                    
-            //     });
-            // } else {
-            //     notification['error'] ({
-            //         message: 'Thêm mới Role',
-            //         description: 'Thêm mới Role thất bại.',
-            //     });
-            //     handleClose();
-            // }
-            
+            })       
         } catch (err) {
             throw new Error('Something went wrong');
         }
@@ -281,15 +234,15 @@ const RolePage = () => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
-                createdBy: selectedRows[0].createdBy,
-                codeRole,
                 nameRole,
-                descriptionRole,
-                status
+                description
             };
             // const findOther = roleInPage.find(item => item.nameRole === data.nameRole);
             dispatch(updateRole(data)).then((data) => {
-                dispatch(getRoles());
+                dispatch(getDataFilterRole()).then((data) => {
+                    data.map((item, index) => (item.id = index + 1));
+                    setRoleInPage(data);
+                });
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
@@ -305,65 +258,13 @@ const RolePage = () => {
                     
                 }
             });
-            // if(findOther === undefined || findOther._id === data._id) {
-            //     dispatch(updateRole(data)).then((data) => {
-            //         dispatch(getRoles());
-            //         if (data === 'success') {
-            //             handleClose();
-            //             notification['success']({
-            //                 message: 'Chỉnh sửa Role',
-            //                 description: 'Chỉnh sửa Role thành công.'
-            //             });
-            //         } else {
-            //             handleClose();
-            //             notification['error'] ({
-            //                 message: 'Chỉnh sửa Role',
-            //                 description: 'Chỉnh sửa Role thất bại.',
-            //             });
-                        
-            //         }
-            //     });
-            // } else {
-            //     handleClose();
-            //     notification['error'] ({
-            //         message: 'Chỉnh sửa Role',
-            //         description: 'Chỉnh sửa Role thất bại.',
-            //     });
-            // }
-            
         } catch (err) {
             throw new Error('Something went wrong');
         }  
     };
-    // Filter in Role
-    function removeDuplicates(startArray, prop) {
-        var newArray = [];
-        var lookupObject  = {};
-   
-        for(var i in startArray) {
-           lookupObject[startArray[i][prop]] = startArray[i];
-        }
-   
-        for(i in lookupObject) {
-            newArray.push(lookupObject[i]);
-        }
-        return newArray;
-    }
-   
-    // Filter role
-    var filterArrayRole = removeDuplicates(roleInPage, "role");
-    // console.log(filterArrayRole);
-    
-    // Filter Status
-    var filterArrayStatus = removeDuplicates(roleInPage, "status");
-    // console.log(filterArrayStatus);
 
-    const handleChangeRoleName = (value) => {
-        searchModel.Role_Name = value;
-        setSearchModel(searchModel);
-    };
-    const handleChangeStatus = (value) => {
-        searchModel.Status = value;
+    const handleChangeRoleID = (value) => {
+        searchModel.RoleID = value;
         setSearchModel(searchModel);
     };
     const handleSearch = () => {
@@ -417,15 +318,6 @@ const RolePage = () => {
                                 >
                                     <TextField
                                         required
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        id="outlined-error"
-                                        label="Mã vai trò"
-                                        value={codeRole}
-                                        disabled={disable}
-                                        onChange={(e) => setCodeRole(e.target.value)}
-                                    />
-                                    <TextField
-                                        required
                                         id="outlined-number"
                                         label="Tên vai trò"
                                         style={{ width: '100%', marginBottom: '15px' }}
@@ -438,23 +330,10 @@ const RolePage = () => {
                                         id="outlined-number"
                                         label="Mô tả"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={descriptionRole}
+                                        value={description}
                                         disabled={disable}
-                                        onChange={(e) => setDescriptionRole(e.target.value)}
+                                        onChange={(e) => setDescription(e.target.value)}
                                     />
-                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
-                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái</InputLabel>
-                                        <SelectMui
-                                            disabled={disable}
-                                            value={ status}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                        >
-                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
-                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
-                                        </SelectMui>
-                                    </FormControl>
                                 </div>
                             </div>
                         </TabPane>
@@ -488,37 +367,12 @@ const RolePage = () => {
                                                 mode="multiple"
                                                 optionFilterProp="data"
                                                 optionLabelProp="text"
-                                                onChange={handleChangeRoleName}
+                                                onChange={handleChangeRoleID}
                                             >
-                                                {filterArrayRole.map((item) => (
-                                                    <Option key={item.nameRole} data={item.codeRole} text={item.nameRole}>
+                                                {roleInPage.map((item) => (
+                                                    <Option key={item._id} data={item._id} text={item.nameRole}>
                                                         <div className="global-search-item">
                                                             <span>{item.nameRole}</span>
-                                                        </div>
-                                                    </Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </CardANTD.Grid>
-                            <CardANTD.Grid style={gridStyle}>
-                                <Row>
-                                    <Col span={8}>
-                                        <Form.Item>Trạng thái</Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item>
-                                            <Select
-                                                mode="multiple"
-                                                optionFilterProp="data"
-                                                optionLabelProp="text"
-                                                onChange={handleChangeStatus}
-                                            >
-                                                {filterArrayStatus.map((item) => (
-                                                    <Option key={item.status} data={item.status} text={item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}>
-                                                        <div className="global-search-item">
-                                                            <span>{item.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}</span>
                                                         </div>
                                                     </Option>
                                                 ))}
@@ -574,10 +428,8 @@ const RolePage = () => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = roleInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
-                                    setCodeRole(selectedRows[0].codeRole);
                                     setNameRole(selectedRows[0].nameRole);
-                                    setDescriptionRole(selectedRows[0].descriptionRole);
-                                    setStatus(selectedRows[0].status);
+                                    setDescription(selectedRows[0].description);
                                 }
                                 setSelectedRows(selectedRows);
                             }}

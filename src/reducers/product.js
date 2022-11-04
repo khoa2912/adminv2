@@ -47,6 +47,13 @@ export default (state = initialState, action) => {
                 error: action.payload.error
             };
             break;
+        case productConstants.ADD_PRODUCT_NOT_ENOUGH_ROLE:
+            state = {
+                ...state,
+                loading: false,
+            };
+            break;
+            
         case productConstants.GET_PRODUCT_DETAILS_BY_ID_REQUEST:
             state = {
                 ...state,

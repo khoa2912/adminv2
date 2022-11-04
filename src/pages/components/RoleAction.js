@@ -157,7 +157,7 @@ const RoleActionPage = () => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 1200,
+        width: 1000,
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
@@ -209,37 +209,49 @@ const RoleActionPage = () => {
             });
             return;
         }
-        try {
-            const data = {
-                roleId,
-                listAction,
-                updatedTime: Date.now()
-            };
-            console.log(data)
-            dispatch(addRoleAction(data)).then((data) => {
-                dispatch(getDataFilterRoleAction()).then((data) => {
-                    data.map((item, index) => (item.id = index + 1));
-                    setRoleActionInPage(data);
-                    setLoading(false);
+        const checkRoleid = roleactionInPage.find(e => e.roleId === roleId)
+        console.log(checkRoleid)
+        if(checkRoleid === undefined) {
+            try {
+                const data = {
+                    roleId,
+                    listAction,
+                    updatedTime: Date.now()
+                };
+                console.log(data)
+                dispatch(addRoleAction(data)).then((data) => {
+                    dispatch(getDataFilterRoleAction()).then((data) => {
+                        data.map((item, index) => (item.id = index + 1));
+                        setRoleActionInPage(data);
+                        setLoading(false);
+                    });
+                    if (data === 'success') {
+                        handleClose();
+                        notification['success']({
+                            message: 'Thêm mới Role Action',
+                            description: 'Thêm mới Role Action thành công.'
+                        });
+                    } else {
+                        handleClose();
+                        notification['error'] ({
+                            message: 'Thêm mới Role Action',
+                            description: 'Thêm mới Role Action thất bại.',
+                        });
+                        
+                    }
                 });
-                if (data === 'success') {
-                    handleClose();
-                    notification['success']({
-                        message: 'Thêm mới Role Action',
-                        description: 'Thêm mới Role Action thành công.'
-                    });
-                } else {
-                    handleClose();
-                    notification['error'] ({
-                        message: 'Thêm mới Role Action',
-                        description: 'Thêm mới Role Action thất bại.',
-                    });
-                    
-                }
+            } catch (err) {
+                throw new Error('Something went wrong');
+            }
+        } 
+        else {
+            handleClose();
+            notification['error'] ({
+                message: 'Thêm mới Role Action',
+                description: 'Thêm mới Role Action thất bại.',
             });
-        } catch (err) {
-            throw new Error('Something went wrong');
         }
+        
     };
     const handleUpdateRoleAction = async (e) => {
         try {
