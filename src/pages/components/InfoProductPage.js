@@ -72,8 +72,8 @@ const InfoProductPage = () => {
         dispatch(getInfoProducts());
     }, [dispatch]);
     const columns = [
-        { field: '_id', headerName: 'Mã thông tin sản phẩm', width: 200 },
-        { field: 'name', headerName: 'Thông tin', width: 300 },
+        { field: '_id', headerName: 'Mã thông tin sản phẩm', width: 250 },
+        { field: 'name', headerName: 'Thông tin', width: 150 },
         {
             field: 'type',
             headerName: 'Loại thông tin',
@@ -273,6 +273,22 @@ const InfoProductPage = () => {
             throw new Error('Something went wrong');
         }  
     };
+    function removeDuplicates(startArray, prop) {
+        var newArray = [];
+        var lookupObject  = {};
+   
+        for(var i in startArray) {
+           lookupObject[startArray[i][prop]] = startArray[i];
+        }
+   
+        for(i in lookupObject) {
+            newArray.push(lookupObject[i]);
+        }
+        return newArray;
+    }
+   
+    // Filter User
+    var filterArrayType = removeDuplicates(infoInPage, "type");
     const modalInfoProduct = (type) => {
         let title;
         let disable;
@@ -382,10 +398,14 @@ const InfoProductPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeType}
                                             >
-                                                {infoInPage.map((item) => (
-                                                    <Option key={item.type} data={item.type} text={item.type}>
+                                                {filterArrayType.map((item) => (
+                                                    <Option key={item.type} data={item.type}
+                                                        text={item.type === 'ram' ? 'RAM' : item.type === 'mausac' ? 'Màu sắc' : 
+                                                        item.type === 'manhinh' ? 'Màn hình' : item.type === 'cpu' ? 'CPU' : null}
+                                                    >
                                                         <div className="global-search-item">
-                                                            <span>{item.type}</span>
+                                                            <span>{item.type === 'ram' ? 'RAM' : item.type === 'mausac' ? 'Màu sắc' : 
+                                                            item.type === 'manhinh' ? 'Màn hình' : item.type === 'cpu' ? 'CPU' : null}</span>
                                                         </div>
                                                     </Option>
                                                 ))}

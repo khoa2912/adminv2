@@ -84,6 +84,26 @@ const RoleActionPage = () => {
     console.log(roleactionInPage);
     const columns = [
         { field: '_id', headerName: 'Mã Role Action', width: 200 },
+        {
+            field: 'roleId',
+            headerName: 'Tên role',
+            width: 230,
+            renderCell: (params) => {
+                return (
+                    <div className="rowitem" style={{ textAlign: 'center' }}>
+                        {
+                            params.row.roleId === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                            params.row.roleId === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                            params.row.roleId === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                            params.row.roleId === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                            params.row.roleId === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                            params.row.roleId === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                            params.row.roleId === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                        }
+                    </div>
+                );
+            }
+        },
         { field: 'createdTime', headerName: 'Ngày tạo', width: 250 },
         { field: 'updatedTime', headerName: 'Ngày cập nhập', width: 250 }
     ];
@@ -433,9 +453,26 @@ const RoleActionPage = () => {
                                                 onChange={handleChangeRole}
                                             >
                                                 {roleactionInPage.map((item) => (
-                                                    <Option key={item.roleId} data={item.roleId} text={item.roleId}>
+                                                    <Option key={item.roleId} data={item.roleId} text={
+                                                        item.roleId === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                                                        item.roleId === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                                                        item.roleId === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                                                        item.roleId === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                                                        item.roleId === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                                                        item.roleId === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                                                        item.roleId === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                                                    }>
                                                         <div className="global-search-item">
-                                                            <span>{item.roleId}</span>
+                                                            <span> {
+                                                                    item.roleId === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                                                                    item.roleId === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                                                                    item.roleId === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                                                                    item.roleId === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                                                                    item.roleId === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                                                                    item.roleId === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                                                                    item.roleId === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                                                                }
+                                                            </span>
                                                         </div>
                                                     </Option>
                                                 ))}

@@ -149,7 +149,15 @@ const AccountPage = () => {
             renderCell: (params) => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
-                        {params.row.role === '63604156b949802220aa04c9' ? 'Khách hàng' : 'Quản trị viên'}
+                        {
+                            params.row.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                            params.row.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                            params.row.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                            params.row.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                            params.row.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                            params.row.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                            params.row.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                        }
                     </div>
                 );
             }
@@ -697,10 +705,28 @@ const AccountPage = () => {
                                                 onChange={handleChangeRole}
                                             >
                                                 {filterArrayRole.map((item) => (
-                                                    <Option key={item.role} data={item._id} text={item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}>
+                                                    <Option key={item.role} data={item.role} text= {
+                                                        item.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                                                        item.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                                                        item.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                                                        item.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                                                        item.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                                                        item.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                                                        item.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                                                    }>
                                                         {/* {console.log(item)} */}
                                                         <div className="global-search-item">
-                                                            <span>{item.role === 'user' ? 'Khách hàng' : 'Quản trị viên'}</span>
+                                                            <span>
+                                                                {
+                                                                    item.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
+                                                                    item.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
+                                                                    item.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
+                                                                    item.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
+                                                                    item.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
+                                                                    item.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
+                                                                    item.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                                                                }
+                                                            </span>
                                                         </div>
                                                     </Option>
                                                 ))}

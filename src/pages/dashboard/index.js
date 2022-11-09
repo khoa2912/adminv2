@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 // material-ui
 import {
     Avatar,
@@ -34,7 +33,9 @@ import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
 import avatar4 from 'assets/images/users/avatar-4.png';
 import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getProducts } from 'actions/product';
+import { getDataFilterUser, getUsers } from 'actions/auth';
 
 // avatar style
 const avatarSX = {
@@ -74,10 +75,19 @@ const status = [
 const DashboardDefault = () => {
     const [value, setValue] = useState('today');
     const [slot, setSlot] = useState('week');
+    
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getProducts());
+        // dispatch(getDataFilterUser());
     }, [dispatch]);
+    const user = useSelector((state) => state.auth);
+    var quantityUser = [];
+    user.users.map((item) => {
+        if(item.role === '63604156b949802220aa04c9')
+            quantityUser.push(item)
+    })
+    console.log(quantityUser.length);
     return (
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
             {/* row 1 */}
@@ -88,7 +98,7 @@ const DashboardDefault = () => {
                 <AnalyticEcommerce title="Tổng số lượt xem" count="4,42,236" percentage={59.3} extra="35,000" />
             </Grid>
             <Grid item xs={12} sm={6} md={4} lg={3}>
-                <AnalyticEcommerce title="Tổng số người dùng" count="78,250" percentage={70.5} extra="8,900" />
+                <AnalyticEcommerce title="Tổng số người dùng" count={quantityUser.length} percentage={70.5} extra={quantityUser.length} />
             </Grid>
             <Grid item xs={12} sm={6} md={4} lg={3}>
                 <AnalyticEcommerce title="Tổng số đơn hàng" count="18,800" percentage={27.4} isLoss color="success" extra="1,943" />

@@ -37,6 +37,7 @@ import formatThousand from 'util/formatThousans';
 import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct, getProductRelated } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import { getTags } from 'actions/tag';
+import { getInfoProducts } from 'actions/infoProduct';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataArraySharp, SettingsBackupRestoreSharp } from '../../../node_modules/@mui/icons-material/index';
 import tag from 'reducers/tag';
@@ -101,6 +102,7 @@ const ComponentColor = () => {
     });
     const product = useSelector((state) => state.product);
     const tag = useSelector((state) => state.tag);
+    const infoProduct = useSelector((state) => state.infoProduct);
     const [selectedRows, setSelectedRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -132,9 +134,12 @@ const ComponentColor = () => {
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
     const [fileList, setFileList] = useState([]);
+    const [listTag, setListTag] = useState([]);
     const [filebase64, setFileBase64] = useState([]);
     const handleCancel = () => setPreviewVisible(false);
-    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handleChange = ({ fileList: newFileList }) => {
+        setFileList(newFileList);
+    }
     const handlePreview = async (file) => {
         if (!file.url && !file.preview) {
             file.preview = await getBase64(file.originFileObj);
@@ -164,13 +169,31 @@ const ComponentColor = () => {
         // dispatch(getProductRelated());
         dispatch(getAllCategory());
         dispatch(getTags());
+        dispatch(getInfoProducts());
     }, [dispatch]);
     useEffect(() => {
         if (selectedRows[0]) {
-            selectedRows[0] && selectedRows[0].productPicture.map((item) => Object.assign(item, { url: item.img }));
+            selectedRows[0] && selectedRows[0].productPicture.map((item) => Object.assign(item, { url: item.img, uid : item._id }));
         }
         setProductPicture(selectedRows[0] ? selectedRows[0].productPicture : []);
     }, [selectedRows]);
+
+    var filterColor = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'mausac')
+            return item;
+    });
+    var filterScreen = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'manhinh')
+            return item;
+    });
+    var filterRam = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'ram')
+            return item;
+    });
+    var filterCpu = infoProduct.infoProducts.filter((item) => {
+        if (item.type === 'cpu')
+            return item;
+    });
 
     const handleEdit = () => {};
     const handleUpdateProduct = async () => {
@@ -182,13 +205,30 @@ const ComponentColor = () => {
             return;
         }
         const list = [];
+        const tempFileListImgUpload = [];
+        const tempFileListImg = [];
+        fileList.map((item) => {
+            if(item.type === 'image/png') {
+                tempFileListImgUpload.push(item);
+            }
+            else {
+                tempFileListImg.push(item);
+            }
+
+        })
         console.log(fileList);
-        console.log(productPicture);
+        console.log(tempFileListImgUpload);
+        console.log(tempFileListImg);
         
-        if(fileList && fileList.length > 0 && fileList[0].type && fileList[0].type  !== null)
+        const objFilterColor = filterColor?.find(data => data._id === color);
+        const objFilterRam = filterRam?.find(data => data._id === ram);
+        const objFilterCpu = filterCpu?.find(data => data._id === cpu);
+        const objFilterScreen = filterScreen?.find(data => data._id === manhinh);
+
+        if(tempFileListImgUpload && tempFileListImgUpload.length > 0)
         {
             
-            for (let pic of fileList) {
+            for (let pic of tempFileListImgUpload) {
                 const reader = new FileReader();
                 if (pic) {
                     const link = await getBase64(pic.originFileObj);
@@ -208,39 +248,53 @@ const ComponentColor = () => {
                         throw new Error('Something went wrong');
                     })
                     .then((responseJson) => {
+                        const mergeImg = tempFileListImg.concat(responseJson.result)
+                        console.log(mergeImg);
                         const data = {
                             _id: selectedRows[0]._id,
+                            cpuId: objFilterCpu ? objFilterCpu._id : '',
+                            nameCpu: objFilterCpu ? objFilterCpu.name : '',
+                            typeCpu: objFilterCpu ? objFilterCpu.type : '',
+                            colorId: objFilterColor ? objFilterColor._id : '',
+                            nameColor: objFilterColor ? objFilterColor.name : '',
+                            typeColor: objFilterColor ? objFilterColor.type : '',
+                            ramId: objFilterRam ? objFilterRam._id : '',
+                            nameRam: objFilterRam ? objFilterRam.name : '',
+                            typeRam: objFilterRam ? objFilterRam.type : '',
+                            screenId: objFilterScreen ? objFilterScreen._id : '',
+                            nameScreen: objFilterScreen ? objFilterScreen.name : '',
+                            typeScreen: objFilterScreen ? objFilterScreen.type : '',
                             name,
+                            listTag,
                             quantity,
                             regularPrice,
                             salePrice,
                             description,
-                            categoryId: selectedRows[0].category,
-                            productPicture: responseJson,
+                            categoryId,
+                            productPicture: mergeImg,
                             timeBaoHanh,
                             series,
-                            color,
-                            cpu,
                             card,
-                            ram,
-                            manhinh,
                             ocung,
                             hedieuhanh,
                             khoiluong
                         };
-                        console.log('run if')
                         dispatch(editProduct(data)).then((data) => {
+                            console.log('run if')
                             dispatch(getDataFilter()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setProductInPage(data);
                                 setLoading(false);
                             });
+                            console.log(data);
                             if (data === 'success') {
+                                handleClose();
                                 notification['success']({
                                     message: 'Chỉnh sửa Sản phẩm',
                                     description: 'Chỉnh sửa Sản phẩm thành công.'
                                 });
                             } else {
+                                handleClose();
                                 notification['error'] ({
                                     message: 'Chỉnh sửa Sản phẩm',
                                     description: 'Chỉnh sửa Sản phẩm thất bại.',
@@ -254,23 +308,32 @@ const ComponentColor = () => {
             }
         }
         else {
-            console.log(fileList)
+            // console.log(fileList)
             const data = {
                 _id: selectedRows[0]._id,
+                cpuId: objFilterCpu ? objFilterCpu._id : '',
+                nameCpu: objFilterCpu ? objFilterCpu.name : '',
+                typeCpu: objFilterCpu ? objFilterCpu.type : '',
+                colorId: objFilterColor ? objFilterColor._id : '',
+                nameColor: objFilterColor ? objFilterColor.name : '',
+                typeColor: objFilterColor ? objFilterColor.type : '',
+                ramId: objFilterRam ? objFilterRam._id : '',
+                nameRam: objFilterRam ? objFilterRam.name : '',
+                typeRam: objFilterRam ? objFilterRam.type : '',
+                screenId: objFilterScreen ? objFilterScreen._id : '',
+                nameScreen: objFilterScreen ? objFilterScreen.name : '',
+                typeScreen: objFilterScreen ? objFilterScreen.type : '',
                 name,
                 quantity,
+                listTag,
                 regularPrice,
                 salePrice,
                 description,
-                categoryId: selectedRows[0].category,
-                productPicture: fileList.length!=0&&fileList[0].url.length!=0?fileList[0].url:[],
+                categoryId,
+                productPicture: tempFileListImg,
                 timeBaoHanh,
                 series,
-                color,
-                cpu,
                 card,
-                ram,
-                manhinh,
                 ocung,
                 hedieuhanh,
                 khoiluong
@@ -441,6 +504,7 @@ const ComponentColor = () => {
             // });
             setType('edit');
             handleOpen();
+            console.log(categoryId)
         }
     };
     const createCategoryList = (categories, options = []) => {
@@ -496,6 +560,26 @@ const ComponentColor = () => {
             setProductInPage(data);
             setLoading(false);
         });
+    };
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+            },
+        },
+    };
+    const handleChangeTagProduct = (e) => {
+        const {
+          target: { value },
+        } = e;
+        console.log(e)
+        setListTag(
+          // On autofill we get a stringified value.
+          typeof value === 'string' ? value.split(',') : value,
+        );
     };
     const uploadButton = (
         <div>
@@ -603,23 +687,43 @@ const ComponentColor = () => {
                                         />
                                     </FormControl>
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
-                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Thương hiệu</InputLabel>
+                                        <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
                                         <SelectMui
+                                            // disabled={disable}
+                                            defaultValue={listTag ? listTag : null}
                                             disabled={disable}
-                                            defaultValue={selectedRows[0] ? selectedRows[0].category._id : ''}
-                                            label="Thương hiệu"
+                                            label="Tag"
+                                            labelId="demo-multiple-checkbox-label"
+                                            id="demo-multiple-checkbox"
+                                            multiple
+                                            input={<OutlinedInput label="Tag" />}
+                                            // renderValue={(selected) => selected.join(', ')}
+                                            MenuProps={MenuProps}
+                                            onChange={handleChangeTagProduct}
+                                        >
+                                            {tag.tags.map((option) => (
+                                                <MenuItem value={option._id}>{option.tagName}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>     
+                                    <FormControl fullWidth style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label">Thương hiệu</InputLabel>
+                                        <SelectMui
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
+                                            defaultValue={categoryId ? categoryId: ''}
+                                            disabled={disable}
+                                            label="Thương hiệu"
                                             onChange={(e) => setCategoryId(e.target.value)}
                                         >
-                                            {createCategoryList(category.categories).map((option) => (
-                                                <option value={option.value}>{option.name}</option>
+                                            {category.categories.map((option) => (
+                                                <MenuItem value={option._id}>{option.name}</MenuItem>
                                             ))}
                                         </SelectMui>
                                     </FormControl>
                                     <Upload
                                         listType="picture-card"
-                                        defaultFileList={productPicture ? productPicture : []}
+                                        defaultFileList={fileList ? fileList : []}
                                         onPreview={handlePreview}
                                         beforeUpload={() => {
                                             /* update state here */
@@ -688,33 +792,37 @@ const ComponentColor = () => {
                                         disabled={disable}                                    />
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Màu sắc"
-                                        style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}
-                                        InputLabelProps={{
-                                            shrink: true
-                                        }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.color[0]?.name : null}
-                                        onChange={(e) => {
-                                            setColor(e.target.value);
-                                        }}
-                                        disabled={disable}                                    />
+                                    <FormControl style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled={disable}>Màu sắc</InputLabel>
+                                        <SelectMui
+                                            defaultValue={color ? color: ''}
+                                            label="Màu sắc"
+                                            labelId="demo-simple-select-label"
+                                            disabled={disable}
+                                            id="demo-simple-select"
+                                            onChange={(e) => setColor(e.target.value)}
+                                        >
+                                            {filterColor.map((option) => (
+                                                <MenuItem value={option._id}>{option.name}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
 
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="CPU"
-                                        style={{ width: '45%', marginBottom: '15px' }}
-                                        InputLabelProps={{
-                                            shrink: true
-                                        }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.cpu[0]?.name : null}
-                                        onChange={(e) => {
-                                            setCPU(e.target.value);
-                                        }}
-                                        disabled={disable}                                    />
+                                    <FormControl style={{ width: '45%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled={disable}>CPU</InputLabel>
+                                        <SelectMui
+                                            defaultValue={cpu ? cpu : ''}
+                                            label="CPU"
+                                            labelId="demo-simple-select-label"
+                                            disabled={disable}
+                                            id="demo-simple-select"
+                                            onChange={(e) => setCPU(e.target.value)}
+                                        >
+                                            {filterCpu.map((option) => (
+                                                <MenuItem value={option._id}>{option.name}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
                                     <TextField
@@ -731,34 +839,38 @@ const ComponentColor = () => {
                                         }}
                                         disabled={disable}                                    />
 
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Ram"
-                                        style={{ width: '45%', marginBottom: '15px' }}
-                                        InputLabelProps={{
-                                            shrink: true
-                                        }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.ram[0]?.name : null}
-                                        onChange={(e) => {
-                                            setRam(e.target.value);
-                                        }}
-                                        disabled={disable}                                    />
+                                    <FormControl style={{ width: '45%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled={disable}>Ram</InputLabel>
+                                        <SelectMui
+                                            defaultValue={ram ? ram : ''}
+                                            disabled={disable}
+                                            label="Ram"
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            onChange={(e) => setRam(e.target.value)}
+                                        >
+                                            {filterRam.map((option) => (
+                                                <MenuItem value={option._id}>{option.name}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
                                 </div>
                                 <div style={{ display: 'block', width: '100%' }}>
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Màn hình"
-                                        style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}
-                                        InputLabelProps={{
-                                            shrink: true
-                                        }}
-                                        defaultValue={selectedRows[0] ? selectedRows[0].descriptionTable[0]?.manhinh[0]?.name : null}
-                                        onChange={(e) => {
-                                            setManHinh(e.target.value);
-                                        }}
-                                        disabled={disable}                                    />
+                                    <FormControl style={{ width: '45%', marginBottom: '15px', marginRight: '20px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled={disable}>Màn hình</InputLabel>
+                                        <SelectMui
+                                            defaultValue={manhinh ? manhinh : ''}
+                                            disabled={disable}
+                                            label="Màn hình"
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            onChange={(e) => setManHinh(e.target.value)}
+                                        >
+                                            {filterScreen.map((option) => (
+                                                <MenuItem value={option._id}>{option.name}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
 
                                     <TextField
                                         required
@@ -976,19 +1088,20 @@ const ComponentColor = () => {
                             const selectedRows = productInPage.filter((row) => selectedIDs.has(row._id));
                             if (selectedRows.length === 1) {
                                 setName(selectedRows[0].name);
+                                setListTag(selectedRows[0].tag);
                                 setRegularPrice(selectedRows[0].regularPrice);
                                 setSalePrice(selectedRows[0].salePrice);
                                 setQuantity(selectedRows[0].quantity);
-                                setCategoryId(selectedRows[0].category);
-                                setFileList([{ url: selectedRows[0].productPicture }]);
+                                setCategoryId(selectedRows[0].category._id);
+                                setFileList(selectedRows[0].productPicture);
                                 setDescription(selectedRows[0].description);
                                 setTimeBaoHanh(selectedRows[0].descriptionTable[0].baohanh);
                                 setSeries(selectedRows[0].descriptionTable[0].Series);
-                                setColor(selectedRows[0].descriptionTable[0].color);
-                                setCPU(selectedRows[0].descriptionTable[0].cpu);
+                                setColor(selectedRows[0].descriptionTable[0].color[0].colorId);
+                                setCPU(selectedRows[0].descriptionTable[0].cpu[0].cpuId);
                                 setCard(selectedRows[0].descriptionTable[0].cardDohoa);
-                                setRam(selectedRows[0].descriptionTable[0].ram);
-                                setManHinh(selectedRows[0].descriptionTable[0].manhinh);
+                                setRam(selectedRows[0].descriptionTable[0].ram[0].ramId);
+                                setManHinh(selectedRows[0].descriptionTable[0].manhinh[0].screenId);
                                 setOCung(selectedRows[0].descriptionTable[0].ocung);
                                 setHeDieuHanh(selectedRows[0].descriptionTable[0].hedieuhanh);
                                 setKhoiLuong(selectedRows[0].descriptionTable[0].khoiluong);
