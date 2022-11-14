@@ -34,6 +34,7 @@ import formatThousand from 'util/formatThousans';
 import { getProducts } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import { getAllUser } from 'actions/user';
+import moment from 'moment';
 import SearchIcon from '@mui/icons-material/Search';
 import { deleteOrderById, updateOrder, getDataFilterOrder, getOrders } from 'actions/order';
 import { DataArraySharp } from '../../../node_modules/@mui/icons-material/index';
@@ -271,7 +272,7 @@ const OrderPage = () => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
-                date: Date.now(),
+                date: new Date(),
                 type
             };        
             console.log(data);

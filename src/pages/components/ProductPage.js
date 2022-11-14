@@ -208,7 +208,8 @@ const ComponentColor = () => {
         const tempFileListImgUpload = [];
         const tempFileListImg = [];
         fileList.map((item) => {
-            if(item.type === 'image/png') {
+            if(item.type === 'image/png' || item.type === 'image/jpeg')
+            {
                 tempFileListImgUpload.push(item);
             }
             else {
@@ -366,14 +367,7 @@ const ComponentColor = () => {
     };
     const text = 'Bạn có chắc chắn muốn xoá?';
     const columns = [
-        {
-            field: '_id',
-            headerName: 'Mã sản phẩm',
-            width: 230,
-            renderCell: (params) => {
-                return <div className="rowitem">{params.row._id}</div>;
-            }
-        },
+        {field: 'id', headerName: 'STT', width: 130},
         { field: 'name', headerName: 'Tên sản phẩm', width: 300 },
         {
             field: 'category',
@@ -395,7 +389,7 @@ const ComponentColor = () => {
             field: 'quantity',
             headerName: 'Số lượng',
             type: 'number',
-            width: 90,
+            width: 150,
             renderCell: (params) => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
@@ -405,12 +399,12 @@ const ComponentColor = () => {
             }
         },
         {
-            field: 'description',
-            headerName: 'Mô tả',
-            description: 'This column has a value getter and is not sortable.',
-            sortable: false,
-            width: 160
-            // valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
+            field: 'color',
+            headerName: 'Màu',
+            width: 180,
+            renderCell: (params) => {
+                return <div className="rowitem">{params.row.descriptionTable[0].color[0].name}</div>;
+            }
         }
     ];
     const gridStyle = {

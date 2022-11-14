@@ -23,6 +23,30 @@ export var getOrders = () => {
         }
     };
 };
+
+export var getDataOrdersSales = () => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: orderConstants.GET_Data_Sales_REQUEST });
+            const res = await axios.post('admin/order/getDataOrdersSales');
+            // console.log(res);
+            if (res.status === 200) {
+                const { orders } = res.data;
+                orders.map((item, index) => (item.id = index + 1));
+                dispatch({
+                    type: orderConstants.GET_Data_Sales_SUCCESS,
+                    payload: { orders }
+                });
+                return orders;
+            } else {
+                dispatch({ type: orderConstants.GET_Data_Sales_FAILURE });
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+};
+
 export var getCustomerOrders = () => {
     return async (dispatch) => {
         dispatch({ type: orderConstants.GET_CUSTOMER_ORDER_REQUEST });

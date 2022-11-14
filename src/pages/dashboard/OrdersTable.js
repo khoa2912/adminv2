@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProducts } from 'actions/product';
 // material-ui
 import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
@@ -11,88 +13,38 @@ import NumberFormat from 'react-number-format';
 // project import
 import Dot from 'components/@extended/Dot';
 
-function createData(trackingNo, name, fat, carbs, protein) {
-    return { trackingNo, name, fat, carbs, protein };
-}
-
-const rows = [
-    createData(84564564, 'Camera Lens', 40, 2, 40570),
-    createData(98764564, 'Laptop', 300, 0, 180139),
-    createData(98756325, 'Mobile', 355, 1, 90989),
-    createData(98652366, 'Handset', 50, 1, 10239),
-    createData(13286564, 'Computer Accessories', 100, 1, 83348),
-    createData(86739658, 'TV', 99, 0, 410780),
-    createData(13256498, 'Keyboard', 125, 2, 70999),
-    createData(98753263, 'Mouse', 89, 2, 10570),
-    createData(98753275, 'Desktop', 185, 1, 98063),
-    createData(98753291, 'Chair', 100, 0, 14001)
-];
-
-function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
-
-function getComparator(order, orderBy) {
-    return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) {
-            return order;
-        }
-        return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-}
-
 // ==============================|| ORDER TABLE - HEADER CELL ||============================== //
 
 const headCells = [
     {
-        id: 'trackingNo',
+        id: 'productId',
         align: 'left',
         disablePadding: false,
-        label: 'Mã đơn hàng'
+        label: 'Mã sản phẩm'
     },
     {
-        id: 'name',
+        id: 'productName',
         align: 'left',
         disablePadding: true,
         label: 'Tên sản phẩm'
     },
     {
-        id: 'fat',
+        id: 'quantity',
         align: 'right',
         disablePadding: false,
-        label: 'Số đơn hàng'
+        label: 'Số lượng đã bán'
     },
     {
-        id: 'carbs',
-        align: 'left',
-        disablePadding: false,
-
-        label: 'Trạng thái'
-    },
-    {
-        id: 'protein',
+        id: 'view',
         align: 'right',
         disablePadding: false,
-        label: 'Tổng số tiền'
+        label: 'Số lượt xem'
     }
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
 
-function OrderTableHead({ order, orderBy }) {
+function ProductTableHead({ product, productBy }) {
     return (
         <TableHead>
             <TableRow>
@@ -101,7 +53,7 @@ function OrderTableHead({ order, orderBy }) {
                         key={headCell.id}
                         align={headCell.align}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
-                        sortDirection={orderBy === headCell.id ? order : false}
+                        sortDirection={productBy === headCell.id ? product : false}
                     >
                         {headCell.label}
                     </TableCell>
@@ -111,55 +63,69 @@ function OrderTableHead({ order, orderBy }) {
     );
 }
 
-OrderTableHead.propTypes = {
-    order: PropTypes.string,
-    orderBy: PropTypes.string
+ProductTableHead.propTypes = {
+    product: PropTypes.string,
+    productBy: PropTypes.string
 };
 
-// ==============================|| ORDER TABLE - STATUS ||============================== //
+// ==============================|| PRODUCT TABLE ||============================== //
 
-const OrderStatus = ({ status }) => {
-    let color;
-    let title;
-
-    switch (status) {
-        case 0:
-            color = 'warning';
-            title = 'Pending';
-            break;
-        case 1:
-            color = 'success';
-            title = 'Approved';
-            break;
-        case 2:
-            color = 'error';
-            title = 'Rejected';
-            break;
-        default:
-            color = 'primary';
-            title = 'None';
+const ProductTable = (props) => {
+    const {filterProduct, endTime, startTime} =props
+    const [productInPage, setProductInPage] = useState([]);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getProducts()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setProductInPage(data);
+        });
+        
+    }, [dispatch, filterProduct]);
+    function descendingComparator(a, b, productBy) {
+        if (b[productBy] < a[productBy]) {
+            return -1;
+        }
+        if (b[productBy] > a[productBy]) {
+            return 1;
+        }
+        return 0;
+    }
+    function getComparator(product, productBy) {
+        return product === 'desc' ? (a, b) => descendingComparator(a, b, productBy) : (a, b) => -descendingComparator(a, b, productBy);
+    }
+    
+    function stableSort(array, comparator) {
+        const stabilizedThis = array.map((el, index) => [el, index]);
+        stabilizedThis.sort((a, b) => {
+            const product = comparator(a[0], b[0]);
+            if (product !== 0) {
+                return product;
+            }
+            return a[1] - b[1];
+        });
+        return stabilizedThis.map((el) => el[0]);
     }
 
-    return (
-        <Stack direction="row" spacing={1} alignItems="center">
-            <Dot color={color} />
-            <Typography>{title}</Typography>
-        </Stack>
-    );
-};
-
-OrderStatus.propTypes = {
-    status: PropTypes.number
-};
-
-// ==============================|| ORDER TABLE ||============================== //
-
-export default function OrderTable() {
-    const [order] = useState('asc');
-    const [orderBy] = useState('trackingNo');
+    const [product] = useState('desc');
+    const [productBy] = useState('view');
     const [selected] = useState([]);
 
-    const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+    // if(filterProduct === 'view') {
+    //     product = 'desc';
+    //     productBy = 'view';
+    // }
+    // if(filterProduct === 'quantity') {
+    //     product = 'desc';
+    //     productBy = 'quantity';
+    // }
+
+    const isSelected = (productId) => selected.indexOf(productId) !== -1;
+    const rows = [];
+    const tempList = stableSort(productInPage, getComparator(product, productBy))
+    tempList.map((item) => {
+        if(rows.length < 10)
+            rows.push(item);
+    })
 
     return (
         <Box>
@@ -184,35 +150,32 @@ export default function OrderTable() {
                         }
                     }}
                 >
-                    <OrderTableHead order={order} orderBy={orderBy} />
+                    <ProductTableHead product={product} productBy={productBy} />
                     <TableBody>
-                        {stableSort(rows, getComparator(order, orderBy)).map((row, index) => {
-                            const isItemSelected = isSelected(row.trackingNo);
+                        {stableSort(rows, getComparator(product, productBy)).map((row, index) => {
+                            const isItemSelected = isSelected(row._id);
                             const labelId = `enhanced-table-checkbox-${index}`;
 
                             return (
                                 <TableRow
                                     hover
                                     role="checkbox"
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    sx={{ '&:last-child td, &:last-child th': { bproduct: 0 } }}
                                     aria-checked={isItemSelected}
                                     tabIndex={-1}
-                                    key={row.trackingNo}
+                                    key={row._id}
                                     selected={isItemSelected}
                                 >
                                     <TableCell component="th" id={labelId} scope="row" align="left">
-                                        <Link color="secondary" component={RouterLink} to="">
-                                            {row.trackingNo}
+                                        <Link color="secondary" component={RouterLink} to="/product">
+                                            {row._id}
                                         </Link>
                                     </TableCell>
                                     <TableCell align="left">{row.name}</TableCell>
-                                    <TableCell align="right">{row.fat}</TableCell>
-                                    <TableCell align="left">
-                                        <OrderStatus status={row.carbs} />
-                                    </TableCell>
                                     <TableCell align="right">
-                                        <NumberFormat value={row.protein} displayType="text" thousandSeparator prefix="$" />
+                                        {row.view}
                                     </TableCell>
+                                    <TableCell align="right">{row.quantitySold}</TableCell>
                                 </TableRow>
                             );
                         })}
@@ -221,4 +184,7 @@ export default function OrderTable() {
             </TableContainer>
         </Box>
     );
-}
+};
+
+export default ProductTable;
+

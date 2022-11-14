@@ -12,6 +12,7 @@ import tag from './tag';
 import action from './action';
 import roleaction from './roleaction';
 import infoProduct from './infoProduct';
+import totalView from './totalView';
 export const rootReducer = combineReducers({
     auth: authReducer,
     user: userReducer,
@@ -25,7 +26,8 @@ export const rootReducer = combineReducers({
     tag: tag,
     action: action,
     roleaction: roleaction,
-    infoProduct: infoProduct
+    infoProduct: infoProduct,
+    totalView: totalView
 });
 
 export default rootReducer;

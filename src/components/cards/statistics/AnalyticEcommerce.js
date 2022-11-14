@@ -44,11 +44,11 @@ const AnalyticEcommerce = ({ color, title, count, percentage, isLoss, extra }) =
         </Stack>
         <Box sx={{ pt: 2.25 }}>
             <Typography variant="caption" color="textSecondary">
-                Tăng hơn{' '}
+                {/* Tăng hơn{' '} */}
                 <Typography component="span" variant="caption" sx={{ color: `${color || 'primary'}.main` }}>
                     {extra}
                 </Typography>{' '}
-                so với năm trước
+                {/* so với năm trước */}
             </Typography>
         </Box>
     </MainCard>
