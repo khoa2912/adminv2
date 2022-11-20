@@ -56,7 +56,7 @@ const Notification = () => {
     useEffect(() => {
         dispatch(getProductWarning()).then((data)=>{
             setProductWarning(data);
-            console.log('Productwarning error', data);
+            // console.log('Productwarning error', data);
         });
     },[])
     const anchorRef = useRef(null);

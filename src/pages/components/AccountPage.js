@@ -198,7 +198,7 @@ const AccountPage = () => {
             reader.onload = () => resolve(reader.result);
 
             reader.onerror = (error) => reject(error);
-        });
+    });
     const handleView = () => {
         if (selectedRows.length === 0) {
             notification['warning']({

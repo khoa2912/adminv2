@@ -12,6 +12,7 @@ import BannerPage from 'pages/components/Banner';
 import ActionPage from 'pages/components/ActionPage';
 import InfoProductPage from 'pages/components/InfoProductPage';
 import TagPage from 'pages/components/TagPage';
+import UserInfo from 'pages/components/UserInfo';
 import RoleAction from 'pages/components/RoleAction';
 import { AddCategory } from 'pages/components/AddCategory/index';
 
@@ -107,6 +108,10 @@ const MainRoutes = {
         {
             path: 'action',
             element: <ActionPage />
+        },
+        {
+            path: 'userInfo',
+            element: <UserInfo />
         },
         ,
         {

@@ -156,6 +156,30 @@ export var getUsers = () => {
     };
 };
 
+export var getUserUsing = () => {
+    return async (dispatch) => {
+        try {
+            dispatch({ type: authConstants.GET_ALL_USER_INFO_REQUEST });
+            const res = await axios.post('admin/getUserUsing');
+            console.log(res);
+            if (res.status === 200) {
+                const { users } = res.data;
+                users.map((item, index) => (item.id = index + 1));
+                dispatch({
+                    type: authConstants.GET_ALL_USER_INFO_SUCCESS,
+                    payload: { users }
+                });
+                return users;
+            } else {
+                dispatch({ type: authConstants.GET_ALL_USER_INFO_FAILURE });
+            }
+        } catch (error) {
+            console.log(error);
+        }
+        
+    };
+};
+
 export var addUser = (form) => {
     return async (dispatch) => {
         try {

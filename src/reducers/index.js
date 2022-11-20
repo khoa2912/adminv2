@@ -10,6 +10,7 @@ import role from './role';
 import banner from './banner';
 import tag from './tag';
 import action from './action';
+import screen from './screen';
 import roleaction from './roleaction';
 import infoProduct from './infoProduct';
 import totalView from './totalView';
@@ -24,6 +25,7 @@ export const rootReducer = combineReducers({
     role: role,
     banner: banner,
     tag: tag,
+    screen: screen,
     action: action,
     roleaction: roleaction,
     infoProduct: infoProduct,

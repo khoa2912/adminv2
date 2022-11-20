@@ -59,7 +59,7 @@ const MonthlyBarChart = (props) => {
     }, [dispatch]);
     const { primary, secondary } = theme.palette.text;
     const info = theme.palette.info.light;
-    console.log(props);
+    // console.log(props);
     function parseDate(input) {
         var parts = input.match(/(\d+)/g);
         // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
@@ -87,23 +87,17 @@ const MonthlyBarChart = (props) => {
         resultDataSales = ListSales
     } else {
         if(props.startTime !== props.endTime) {
-            console.log(props.startTime)
-            console.log(props.endTime)
-            console.log('run else 1')
             var ListSalesTemp = [];
             var ListSales = [];
             dataSales?.map((item) => {
                 var date = parseDate(item.orderStatus[3].date);
                 date.setHours(0, 0, 1);
-                console.log(date.getTime())
-                console.log(props.startTime)
                 if((date.getTime() >= startTime.getTime()) && (date.getTime() <= endTime.getTime())) {
                     item.items.map((data) => {
                         ListSalesTemp.push(data);
                     })
                 }
             })
-            console.log(ListSalesTemp)
             ListSalesTemp.reduce(function(res, value) {
                 if (!res[value.productId._id]) {
                   res[value.productId._id] = { productId: value.productId, purchasedQty: 0 };
@@ -112,12 +106,8 @@ const MonthlyBarChart = (props) => {
                 res[value.productId._id].purchasedQty += value.purchasedQty;
                 return res;
             }, {});
-            console.log(ListSales)
             resultDataSales = ListSales
         } else {
-            console.log('run else 2')
-            console.log(props.startTime)
-            console.log(props.endTime)
             var ListSalesTemp = [];
             var ListSales = [];
             dataSales?.map((item) => {
@@ -138,7 +128,7 @@ const MonthlyBarChart = (props) => {
                 res[value.productId._id].purchasedQty += value.purchasedQty;
                 return res;
             }, {});
-            console.log(ListSales)
+            // console.log(ListSales)
             resultDataSales = ListSales
         }
     }

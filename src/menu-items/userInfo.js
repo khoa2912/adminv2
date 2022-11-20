@@ -41,8 +41,8 @@ const userInfo = {
             id: 'info-user',
             title: 'Thông tin cá nhân',
             type: 'item',
-            url: '/category',
-            icon: icons.TagsOutlined
+            url: '/userInfo',
+            icon: icons.UserOutlined
         },
     ]
 };

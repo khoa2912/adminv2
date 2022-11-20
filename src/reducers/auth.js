@@ -42,6 +42,29 @@ export default (state = initState, action) => {
                 error: 'error'
             };
             break;
+        case authConstants.GET_ALL_USER_INFO_REQUEST:
+            state = {
+                ...state,
+                loading: true,
+                message: '',
+                error: ''
+            };
+            break;
+        case authConstants.GET_ALL_USER_INFO_SUCCESS:
+            state = {
+                ...state,
+                loading: false,
+                message: 'success',
+                users: action.payload.user
+            };
+            break;
+        case authConstants.GET_ALL_USER_INFO_FAILURE:
+            state = {
+                ...state,
+                loading: false,
+                error: 'error'
+            };
+            break;
         case authConstants.LOGIN_REQUEST:
             state = {
                 ...state,

@@ -4,7 +4,7 @@ const initState = {
     error: null,
     message: '',
     loading: false,
-    banners: []
+    screens: []
 };
 export default (state = initState, action) => {
     switch (action.type) {

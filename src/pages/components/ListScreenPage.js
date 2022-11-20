@@ -31,10 +31,10 @@ import { notification, Space, Popconfirm } from 'antd';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUser } from 'actions/auth';
 import { getInitialData } from 'actions/initialData';
 import { Tabs } from 'antd';
 import { addScreen, getDataFilterScreen, deleteScreenById, updateScreen } from 'actions/screen';
+import { getActions } from 'actions/action';
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled('iframe')(() => ({
@@ -48,53 +48,39 @@ const ListScreenPage = () => {
     const dispatch = useDispatch();
     const [searchModel, setSearchModel] = useState({
         Screen_Name: '',
-        Description: ''
     });
     const { TabPane } = Tabs;
     const [loading, setLoading] = useState(false);
     const [screenInPage, setScreenInPage] = useState([]);
+    const [actionInPage, setActionInPage] = useState([]);
     const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xoá?';
-    const auth = useSelector((state) => state.auth);
-    const screen = useSelector((state) => state.screen);
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [screenName, setScreenName] = useState('');
-    const [screenCode, setScreenCode] = useState('');
-    const [screenDescription, setScreenDescription] = useState('');
-    const [status, setStatus] = useState('enable');
     const [open, setOpen] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [listAction, setListAction] = useState([]);
 
     useEffect(() => {
         setLoading(true);
         dispatch(getDataFilterScreen()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setScreenInPage(data);
-            console.log(data);
             setLoading(false);
         });
+        dispatch(getActions()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setActionInPage(data);
+        });
     }, [dispatch]);
-
+    console.log(screenInPage)
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
-        { field: 'screenCode', headerName: 'Mã Screen', width: 130 },
+        // { field: 'screenCode', headerName: 'Mã Screen', width: 130 },
         { field: 'screenName', headerName: 'Tên Screen', width: 200 },
-        { field: 'screenDescription', headerName: 'Thông tin mô tả', width: 200 },
-        {
-            field: 'status',
-            headerName: 'Trạng thái',
-            type: 'number',
-            width: 150,
-            renderCell: (params) => {
-                return (
-                    <div className="rowitem" style={{ textAlign: 'center' }}>
-                        {params.row.status === 'enable' ? 'Sử dụng' : 'Ngừng sử dụng'}
-                    </div>
-                );
-            }
-        }
+        { field: 'updatedTime', headerName: 'Ngày cập nhập', width: 200 },
     ];
     const gridStyle = {
         width: '50%',
@@ -143,12 +129,6 @@ const ListScreenPage = () => {
    
     // Filter Screen name
     var filterArrayScreen = removeDuplicates(screenInPage, "screenName");
-    // console.log(filterArrayScreen);
-
-    // Filter Description
-    var filterArrayDescription = removeDuplicates(screenInPage, "screenDescription");
-    // console.log(filterArrayDescription);
-
     const handleView = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -168,14 +148,12 @@ const ListScreenPage = () => {
 
     const handleCreate = () => {
         setType('create');
-        setScreenCode('');
         setScreenName('');
-        setScreenDescription('');
-        setStatus('');
+        setListAction([]);
         handleOpen();
     };
     const handleAddScreen = async (e) => {
-        if (screenCode.trim() === '' || screenName.trim() === '') {
+        if (screenName.trim() === '') {
             notification['warning']({
                 message: 'Thêm mới screen',
                 description: 'Vui lòng nhập dữ liệu.'
@@ -184,11 +162,10 @@ const ListScreenPage = () => {
         } 
         try {
             const data = {
-                screenCode,
                 screenName,
-                screenDescription,
-                status
-            };        
+                action: listAction,
+                updatedTime: new Date(),
+            };
             dispatch(addScreen(data)).then((data) => {
                 dispatch(getDataFilterScreen()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -201,10 +178,6 @@ const ListScreenPage = () => {
                         message: 'Thêm mới Screen',
                         description: 'Thêm mới Screen thành công.'
                     });
-                    setScreenCode('');
-                    setScreenName('');
-                    setScreenDescription('');
-                    setStatus('');
                 } else {
                     handleClose();
                     notification['error'] ({
@@ -223,18 +196,14 @@ const ListScreenPage = () => {
         try {
             const data = {
                 _id: selectedRows[0]._id,
-                createdBy: selectedRows[0].createdBy,
-                screenCode,
                 screenName,
-                screenDescription,
-                status
+                action: listAction,
+                updatedTime: new Date(),
             };        
-            console.log(data);
             dispatch(updateScreen(data)).then((data) => {
                 dispatch(getDataFilterScreen()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setScreenInPage(data);
-                    setLoading(false);
                 });
                 if (data === 'success') {
                     handleClose();
@@ -255,10 +224,27 @@ const ListScreenPage = () => {
             throw new Error('Something went wrong');
         }  
     };
-
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+            },
+        },
+    };
+    const handleChangeAction = (e) => {
+        const {
+          target: { value },
+        } = e;
+        setListAction(
+          // On autofill we get a stringified value.
+          typeof value === 'string' ? value.split(',') : value,
+        );
+    };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
         dispatch(getDataFilterScreen(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setScreenInPage(data);
@@ -282,6 +268,7 @@ const ListScreenPage = () => {
             handleOpen();
         }
     };
+
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -295,29 +282,25 @@ const ListScreenPage = () => {
             });
             const payload = {
                 screenId: listIdScreen
-            };
-            const temp = screenInPage.length;
-            
+            };            
             dispatch(deleteScreenById(payload)).then((data) => {
                 dispatch(getDataFilterScreen()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setScreenInPage(data);
                     setLoading(false);
-                    if(temp!=data.length) {
-                        notification['success']({
-                            message: 'Xoá Screen',
-                            description: 'Xoá Screen thành công.'
-                        });
-                    } 
-                    else {
-                        notification['error']({
-                            message: 'Xoá Screen',
-                            description: 'Xoá Screen không thành công.'
-                        });
-                    }
-                    console.log(temp);
-                    console.log(data.length);
                 });
+                if(data === 'success') {
+                    notification['success']({
+                        message: 'Xoá Screen',
+                        description: 'Xoá Screen thành công.'
+                    });
+                } 
+                else {
+                    notification['error']({
+                        message: 'Xoá Screen',
+                        description: 'Xoá Screen không thành công.'
+                    });
+                }
             });
 
         }
@@ -367,40 +350,29 @@ const ListScreenPage = () => {
                                         required
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
-                                        label="Mã Screen"
-                                        value={screenCode}
-                                        disabled={disable}
-                                        onChange={(e) => setScreenCode(e.target.value)}
-                                    />
-                                    <TextField
-                                        required
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        id="outlined-error"
                                         label="Tên Screen"
                                         value={screenName}
                                         disabled={disable}
                                         onChange={(e) => setScreenName(e.target.value)}
                                     />
-                                    <TextField
-                                        required
-                                        id="outlined-error"
-                                        label="Thông tin mô tả"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={screenDescription}
-                                        disabled={disable}
-                                        onChange={(e) => setScreenDescription(e.target.value)}
-                                    />
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
-                                        <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Screen</InputLabel>
+                                        <InputLabel id="demo-multiple-checkbox-label">Action</InputLabel>
                                         <SelectMui
+                                            // disabled={disable}
+                                            defaultValue={listAction ? listAction : null}
                                             disabled={disable}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                            value={status}
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
+                                            label="Action"
+                                            labelId="demo-multiple-checkbox-label"
+                                            id="demo-multiple-checkbox"
+                                            multiple
+                                            input={<OutlinedInput label="Action" />}
+                                            // renderValue={(selected) => selected.join(', ')}
+                                            MenuProps={MenuProps}
+                                            onChange={handleChangeAction}
                                         >
-                                            <MenuItem value={'enable'}>Sử dụng</MenuItem>
-                                            <MenuItem value={'disable'}>Ngừng sử dụng</MenuItem>
+                                            {actionInPage.map((option) => (
+                                                <MenuItem value={option._id}>{option.actionName}</MenuItem>
+                                            ))}
                                         </SelectMui>
                                     </FormControl>
                                 </div>
@@ -450,31 +422,6 @@ const ListScreenPage = () => {
                                     </Col>
                                 </Row>
                             </CardANTD.Grid>
-                            <CardANTD.Grid style={gridStyle}>
-                                <Row>
-                                    <Col span={8}>
-                                        <Form.Item>Mô tả</Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item>
-                                            <Select
-                                                mode="multiple"
-                                                optionFilterProp="data"
-                                                optionLabelProp="text"
-                                                onChange={handleChangeDescription}
-                                            >
-                                                {filterArrayDescription.map((item) => (
-                                                    <Option key={item.screenDescription} data={item.screenDescription} text={item.screenDescription}>
-                                                        <div className="global-search-item">
-                                                            <span>{item.screenDescription}</span>
-                                                        </div>
-                                                    </Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </CardANTD.Grid>
                         </CardANTD>
                     </Collapse.Panel>
                 </Collapse>
@@ -496,7 +443,6 @@ const ListScreenPage = () => {
                             color="error"
                             style={{ cursor: 'pointer' }}
                             startIcon={<DeleteIcon />}
-                            // onClick={handleDeleteProduct}
                         >
                             Xoá
                         </Button>
@@ -519,10 +465,8 @@ const ListScreenPage = () => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = screenInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
-                                    setScreenCode(selectedRows[0].screenCode);
                                     setScreenName(selectedRows[0].screenName);
-                                    setScreenDescription(selectedRows[0].screenDescription);
-                                    setStatus(selectedRows[0].status);
+                                    setListAction(selectedRows[0].action);
                                 }
                                 setSelectedRows(selectedRows);
                             }}
