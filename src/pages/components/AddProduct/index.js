@@ -34,7 +34,7 @@ import { Upload } from '../../../../node_modules/antd/lib/index';
 import { getAllCategory } from 'actions/category';
 import { getTags } from 'actions/tag';
 import { getInfoProducts } from 'actions/infoProduct';
-import { addProduct, getProducts, getDataFilter } from 'actions/product';
+import { addProduct, getProducts, getDataFilterProduct } from 'actions/product';
 import { useHistory } from 'react-router-dom';
 import {useNavigate} from "react-router-dom"
 import infoProduct from 'reducers/infoProduct';
@@ -108,7 +108,7 @@ export const AddProduct = (props) => {
     );
     useEffect(() => {
         setLoading(true);
-        dispatch(getDataFilter()).then((data) => {
+        dispatch(getDataFilterProduct()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
             setLoading(false);

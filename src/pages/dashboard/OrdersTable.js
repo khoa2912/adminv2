@@ -113,19 +113,7 @@ const ProductTable = (props) => {
         return stabilizedThis.map((el) => el[0]);
     }
     const [product] = useState('desc');
-    
     const [selected] = useState([]);
-
-    
-    
-    // if(filterProduct === 'view') {
-    //     [productBy] = 'view';
-    // }
-    console.log(filterProduct)
-    // else {
-    //     productBy = 'quantitySold';
-    // }
-
     const isSelected = (productId) => selected.indexOf(productId) !== -1;
     // var rows = [];
     var ListSalesTemp = [];
@@ -143,10 +131,8 @@ const ProductTable = (props) => {
         res[value.productId._id].purchasedQty += value.purchasedQty;
         return res;
     }, {});
-    console.log(ListSales)
     if(filterProduct === 'view') {
         var rows = [];
-        console.log('11')
         const tempList = stableSort(productInPage, getComparator(product, 'view'))
         tempList.map((item) => {
             if(rows.length < 10)
@@ -210,7 +196,6 @@ const ProductTable = (props) => {
             </Box>
         );
     } else {
-        console.log('22')
         var rows = [];
         const tempList = stableSort(ListSales, getComparator(product, 'purchasedQty'))
         tempList.map((item) => {

@@ -54,7 +54,6 @@ const IFrameWrapper = styled('iframe')(() => ({
 const UserInfo = () => {
     const { Option } = Select;
     const dispatch = useDispatch();
-    const role = useSelector((state) => state.role);
     const [open, setOpen] = useState(false);
     const [userInfo, setUserInfo] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -106,9 +105,7 @@ const UserInfo = () => {
             setEmail(data[0]?.email);
             setContactNumber(data[0]?.contactNumber)
             setFileList([{url : data[0]?.profilePicture}])
-            console.log(data, 'Data')
         });
-        console.log('Mess')
     }, [dispatch]);
     const handleClose = () => setOpen(false);
     const ViewUser = (() => {
@@ -131,15 +128,11 @@ const UserInfo = () => {
             setEmail(data[0]?.email);
             setContactNumber(data[0]?.contactNumber)
             setFileList([{url : data[0]?.profilePicture}])
-            console.log(data, 'Data')
         });
         setDisableItem(false);
         setDisableButton(true);
         setDisableText(true);
     })
-    // console.log(userInfo)
-    console.log(fileList.length)
-    console.log(fileList)
     // eslint-disable-next-line
     const gridStyle = {
         width: '50%',
@@ -221,12 +214,11 @@ const UserInfo = () => {
                             firstName,
                             lastName,
                             hash_password,
-                            role: userInfo[0]?.role,
+                            roleId: userInfo[0]?.role._id,
                             contactNumber,
                             status: userInfo[0]?.status,
                             profilePicture: responseJson.result[0]
                         };
-                        console.log(data);
                         dispatch(updateUser(data)).then((data) => {
                             dispatch(getUserUsing()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
@@ -265,12 +257,11 @@ const UserInfo = () => {
                 firstName,
                 lastName,
                 hash_password,
-                role: userInfo[0]?.role,
+                roleId: userInfo[0]?.role._id,
                 contactNumber,
                 status: userInfo[0]?.status,
                 profilePicture: fileList.length!=0?fileList[0].url:null
             };
-            console.log(data);
             dispatch(updateUser(data)).then((data) => {
                 dispatch(getUserUsing()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));

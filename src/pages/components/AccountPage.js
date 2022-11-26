@@ -63,7 +63,6 @@ const AccountPage = () => {
     // }, []);
     const text = 'Bạn có chắc chắn muốn xoá?';
     const auth = useSelector((state) => state.auth);
-    const role = useSelector((state) => state.role);
     const [type, setType] = useState('');
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -77,6 +76,7 @@ const AccountPage = () => {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [userInPage, setUserInPage] = useState([]);
+    const [roleInPage, setRoleInPage] = useState([]);
     const [fileList, setFileList] = useState([]);
     const [previewVisible, setPreviewVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
@@ -91,10 +91,12 @@ const AccountPage = () => {
             setUserInPage(data);
             setLoading(false);
         });
-        dispatch(getRoles());
+        dispatch(getRoles()).then((data) => {
+            data.map((item, index) => (item.id = index + 1));
+            setRoleInPage(data);
+        });
     }, [dispatch]);
     const handlePreview = async (file) => {
-        // console.log(file);
         setPreviewImage(file.url);
         setPreviewVisible(true);
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
@@ -113,23 +115,14 @@ const AccountPage = () => {
         }
         return newArray;
     }
-
     // Filter Role
-    var filterArrayRole = removeDuplicates(userInPage, "role");
-    // console.log(filterArrayRole);
-
+    var filterArrayRole = removeDuplicates(userInPage, "role._id");
     // Filter Status
     var filterArrayStatus = removeDuplicates(userInPage, "status");
-    // console.log(filterArrayStatus);
-
     // Filter Name
     var filterArrayName = removeDuplicates(userInPage, "lastName");
-    // console.log(filterArrayName);
-
     // Filter email
     var filterArrayEmail = removeDuplicates(userInPage, "email");
-    // console.log(filterArrayEmail);
-
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         {
@@ -150,13 +143,7 @@ const AccountPage = () => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
                         {
-                            params.row.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
-                            params.row.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
-                            params.row.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
-                            params.row.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
-                            params.row.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
-                            params.row.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
-                            params.row.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                            params.row.role.nameRole
                         }
                     </div>
                 );
@@ -322,9 +309,7 @@ const AccountPage = () => {
                             status,
                             profilePicture: responseJson.result[0]
                         };
-                        console.log(data);
                         dispatch(updateUser(data)).then((data) => {
-                            console.log('run if')
                             dispatch(getDataFilterUser()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setUserInPage(data);
@@ -360,10 +345,8 @@ const AccountPage = () => {
                 status,
                 profilePicture: fileList.length!=0?fileList[0].url:null
             };
-            console.log(data);
             dispatch(updateUser(data)).then((data) => {
                 dispatch(getDataFilterUser()).then((data) => {
-                    console.log('run else')
                     data.map((item, index) => (item.id = index + 1));
                     setUserInPage(data);
                     setLoading(false);
@@ -430,8 +413,6 @@ const AccountPage = () => {
                             description: 'Xoá Tài khoản không thành công.'
                         });
                     }
-                    // console.log(temp);
-                    // console.log(data.length);
                 });
             });
 
@@ -493,7 +474,6 @@ const AccountPage = () => {
     };
     const handleSearch = () => {
         setLoading(true);
-        // console.log(searchModel);
         dispatch(getDataFilterUser(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setUserInPage(data);
@@ -620,7 +600,7 @@ const AccountPage = () => {
                                             id="demo-simple-select"
                                             onChange={(e) => setRoldId(e.target.value)}
                                         >
-                                            {role.roles.map((option) => (
+                                            {roleInPage.map((option) => (
                                                 <MenuItem value={option._id}>{option.nameRole}</MenuItem>
                                             ))}
                                         </SelectMui>
@@ -651,7 +631,6 @@ const AccountPage = () => {
                                         }}
                                         disabled={disable}
                                     >
-                                        {/* {console.log(fileList)} */}
                                         {fileList.length > 0 ? null : uploadButton}
                                     </Upload>
                                     <Modal
@@ -704,27 +683,12 @@ const AccountPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeRole}
                                             >
-                                                {filterArrayRole.map((item) => (
-                                                    <Option key={item.role} data={item.role} text= {
-                                                        item.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
-                                                        item.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
-                                                        item.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
-                                                        item.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
-                                                        item.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
-                                                        item.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
-                                                        item.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
-                                                    }>
-                                                        {/* {console.log(item)} */}
+                                                {roleInPage.map((item) => (
+                                                    <Option key={item._id} data={item._id} text= {item.nameRole}>
                                                         <div className="global-search-item">
                                                             <span>
                                                                 {
-                                                                    item.role === '63603cbd6fbb022774f83f9b' ? 'Admin' :
-                                                                    item.role === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
-                                                                    item.role === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
-                                                                    item.role === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
-                                                                    item.role === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
-                                                                    item.role === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
-                                                                    item.role === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                                                                    item.nameRole
                                                                 }
                                                             </span>
                                                         </div>
@@ -858,7 +822,7 @@ const AccountPage = () => {
                                     setLastName(selectedRows[0].lastName);
                                     setEmail(selectedRows[0].email);
                                     setHash_password(selectedRows[0].hash_password);
-                                    setRoldId(selectedRows[0].role);
+                                    setRoldId(selectedRows[0].role._id);
                                     setContactNumber(selectedRows[0].contactNumber);
                                     setStatus(selectedRows[0].status);
                                     setFileList([{ url: selectedRows[0].profilePicture }]);

@@ -41,7 +41,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getProducts } from 'actions/product';
 import { getOrders, getDataOrdersSales } from 'actions/order';
 import { getUsers } from 'actions/auth';
-import { addTotalView } from 'actions/totalView';
 import order from 'reducers/order';
 import ProductTable from './OrdersTable';
 
@@ -89,8 +88,8 @@ export const DashboardDefault = () => {
     const [orderInPage, setOrderInPage] = useState([]);
     const [userInPage, setUserInPage] = useState([]);
     const [dataSales, setDataSales] = useState([]);
-    const [startTime, setStartTime] = useState(new Date());
-    const [endTime, setEndTime] = useState(new Date());
+    const [startTime, setStartTime] = useState(new Date(Date.now() - 1000 * 60 * 60 * 7));
+    const [endTime, setEndTime] = useState(new Date(Date.now() - 1000 * 60 * 60 * 7));
     const [keyOpen, setKeyOpen] = useState('');
     var totalSales = 0;
     var totalValueProduct = 0;
@@ -121,10 +120,17 @@ export const DashboardDefault = () => {
             setProductInPage(data);
         });
     }
-    setInterval(setDataProduct, 86399000)
+
+    function convertTZ(date, tzString) {
+        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));   
+    }
+    console.log(startTime, 'Start')
+    console.log(endTime, 'End')
+
+    // setInterval(setDataProduct, 60000)
     var quantityUser = [];
     userInPage.map((item) => {
-        if(item.role === '63604156b949802220aa04c9')
+        if(item.role._id === '63604156b949802220aa04c9')
             quantityUser.push(item)
     })
     //Tong so view
@@ -147,8 +153,10 @@ export const DashboardDefault = () => {
     }
     const onChange = (dates) => {
         if(dates) {
-            dates[0]._d.setHours(0,0,0)
-            dates[1]._d.setHours(0,0,0)
+            new Date(dates[0]._d - 1000 * 60 * 60 * 7)
+            new Date(dates[1]._d - 1000 * 60 * 60 * 7)
+            // dates[0]._d.setHours(0,0,0)
+            // dates[1]._d.setHours(0,0,0)
             setStartTime(dates[0]._d);
             setEndTime(dates[1]._d);
             setKeyOpen('Open');
@@ -171,6 +179,7 @@ export const DashboardDefault = () => {
         if(startTime.getTime() !== endTime.getTime()) {
             tempOrderInPage?.map((item) => {
                 var date = parseDate(item.orderStatus[3].date);
+                // console.log(date)
                 date.setHours(0, 0, 1);
                 var dateStart = startTime;
                 dateStart.setHours(0, 0, 0);
@@ -205,8 +214,6 @@ export const DashboardDefault = () => {
     const data = {
         totalView: numberView
     }
-    // console.log(numberView)
-    setInterval(addTotalView(data),  86400000);
     return (
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
             {/* row 1 */}

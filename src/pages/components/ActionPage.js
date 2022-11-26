@@ -202,7 +202,6 @@ const ActionPage = () => {
                 actionName,
                 updatedTime: Date.now()
             };
-            console.log(data)
             dispatch(addAction(data)).then((data) => {
                 dispatch(getDataFilterAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -235,7 +234,6 @@ const ActionPage = () => {
                 actionName,
                 updatedTime: Date.now()
             };        
-            console.log(data);
             dispatch(updateAction(data)).then((data) => {
                 dispatch(getDataFilterAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));

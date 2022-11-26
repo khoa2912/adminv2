@@ -102,7 +102,6 @@ const TagPage = () => {
         setTagName('');
         handleOpen();
     };
-    
     const confirm = () => {
         if (selectedRows.length === 0) {
             notification['warning']({
@@ -206,7 +205,6 @@ const TagPage = () => {
                 parentId,
                 updatedTime: Date.now()
             };
-            console.log(data)
             dispatch(addTag(data)).then((data) => {
                 dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -239,7 +237,6 @@ const TagPage = () => {
                 tagName,
                 updatedTime: Date.now()
             };        
-            console.log(data);
             dispatch(updateTag(data)).then((data) => {
                 dispatch(getDataFilterTag()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));

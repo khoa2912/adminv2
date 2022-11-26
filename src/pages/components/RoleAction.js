@@ -79,9 +79,7 @@ const RoleActionPage = () => {
         });
         dispatch(getRoles());
         dispatch(getActions());
-        
     }, [dispatch]);
-    console.log(roleactionInPage);
     const columns = [
         { field: '_id', headerName: 'Mã Role Action', width: 200 },
         {
@@ -92,13 +90,7 @@ const RoleActionPage = () => {
                 return (
                     <div className="rowitem" style={{ textAlign: 'center' }}>
                         {
-                            params.row.roleId === '63603cbd6fbb022774f83f9b' ? 'Admin' :
-                            params.row.roleId === '63603cc76fbb022774f83fa0' ? 'Quản lý nhãn hàng' :
-                            params.row.roleId === '63603cce6fbb022774f83fa5' ? 'Quản lý sản phẩm' :
-                            params.row.roleId === '63603cd76fbb022774f83faa' ? 'Quản lý đơn hàng' :
-                            params.row.roleId === '63603ce36fbb022774f83faf' ? 'Quản lý tài khoản' :
-                            params.row.roleId === '63644405f5beeb475cc01acc' ? 'Phân quyền quản trị' :
-                            params.row.roleId === '63604156b949802220aa04c9' ? 'Khách hàng' : null
+                            params.row.roleId.nameRole
                         }
                     </div>
                 );
@@ -230,7 +222,6 @@ const RoleActionPage = () => {
             return;
         }
         const checkRoleid = roleactionInPage.find(e => e.roleId === roleId)
-        console.log(checkRoleid)
         if(checkRoleid === undefined) {
             try {
                 const data = {
@@ -238,7 +229,6 @@ const RoleActionPage = () => {
                     listAction,
                     updatedTime: Date.now()
                 };
-                console.log(data)
                 dispatch(addRoleAction(data)).then((data) => {
                     dispatch(getDataFilterRoleAction()).then((data) => {
                         data.map((item, index) => (item.id = index + 1));
@@ -281,7 +271,6 @@ const RoleActionPage = () => {
                 listAction,
                 updatedTime: Date.now()
             };        
-            console.log(data);
             dispatch(updateRoleAction(data)).then((data) => {
                 dispatch(getDataFilterRoleAction()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -397,7 +386,6 @@ const RoleActionPage = () => {
                                                         return a.actionName
                                                     })
                                                     selected = newArr;
-                                                    // console.log(selected);
                                                     return selected.join(', ')
                                                 }
                                             }
@@ -525,7 +513,7 @@ const RoleActionPage = () => {
                                 const selectedIDs = new Set(ids);
                                 const selectedRows = roleactionInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
-                                    setRoleId(selectedRows[0].roleId);
+                                    setRoleId(selectedRows[0].roleId._id);
                                     setListAction(selectedRows[0].listAction);
                                 }
                                 setSelectedRows(selectedRows);

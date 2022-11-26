@@ -215,7 +215,6 @@ const InfoProductPage = () => {
                 name,
                 typeInfo
             };
-            console.log(data)
             dispatch(createInfoProduct(data)).then((data) => {
                 dispatch(getDataFilterInfoProduct()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
@@ -248,7 +247,6 @@ const InfoProductPage = () => {
                 name,
                 typeInfo
             };        
-            console.log(data);
             dispatch(updateInfoProduct(data)).then((data) => {
                 dispatch(getDataFilterInfoProduct()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));

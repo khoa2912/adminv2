@@ -59,6 +59,7 @@ const ListScreenPage = () => {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     const [screenName, setScreenName] = useState('');
+    const [screenSlug, setScreenSlug] = useState('');
     const [open, setOpen] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
     const [listAction, setListAction] = useState([]);
@@ -75,11 +76,11 @@ const ListScreenPage = () => {
             setActionInPage(data);
         });
     }, [dispatch]);
-    console.log(screenInPage)
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         // { field: 'screenCode', headerName: 'Mã Screen', width: 130 },
         { field: 'screenName', headerName: 'Tên Screen', width: 200 },
+        { field: 'screenSlug', headerName: 'Slug', width: 200 },
         { field: 'updatedTime', headerName: 'Ngày cập nhập', width: 200 },
     ];
     const gridStyle = {
@@ -149,6 +150,7 @@ const ListScreenPage = () => {
     const handleCreate = () => {
         setType('create');
         setScreenName('');
+        setScreenSlug('');
         setListAction([]);
         handleOpen();
     };
@@ -163,6 +165,7 @@ const ListScreenPage = () => {
         try {
             const data = {
                 screenName,
+                screenSlug,
                 action: listAction,
                 updatedTime: new Date(),
             };
@@ -197,6 +200,7 @@ const ListScreenPage = () => {
             const data = {
                 _id: selectedRows[0]._id,
                 screenName,
+                screenSlug,
                 action: listAction,
                 updatedTime: new Date(),
             };        
@@ -355,6 +359,15 @@ const ListScreenPage = () => {
                                         disabled={disable}
                                         onChange={(e) => setScreenName(e.target.value)}
                                     />
+                                    <TextField
+                                        required
+                                        style={{ width: '100%', marginBottom: '15px' }}
+                                        id="outlined-error"
+                                        label="Slug"
+                                        value={screenSlug}
+                                        disabled={disable}
+                                        onChange={(e) => setScreenSlug(e.target.value)}
+                                    />
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel id="demo-multiple-checkbox-label">Action</InputLabel>
                                         <SelectMui
@@ -466,6 +479,7 @@ const ListScreenPage = () => {
                                 const selectedRows = screenInPage.filter((row) => selectedIDs.has(row._id));
                                 if (selectedRows.length === 1) {
                                     setScreenName(selectedRows[0].screenName);
+                                    setScreenSlug(selectedRows[0].screenSlug);
                                     setListAction(selectedRows[0].action);
                                 }
                                 setSelectedRows(selectedRows);

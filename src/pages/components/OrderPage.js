@@ -86,7 +86,7 @@ const OrderPage = () => {
     }, [dispatch]);
     const handleEdit = () => {};
     const text = 'Bạn có chắc chắn muốn xóa?';
-
+    
     // Filter in Order
     function removeDuplicates(startArray, prop) {
         var newArray = [];
@@ -101,26 +101,12 @@ const OrderPage = () => {
         }
         return newArray;
     }
-   
-    // Filter User
-    var filterArrayUser = removeDuplicates(orderInPage, "user");
-    // console.log(filterArrayUser);
-
     //Filter TotalAmount
     var filterArrayTotalAmount = removeDuplicates(orderInPage, "totalAmount");
-    // console.log(filterArrayTotalAmount);
-
-    //Filter Address
-    var filterArrayAddress = removeDuplicates(orderInPage, "addressId");
-    // console.log(filterArrayAddress);
-
+    //Filter UserName
+    var filterArrayUserName = removeDuplicates(orderInPage, "userObject._id");
     //Filter Paymentstatus
     var filterArrayPaymentstatus = removeDuplicates(orderInPage, "paymentStatus");
-    // console.log(filterArrayPaymentstatus);
-
-    //Filter Paymenttype
-    var filterArrayPaymenttype = removeDuplicates(orderInPage, "paymentType");
-    // console.log(filterArrayPaymenttype);
 
     const columns = [
         // { field: 'id', headerName: 'Số thứ tự', width: 150 },
@@ -177,7 +163,19 @@ const OrderPage = () => {
                 }
             }
         },
-        { field: 'paymentType', headerName: 'Loại thanh toán', width: 180 },
+        {
+            field: 'paymentType',
+            headerName: 'Loại thanh toán',
+            width: 180,
+            renderCell: (params) => {
+                if (params.value) {
+                    if(params.value === 'cod')
+                        return <div className="rowitem">{'Thanh toán khi nhận hàng'}</div>;
+                    else 
+                        return <div className="rowitem">{'Thẻ tín dụng'}</div>;
+                }
+            }
+        },
         {
             field: 'paymentStatus',
             headerName: 'Trạng thái thanh toán',
@@ -275,7 +273,6 @@ const OrderPage = () => {
                 date: new Date(),
                 type
             };        
-            console.log(data);
             if(typeofOrderStatus!== data.type && data.type!=="") {
                 
                 dispatch(updateOrder(data)).then((data) => {
@@ -292,7 +289,6 @@ const OrderPage = () => {
                             setOrderInPage(data);
                             setLoading(false);
                         });
-                        console.log(selectedRows)
                         handleClose();
                         SetType("");
                         notification['success']({
@@ -356,13 +352,8 @@ const OrderPage = () => {
         }
         return options;
     };
-    const handleCreate = () => {
-        setTypeofModal('create');
-        handleOpen();
-    };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
         dispatch(getDataFilterOrder(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setOrderInPage(data);
@@ -375,18 +366,17 @@ const OrderPage = () => {
     let disableType3;
     let disableType4;
     const resultType = (e) => {
-        // console.log(type);
         if(e === 'ordered') {
             disableType1 = true;
             disableType2 = false;
-            disableType3 = false;
-            disableType4 = false;
+            disableType3 = true;
+            disableType4 = true;
         }
         else if(e === 'packed') {
             disableType1 = true;
             disableType2 = true;
             disableType3 = false;
-            disableType4 = false;
+            disableType4 = true;
         }
         else if(e === 'shipped') {
             disableType1 = true;
@@ -408,15 +398,15 @@ const OrderPage = () => {
         {type: 'delivered'},
     ]
     const objTypePayment = [
-        {}
-    ]
-    console.log(objOrderStatus.type)
-    
+        {type: 'cod', description: 'Thanh toán khi nhận hàng'},
+        {type: 'card', description: 'Thẻ tín dụng'}
+    ] 
     const modalOrder = (typeofModal) => {
         let title;
         let disable;
         let Setonclick;
         var arraytemp;
+        var tempItems;
         var arraytempAddress;
         let quantityOrder = 0;
         var ListProductOrder = '';
@@ -426,19 +416,18 @@ const OrderPage = () => {
             disable = false;
             Setonclick = handleUpdateOrderStatus;
             const tempOrderStatus = selectedRows[0]?.orderStatus?.find(data => data.isCompleted === true);
-            console.log(tempOrderStatus);
             arraytemp = tempOrderStatus;
             typeofOrderStatus = arraytemp?.type;
             resultType(typeofOrderStatus);
-            // console.log(typeofOrderStatus);
         } else if (typeofModal === 'view') {
             title = 'Xem chi tiết đơn hàng';
             disable = true;
-            // console.log(selectedRows[0]);
             const tempOrderStatus = selectedRows[0]?.orderStatus?.find(data => data.isCompleted === true);
             const tempAddressObject = selectedRows[0]?.addressObject?.address?.find(data => data._id === selectedRows[0]?.addressId);
-            // console.log(tempOrderStatus)
-            // console.log(tempAddressObject)
+            var items = [];
+            selectedRows[0]?.items.map(e => items.push(e));
+            tempItems = items;
+            console.log(tempItems, 'Test')
             arraytemp = tempOrderStatus;
             arraytempAddress = tempAddressObject;
             selectedRows[0]?.items?.forEach(e => {
@@ -451,8 +440,6 @@ const OrderPage = () => {
                     ListProductOrder = ListProductOrder + value.productId.name + ``;
                 }
             }
-            
-            console.log(ListProductOrder);
         }
         return (
             <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -484,7 +471,7 @@ const OrderPage = () => {
                                         style={{ width: '100%', marginBottom: '15px' }}
                                         id="outlined-error"
                                         label="Mã đơn hàng"
-                                        value={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0]._id : null}
+                                        value={selectedRows[0] ? selectedRows[0]._id : null}
                                         disabled="true"
                                         
                                     />
@@ -493,7 +480,7 @@ const OrderPage = () => {
                                         id="outlined-number"
                                         label="Tổng tiền hàng"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].totalAmount : null}
+                                        value={selectedRows[0] ? formatThousand(selectedRows[0].totalAmount) + ' VNĐ' : null}
                                         disabled="true"
                                     />
                                     <TextField
@@ -501,14 +488,14 @@ const OrderPage = () => {
                                         id="outlined-number"
                                         label="Loại thanh toán"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentType : null}
+                                        value={selectedRows[0]?.paymentType === 'cod' ? 'Thanh toán khi nhận hàng' : 'Thẻ tín dụng'}
                                         disabled="true"
                                     />
                                     <FormControl style={{ width: '100%', marginBottom: '15px' }}>
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Thanh toán</InputLabel>
                                         <SelectMui
                                             disabled="true"
-                                            defaultValue={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].paymentStatus : null}
+                                            defaultValue={selectedRows[0] ? selectedRows[0].paymentStatus : null}
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                         >
@@ -520,7 +507,7 @@ const OrderPage = () => {
                                         <InputLabel id="demo-simple-select-label" disabled = {disable}>Trạng thái Đơn hàng</InputLabel>
                                         <SelectMui
                                             disabled={disable}
-                                            // defaultValue={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].orderStatus[0].type : null}
+                                            // defaultValue={selectedRows[0] ? selectedRows[0].orderStatus[0].type : null}
                                             value={type ? type : arraytemp?.type}
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
@@ -561,7 +548,7 @@ const OrderPage = () => {
                                         id="outlined-number"
                                         label="Họ và tên khách hàng"
                                         style={{ width: '100%', marginBottom: '15px' }}
-                                        value={typeofModal === 'create' ? '' : selectedRows[0] ? selectedRows[0].userObject.firstName + ' ' + selectedRows[0].userObject.lastName : null}
+                                        value={selectedRows[0] ? selectedRows[0].userObject.firstName + ' ' + selectedRows[0].userObject.lastName : null}
                                         disabled="true"
                                     />
                                     <TextField
@@ -580,22 +567,20 @@ const OrderPage = () => {
                                         value={selectedRows[0] ? selectedRows[0].userObject?.contactNumber: null}
                                         disabled="true"
                                     />
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Danh sách sản phẩm"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={ListProductOrder? ListProductOrder: null}
-                                        disabled="true"
-                                    />
-                                    <TextField
-                                        required
-                                        id="outlined-number"
-                                        label="Tổng số lượng sản phẩm"
-                                        style={{ width: '100%', marginBottom: '15px' }}
-                                        value={quantityOrder? quantityOrder: null}
-                                        disabled="true"
-                                    />
+                                    <FormControl style={{ width: '100%', marginBottom: '15px' }}>
+                                        <InputLabel id="demo-simple-select-label" disabled='true'>Danh sách sản phẩm</InputLabel>
+                                        <SelectMui
+                                            value={tempItems ? tempItems[0]?.productId._id : null}
+                                            label="Danh sách sản phẩm"
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            // onChange={}
+                                        >
+                                            {tempItems?.map((option) => (
+                                                <MenuItem disabled = 'true' value={option.productId._id}>{option.productId.name}</MenuItem>
+                                            ))}
+                                        </SelectMui>
+                                    </FormControl>
                                 </div>
                             </div>
                         </TabPane>
@@ -656,44 +641,18 @@ const OrderPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangeUser}
                                             >
-                                                {orderInPage &&
-                                                    orderInPage.map((item, index) => ( item.userObject &&
+                                                {filterArrayUserName &&
+                                                    filterArrayUserName.map((item, index) => ( item.userObject &&
                                                         <Option 
                                                             key = {item.user}
                                                             data = {item.userObject.firstName + ' ' + item.userObject.lastName}
                                                             text = {item.userObject.firstName + ' ' + item.userObject.lastName}
                                                         >
-                                                            {/* {console.log(item)} */}
                                                             <div className="global-search-item">
                                                                 <span>{item.userObject.firstName + ` ` + item.userObject.lastName}</span>
                                                             </div>
                                                         </Option>
                                                     ))}
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </CardANTD.Grid>
-                            <CardANTD.Grid style={gridStyle}>
-                                <Row>
-                                    <Col span={8}>
-                                        <Form.Item>Tổng tiền hàng</Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item>
-                                            <Select
-                                                mode="multiple"
-                                                optionFilterProp="data"
-                                                optionLabelProp="text"
-                                                onChange={handleChangeTotalAmount}
-                                            >
-                                                {filterArrayTotalAmount&&filterArrayTotalAmount.map((item) => (
-                                                    <Option key={item.totalAmount} data={item._id} text={item.totalAmount}>
-                                                        <div className="global-search-item">
-                                                            <span>{item.totalAmount}</span>
-                                                        </div>
-                                                    </Option>
-                                                ))}
                                             </Select>
                                         </Form.Item>
                                     </Col>
@@ -713,7 +672,7 @@ const OrderPage = () => {
                                                 onChange={handleChangePaymentStatus}
                                             >
                                                 {filterArrayPaymentstatus&&filterArrayPaymentstatus.map((item) => (
-                                                    <Option key={item.paymentStatus} data={item.paymentStatus} text={item.paymentStatus}>
+                                                    <Option key={item.paymentStatus} data={item.paymentStatus} text={item.paymentStatus === 'pending' ? 'Đang chờ' : 'Đã thanh toán'}>
                                                         <div className="global-search-item">
                                                             <span>{item.paymentStatus}</span>
                                                         </div>
@@ -737,10 +696,10 @@ const OrderPage = () => {
                                                 optionLabelProp="text"
                                                 onChange={handleChangePaymentType}
                                             >
-                                                {filterArrayPaymenttype&&filterArrayPaymenttype.map((item) => (
-                                                    <Option key={item.paymentType} data={item.paymentType} text={item.paymentType}>
+                                                {objTypePayment.map((item) => (
+                                                    <Option key={item.type} data={item.type} text={item.description}>
                                                         <div className="global-search-item">
-                                                            <span>{item.paymentType}</span>
+                                                            <span>{item.description}</span>
                                                         </div>
                                                     </Option>
                                                 ))}

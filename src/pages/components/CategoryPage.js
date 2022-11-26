@@ -48,7 +48,6 @@ const ComponentTypography = () => {
     };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
         dispatch(getDataFilter(searchModel)).then((data) => {
             setCategoryInPage(data);
             setLoading(false);

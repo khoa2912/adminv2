@@ -23,12 +23,15 @@ import {
 import MainCard from 'components/MainCard';
 import Transitions from 'components/@extended/Transitions';
 import ProfileTab from './ProfileTab';
+import { getUserUsing } from 'actions/auth';
 import SettingTab from './SettingTab';
 
 // assets
 
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOriginalNode } from '../../../../../../node_modules/typescript/lib/typescript';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -55,6 +58,17 @@ function a11yProps(index) {
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 const Profile = () => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [roleName, setRoleName] = useState('');
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getUserUsing()).then((data) => {
+            setFirstName(data[0]?.firstName);
+            setLastName(data[0]?.lastName);
+            setRoleName(data[0]?.role.nameRole);
+        });
+    }, [dispatch]);
     const theme = useTheme();
     const avatar1 =
         'https://media.tinmoi.vn/upload/kimngan/2021/04/14/hot-girl-tik-tok-le-thi-khanh-huyen-khoe-clip-chua-ban-tay-hu-hong-o-tuoi-17-1618389165-5.jpg';
@@ -143,9 +157,9 @@ const Profile = () => {
                                                     <Stack direction="row" spacing={1.25} alignItems="center">
                                                         <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
                                                         <Stack>
-                                                            <Typography variant="h6">Trường</Typography>
+                                                            <Typography variant="h6">{firstName + ' ' + lastName}</Typography>
                                                             <Typography variant="body2" color="textSecondary">
-                                                                Designer by me
+                                                               {roleName}
                                                             </Typography>
                                                         </Stack>
                                                     </Stack>

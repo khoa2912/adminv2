@@ -75,7 +75,6 @@ const BannerPage = () => {
     const handleCancel = () => setPreviewVisible(false);
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
     const handlePreview = async (file) => {
-        console.log(file);
         setPreviewImage(file.url);
         setPreviewVisible(true);
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
@@ -178,8 +177,6 @@ const BannerPage = () => {
                             description: 'Xoá Banner không thành công.'
                         });
                     }
-                    console.log(temp);
-                    console.log(data.length);
                 });
             });
 
@@ -218,7 +215,6 @@ const BannerPage = () => {
     };
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
         dispatch(getDataFilterBanner(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setBannerInPage(data);
@@ -319,8 +315,6 @@ const BannerPage = () => {
         }
     };
     const handleUpdateBanner = async () => {
-        console.log(selectedRows[0]);
-        console.log(fileList);
         // if (!fileList) return;
         const list = [];
         if(fileList&&fileList[0]&&fileList[0].type!=null)
@@ -354,15 +348,12 @@ const BannerPage = () => {
                             slug,
                             image: responseJson.result[0]
                         };
-                        console.log(data);
                         dispatch(updateBanner(data)).then((data) => {
-                            console.log('run if')
                             dispatch(getDataFilterBanner()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setBannerInPage(data);
                                 setLoading(false);
                             });
-                            console.log(data);
                             if (data === 'success') {
                                 handleClose();
                                 notification['success']({
@@ -392,15 +383,12 @@ const BannerPage = () => {
                 slug,
                 image: fileList.length!=0?fileList[0].url:null
             };
-            console.log(data);
             dispatch(updateBanner(data)).then((data) => {
-                console.log('run else')
                 dispatch(getDataFilterBanner()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setBannerInPage(data);
                     setLoading(false);
                 });
-                console.log(data);
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
@@ -499,7 +487,6 @@ const BannerPage = () => {
                                             return false;
                                         }}
                                     >
-                                        {/* {console.log(fileList)} */}
                                         {fileList.length > 0 ? null : uploadButton}
                                     </Upload>
                                     <Modal

@@ -34,7 +34,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { notification, Popconfirm } from 'antd';
 import { Tabs } from 'antd';
 import formatThousand from 'util/formatThousans';
-import { deleteProductById, getDataFilter, getProducts, getProductWarning, editProduct, getProductRelated } from 'actions/product';
+import { deleteProductById, getDataFilterProduct, getProducts, getProductWarning, editProduct, getProductRelated } from 'actions/product';
 import { getAllCategory } from 'actions/category';
 import { getTags } from 'actions/tag';
 import { getInfoProducts } from 'actions/infoProduct';
@@ -161,7 +161,7 @@ const ComponentColor = () => {
     
     useEffect(() => {
         setLoading(true);
-        dispatch(getDataFilter()).then((data) => {
+        dispatch(getDataFilterProduct()).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
             setLoading(false);
@@ -217,9 +217,6 @@ const ComponentColor = () => {
             }
 
         })
-        console.log(fileList);
-        console.log(tempFileListImgUpload);
-        console.log(tempFileListImg);
         
         const objFilterColor = filterColor?.find(data => data._id === color);
         const objFilterRam = filterRam?.find(data => data._id === ram);
@@ -250,7 +247,6 @@ const ComponentColor = () => {
                     })
                     .then((responseJson) => {
                         const mergeImg = tempFileListImg.concat(responseJson.result)
-                        console.log(mergeImg);
                         const data = {
                             _id: selectedRows[0]._id,
                             cpuId: objFilterCpu ? objFilterCpu._id : '',
@@ -281,13 +277,11 @@ const ComponentColor = () => {
                             khoiluong
                         };
                         dispatch(editProduct(data)).then((data) => {
-                            console.log('run if')
-                            dispatch(getDataFilter()).then((data) => {
+                            dispatch(getDataFilterProduct()).then((data) => {
                                 data.map((item, index) => (item.id = index + 1));
                                 setProductInPage(data);
                                 setLoading(false);
                             });
-                            console.log(data);
                             if (data === 'success') {
                                 handleClose();
                                 notification['success']({
@@ -309,7 +303,6 @@ const ComponentColor = () => {
             }
         }
         else {
-            // console.log(fileList)
             const data = {
                 _id: selectedRows[0]._id,
                 cpuId: objFilterCpu ? objFilterCpu._id : '',
@@ -339,15 +332,12 @@ const ComponentColor = () => {
                 hedieuhanh,
                 khoiluong
             };
-            console.log(data);
             dispatch(editProduct(data)).then((data) => {
-                console.log('run else')
-                dispatch(getDataFilter()).then((data) => {
+                dispatch(getDataFilterProduct()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setProductInPage(data);
                     setLoading(false);
                 });
-                console.log(data);
                 if (data === 'success') {
                     handleClose();
                     notification['success']({
@@ -461,7 +451,7 @@ const ComponentColor = () => {
                 productId: listIdProduct
             };
             dispatch(deleteProductById(payload)).then((data) => {
-                dispatch(getDataFilter()).then((data) => {
+                dispatch(getDataFilterProduct()).then((data) => {
                     data.map((item, index) => (item.id = index + 1));
                     setProductInPage(data);
                     if(data === 'success') {
@@ -498,7 +488,6 @@ const ComponentColor = () => {
             // });
             setType('edit');
             handleOpen();
-            console.log(categoryId)
         }
     };
     const createCategoryList = (categories, options = []) => {
@@ -540,16 +529,10 @@ const ComponentColor = () => {
    
     // Filter Name
     var filterArrayName = removeDuplicates(product.products, "name");
-    // console.log(filterArrayName);
-
-    // Filter Price
-    var filterArrayPrice = removeDuplicates(product.products, "salePrice");
-    // console.log(filterArrayPrice);
 
     const handleSearch = () => {
         setLoading(true);
-        console.log(searchModel);
-        dispatch(getDataFilter(searchModel)).then((data) => {
+        dispatch(getDataFilterProduct(searchModel)).then((data) => {
             data.map((item, index) => (item.id = index + 1));
             setProductInPage(data);
             setLoading(false);
@@ -569,7 +552,6 @@ const ComponentColor = () => {
         const {
           target: { value },
         } = e;
-        console.log(e)
         setListTag(
           // On autofill we get a stringified value.
           typeof value === 'string' ? value.split(',') : value,
@@ -1075,7 +1057,6 @@ const ComponentColor = () => {
                         getRowId={(row) => row._id}
                         // onRowClick={(newSelection) => {
                         //     setArraySelect((arraySelect) => [...arraySelect, newSelection]);
-                        //     console.log(arraySelect);
                         // }}
                         onSelectionModelChange={(ids) => {
                             const selectedIDs = new Set(ids);

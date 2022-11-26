@@ -11,9 +11,11 @@ export var login = (user) => {
             });
 
             if (res.status === 200) {
-                const { token } = res.data;
+                const { token, datamap } = res.data;
                 localStorage.setItem('refreshtoken', token);
-
+                localStorage.setItem('screenrole', JSON.stringify(datamap));
+                // var localStorageTest = JSON.parse(localStorage.getItem('screenrole'));
+                // console.log(localStorageTest)
                 dispatch({
                     type: authConstants.LOGIN_SUCCESS,
                     payload: {

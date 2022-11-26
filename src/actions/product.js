@@ -78,7 +78,7 @@ export var addProduct = (form) => {
         }
     };
 };
-export var getDataFilter = (searchModel) => {
+export var getDataFilterProduct = (searchModel) => {
     return async (dispatch) => {
         try {
             const res = await axios.post('/product/getDataFilter', searchModel);

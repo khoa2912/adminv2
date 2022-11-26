@@ -73,7 +73,6 @@ const RolePage = () => {
             setLoading(false);
         });
     }, [dispatch]);
-    console.log(roleInPage)
     const columns = [
         { field: 'id', headerName: 'STT', width: 100 },
         { field: 'nameRole', headerName: 'Tên vai trò', width: 150 },
@@ -210,7 +209,6 @@ const RolePage = () => {
                     data.map((item, index) => (item.id = index + 1));
                     setRoleInPage(data);
                 });
-                console.log(data)
                 if (data === 'success') {
                     notification['success']({
                         message: 'Thêm mới Role',
@@ -409,9 +407,6 @@ const RolePage = () => {
                     </Popconfirm>
                     <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={handleEdit}>
                         Chỉnh sửa
-                    </Button>
-                    <Button variant="outlined" style={{ cursor: 'pointer' }} onClick={hanlePermistion}>
-                        Phân quyền
                     </Button>
                 </Stack>
                 {modalUser(type)}
