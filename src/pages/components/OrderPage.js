@@ -154,22 +154,17 @@ const OrderPage = () => {
       },
     },
     {
-      field: "addressObject",
+      field: "addressId",
       headerName: "Địa chỉ",
       width: 200,
-      renderCell: (params) => {
+      renderCell: (params, row) => {
+        console.log(params);
         if (params.value) {
-          for (let i = 0; i < 6; i++) {
-            if (params.value.address[i]._id === params.row.addressId) {
-              return (
-                <div className="rowitem">
-                  {params.value.address[i].districtName +
-                    ", " +
-                    params.value.address[i].provinceName}
-                </div>
-              );
-            }
-          }
+          return (
+            <div className="rowitem">
+              {params.value.districtName + ", " + params.value.provinceName}
+            </div>
+          );
         }
       },
     },
@@ -178,6 +173,8 @@ const OrderPage = () => {
       headerName: "Trạng thái đơn hàng",
       width: 180,
       renderCell: (params) => {
+        if (params?.row?.paymentStatus === "cancelled")
+          return <div className="rowitem">{"Đã huỷ"}</div>;
         if (params.value) {
           for (let i = 0; i < 4; i++) {
             if (params.value[i].isCompleted === true) {
@@ -213,21 +210,12 @@ const OrderPage = () => {
         if (params.value) {
           if (params.value == "pending")
             return <div className="rowitem">{"Đang chờ"}</div>;
+          else if (params.value === "completed")
+            return <div className="rowitem">{"Đã thanh toán"}</div>;
           else return <div className="rowitem">{"Đã hủy"}</div>;
         }
       },
     },
-    // {
-    //     field: 'totalAmount',
-    //     headerName: 'Tổng tiền hàng',
-    //     width: 200,
-    //     renderCell: (params) => {
-    //         if (params.row.shipAmount === undefined) {
-    //             return <div className="rowitem">{formatThousand(`${params.row.totalAmount}`)} VND</div>;
-    //         }
-    //         return <div className="rowitem">{formatThousand(`${params.row.totalAmount}` - `${params.row.shipAmount}`)} VND</div>;
-    //     }
-    // }
     {
       field: "totalAmount",
       headerName: "Tổng tiền hàng",
@@ -552,6 +540,7 @@ const OrderPage = () => {
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
                     >
+                      <MenuItem value={"completed"}>Đã hoàn thành</MenuItem>
                       <MenuItem value={"pending"}>Đang chờ</MenuItem>
                       <MenuItem value={"cancelled"}>Đã hủy</MenuItem>
                     </SelectMui>
@@ -564,7 +553,10 @@ const OrderPage = () => {
                       Trạng thái Đơn hàng
                     </InputLabel>
                     <SelectMui
-                      disabled={disable}
+                      disabled={
+                        disable ||
+                        selectedRows[0]?.paymentStatus === "cancelled"
+                      }
                       // defaultValue={selectedRows[0] ? selectedRows[0].orderStatus[0].type : null}
                       value={type ? type : arraytemp?.type}
                       labelId="demo-simple-select-label"
@@ -582,6 +574,9 @@ const OrderPage = () => {
                       </MenuItem>
                       <MenuItem value={"delivered"} disabled={disableType4}>
                         Đã nhận
+                      </MenuItem>
+                      <MenuItem value={"delivered"} disabled={disableType4}>
+                        Đã huỷ
                       </MenuItem>
                     </SelectMui>
                   </FormControl>

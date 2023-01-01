@@ -103,7 +103,14 @@ const ListScreenPage = () => {
     // { field: 'screenCode', headerName: 'Mã Screen', width: 130 },
     { field: "screenName", headerName: "Tên Screen", width: 200 },
     { field: "screenSlug", headerName: "Slug", width: 200 },
-    { field: "updatedTime", headerName: "Ngày cập nhập", width: 200 },
+    {
+      field: "updatedTime",
+      headerName: "Ngày cập nhập",
+      width: 200,
+      renderCell: (params) => (
+        <div>{moment(params.value).format("HH:MM DD/MM/YYYY")}</div>
+      ),
+    },
   ];
   const gridStyle = {
     width: "50%",

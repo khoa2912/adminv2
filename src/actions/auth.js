@@ -22,7 +22,9 @@ export var login = (user) => {
             token,
           },
         });
-        dispatch(getToken(token));
+        dispatch(getToken(token)).then(() => {
+          dispatch(getUsers());
+        });
         dispatch(getProducts());
       } else {
         dispatch({

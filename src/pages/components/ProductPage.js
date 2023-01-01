@@ -60,6 +60,7 @@ import {
   SettingsBackupRestoreSharp,
 } from "../../../node_modules/@mui/icons-material/index";
 import tag from "reducers/tag";
+import { api } from "urlConfig";
 
 // ===============================|| COLOR BOX ||=============================== //
 const { TabPane } = Tabs;
@@ -135,6 +136,7 @@ const ComponentColor = () => {
   const [name, setName] = useState("");
   const [file, setFile] = useState([]);
   const [quantity, setQuantity] = useState("");
+  const [quantitySold, setQuantitySold] = useState("");
   const [regularPrice, setRegularPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [description, setDescription] = useState("");
@@ -260,7 +262,7 @@ const ComponentColor = () => {
         }
       }
       try {
-        await fetch("http://localhost:3001/product/uploadPicture", {
+        await fetch(`${api}/product/uploadPicture`, {
           method: "POST",
           body: JSON.stringify({ data: list }),
           headers: { "Content-Type": "application/json" },
@@ -411,6 +413,19 @@ const ComponentColor = () => {
         return (
           <div className="rowitem" style={{ textAlign: "center" }}>
             {formatThousand(params.row.quantity)}{" "}
+          </div>
+        );
+      },
+    },
+    {
+      field: "quantitySold",
+      headerName: "Số lượng đã bán",
+      type: "number",
+      width: 150,
+      renderCell: (params) => {
+        return (
+          <div className="rowitem" style={{ textAlign: "center" }}>
+            {formatThousand(params.value)}
           </div>
         );
       },
@@ -669,7 +684,18 @@ const ComponentColor = () => {
                       setQuantity(e.target.value);
                     }}
                   />
-
+                  <TextField
+                    required
+                    id="outlined-number"
+                    label="Số lượng đã bán"
+                    type="number"
+                    style={{ width: "100%", marginBottom: "15px" }}
+                    defaultValue={quantitySold ? quantitySold : 0}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    disabled={true}
+                  />
                   <FormControl
                     fullWidth
                     style={{ width: "100%", marginBottom: "15px" }}
@@ -1255,6 +1281,7 @@ const ComponentColor = () => {
                 setRegularPrice(selectedRows[0].regularPrice);
                 setSalePrice(selectedRows[0].salePrice);
                 setQuantity(selectedRows[0].quantity);
+                setQuantitySold(selectedRows[0].quantitySold);
                 setCategoryId(selectedRows[0].category._id);
                 setFileList(selectedRows[0].productPicture);
                 setDescription(selectedRows[0].description);

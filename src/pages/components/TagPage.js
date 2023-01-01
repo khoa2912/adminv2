@@ -51,6 +51,7 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import { object } from "prop-types";
 import { useNavigate } from "react-router-dom";
+import moment from "../../../node_modules/moment/moment";
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled("iframe")(() => ({
@@ -100,8 +101,22 @@ const TagPage = () => {
   const columns = [
     { field: "_id", headerName: "Mã Tag", width: 200 },
     { field: "tagName", headerName: "Tên Tag", width: 300 },
-    { field: "createdTime", headerName: "Mô tả", width: 250 },
-    { field: "updatedTime", headerName: "Mô tả", width: 250 },
+    {
+      field: "createdTime",
+      headerName: "Thời gian tạo",
+      width: 250,
+      renderCell: (params) => (
+        <div>{moment(params.value).format("HH:MM DD/MM/YYYY")}</div>
+      ),
+    },
+    {
+      field: "updatedTime",
+      headerName: "Thời gian cập nhật",
+      width: 250,
+      renderCell: (params) => (
+        <div>{moment(params.value).format("HH:MM DD/MM/YYYY")}</div>
+      ),
+    },
   ];
   // eslint-disable-next-line
   const [selectedRows, setSelectedRows] = useState([]);
