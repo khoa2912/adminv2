@@ -49,6 +49,7 @@ import {
 } from "actions/screen";
 import { getActions } from "actions/action";
 import { useNavigate } from "react-router-dom";
+import moment from "../../../node_modules/moment/moment";
 const { TabPane } = Tabs;
 // styles
 const IFrameWrapper = styled("iframe")(() => ({

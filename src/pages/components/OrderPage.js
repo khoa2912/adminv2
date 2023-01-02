@@ -575,9 +575,6 @@ const OrderPage = () => {
                       <MenuItem value={"delivered"} disabled={disableType4}>
                         Đã nhận
                       </MenuItem>
-                      <MenuItem value={"delivered"} disabled={disableType4}>
-                        Đã huỷ
-                      </MenuItem>
                     </SelectMui>
                   </FormControl>
                 </div>
