@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkmantis_free_react_admin_template=self.webpackChunkmantis_free_react_admin_template||[]).push([[678],{32678:function(e,t,n){n.r(t);n(67560);var i=n(80184);t.default=function(){return(0,i.jsxs)("div",{style:{maxHeight:"200px"},children:[(0,i.jsx)("img",{style:{width:"80%",height:"700px"},src:"https://img.freepik.com/free-vector/neon-coming-soon-background_52683-59079.jpg?w=2000",alt:"logo"})," "]})}}}]);
+//# sourceMappingURL=678.fb362578.chunk.js.map
